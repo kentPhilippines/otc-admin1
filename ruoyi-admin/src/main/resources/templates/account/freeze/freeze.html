@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('抵押流水记录列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>账户地址：</label>
+                                <input type="text" name="address"/>
+                            </li>
+
+                            <li>
+                                <label>交易id：</label>
+                                <input type="text" name="txId"/>
+                            </li>
+                            <li>
+                                <label>交换资源：</label>
+                                <select class="form-control" name="exchangeResourceType" th:with="type=${@dict.getType('sys_trx_exchange')}">
+                                    <option value="">所有</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <label>创建时间：</label>
+                                <input type="text" class="time-input" placeholder="请选择创建时间" name="fcd"/>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="account:freeze:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+              <!--  <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="account:freeze:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="account:freeze:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>-->
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="account:freeze:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('account:freeze:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('account:freeze:remove')}]];
+        var prefix = ctx + "account/freeze";
+        var datas = [[${@dict.getType('sys_trx_exchange')}]];
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "抵押流水记录",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'idFreezeBalanceInfo',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'address',
+                    title: '账户地址'
+                },
+                {
+                    field: 'freezeTrxAmount',
+                    title: '抵押金额TRX'
+                },
+                {
+                    field: 'exchangeResourceType',
+                    title: '交换资源',
+                    formatter: function(value, item, index) {
+                        return $.table.selectDictLabel(datas, item.exchangeResourceType);
+                    }
+                },
+                {
+                    field: 'txId',
+                    title: '交易id'
+                },
+                    {
+                        field: 'fcd',
+                        title: '创建时间'
+                    },
+                    {
+                        field: 'fcu',
+                        title: '创建用户'
+                    },
+                    {
+                        field: 'lcd',
+                        title: '更新时间'
+                    },
+                    {
+                        field: 'lcu',
+                        title: '更新用户'
+                    },
+
+                    {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        /*actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.idFreezeBalanceInfo + '\')"><i class="fa fa-edit"></i>编辑</a> ');*/
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.idFreezeBalanceInfo + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改租户')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-tenant-edit" th:object="${tenantInfo}">
+        <input name="idTenantInfo" th:field="*{idTenantInfo}" type="hidden">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">接收能量地址：</label>
+            <div class="col-sm-8">
+                <input name="receiverAddress" th:field="*{receiverAddress}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">监控入账地址：</label>
+            <div class="col-sm-8">
+               <!-- <input name="accountAddress" th:field="*{accountAddress}" class="form-control" type="text">-->
+                <select id="monitorAddress"  name="monitorAddress" class="form-control " >
+                    <option th:each="monitorAddressInfo:${monitorAddressInfoList}" th:value="${monitorAddressInfo.monitorAddress}" th:text="${monitorAddressInfo.monitorAddress}" th:field="*{monitorAddress}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">单价：</label>
+            <div class="col-sm-8">
+                <input name="price" th:field="*{price}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">笔数：</label>
+            <div class="col-sm-8">
+                <select name="transferCount" class="form-control m-b" th:with="type=${@dict.getType('sys_transfer_number')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{transferCount}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">交易单位：</label>
+            <div class="col-sm-8">
+                <select name="exchangeUnit" class="form-control m-b" th:with="type=${@dict.getType('sys_monitor_type')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{exchangeUnit}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">交易总额：</label>
+            <div class="col-sm-8">
+                <input name="exchangeAmount" th:field="*{exchangeAmount}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否到账：</label>
+            <div class="col-sm-8">
+                <select name="isPaid" class="form-control m-b" th:with="type=${@dict.getType('sys_is_paid')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{isPaid}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">租期：</label>
+            <div class="col-sm-8">
+                <select name="period" class="form-control m-b" th:with="type=${@dict.getType('sys_lock_period_day')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{period}"></option>
+                </select>
+            </div>
+        </div>
+
+        <input name="fcd" th:value="${#dates.format(tenantInfo.fcd, 'yyyy-MM-dd HH:mm:ss')}"  type="hidden">
+
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<script th:inline="javascript">
+    var prefix = ctx + "account/tenant";
+    $("#form-tenant-edit").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/edit", $('#form-tenant-edit').serialize());
+        }
+    }
+
+    $("input[name='finishTransferTime']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+    $("input[name='fcd']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+    $("input[name='lcd']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+</script>
+</body>
+</html>

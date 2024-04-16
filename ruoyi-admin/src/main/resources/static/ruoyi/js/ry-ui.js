@@ -1103,6 +1103,19 @@ var table = {
                 }
                 return url;
             },
+            //触发
+            activeData: function(id) {
+                table.set();
+                $.modal.confirm("确定手动发起" + table.options.modalName + "交易吗？", function() {
+                    var url = $.common.isEmpty(id) ? table.options.activeDataUrl : table.options.activeDataUrl.replace("{id}", id);
+                    if (table.options.type == table_type.bootstrapTreeTable) {
+                        $.operate.get(url);
+                    } else {
+                        var data = { "ids": id };
+                        $.operate.submit(url, "post", "json", data);
+                    }
+                });
+            },
             // 删除信息
             remove: function(id) {
                 table.set();

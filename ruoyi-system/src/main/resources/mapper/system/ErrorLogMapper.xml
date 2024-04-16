@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ErrorLogMapper">
+    
+    <resultMap type="ErrorLog" id="ErrorLogResult">
+        <result property="idErrorLog"    column="id_error_log"    />
+        <result property="address"    column="address"    />
+        <result property="trxId"    column="trx_id"    />
+        <result property="otherId"    column="other_id"    />
+        <result property="errorCode"    column="error_code"    />
+        <result property="errorMsg"    column="error_msg"    />
+        <result property="fcd"    column="fcd"    />
+        <result property="fcu"    column="fcu"    />
+        <result property="lcd"    column="lcd"    />
+        <result property="lcu"    column="lcu"    />
+    </resultMap>
+
+    <sql id="selectErrorLogVo">
+        select id_error_log, address, trx_id, other_id, error_code, error_msg, fcd, fcu, lcd, lcu from error_log
+    </sql>
+
+    <select id="selectErrorLogList" parameterType="ErrorLog" resultMap="ErrorLogResult">
+        <include refid="selectErrorLogVo"/>
+        <where>  
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="trxId != null  and trxId != ''"> and trx_id = #{trxId}</if>
+            <if test="otherId != null  and otherId != ''"> and other_id = #{otherId}</if>
+            <if test="errorCode != null  and errorCode != ''"> and error_code = #{errorCode}</if>
+            <if test="errorMsg != null  and errorMsg != ''"> and error_msg = #{errorMsg}</if>
+            <if test="fcd != null "> and fcd = #{fcd}</if>
+            <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
+            <if test="lcd != null "> and lcd = #{lcd}</if>
+            <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
+        </where>
+    </select>
+    
+    <select id="selectErrorLogByIdErrorLog" parameterType="Long" resultMap="ErrorLogResult">
+        <include refid="selectErrorLogVo"/>
+        where id_error_log = #{idErrorLog}
+    </select>
+        
+    <insert id="insertErrorLog" parameterType="ErrorLog" useGeneratedKeys="true" keyProperty="idErrorLog">
+        insert into error_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="address != null">address,</if>
+            <if test="trxId != null">trx_id,</if>
+            <if test="otherId != null">other_id,</if>
+            <if test="errorCode != null">error_code,</if>
+            <if test="errorMsg != null">error_msg,</if>
+            <if test="fcd != null">fcd,</if>
+            <if test="fcu != null">fcu,</if>
+            <if test="lcd != null">lcd,</if>
+            <if test="lcu != null">lcu,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="address != null">#{address},</if>
+            <if test="trxId != null">#{trxId},</if>
+            <if test="otherId != null">#{otherId},</if>
+            <if test="errorCode != null">#{errorCode},</if>
+            <if test="errorMsg != null">#{errorMsg},</if>
+            <if test="fcd != null">#{fcd},</if>
+            <if test="fcu != null">#{fcu},</if>
+            <if test="lcd != null">#{lcd},</if>
+            <if test="lcu != null">#{lcu},</if>
+         </trim>
+    </insert>
+
+    <update id="updateErrorLog" parameterType="ErrorLog">
+        update error_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="address != null">address = #{address},</if>
+            <if test="trxId != null">trx_id = #{trxId},</if>
+            <if test="otherId != null">other_id = #{otherId},</if>
+            <if test="errorCode != null">error_code = #{errorCode},</if>
+            <if test="errorMsg != null">error_msg = #{errorMsg},</if>
+            <if test="fcd != null">fcd = #{fcd},</if>
+            <if test="fcu != null">fcu = #{fcu},</if>
+            <if test="lcd != null">lcd = #{lcd},</if>
+            <if test="lcu != null">lcu = #{lcu},</if>
+        </trim>
+        where id_error_log = #{idErrorLog}
+    </update>
+
+    <delete id="deleteErrorLogByIdErrorLog" parameterType="Long">
+        delete from error_log where id_error_log = #{idErrorLog}
+    </delete>
+
+    <delete id="deleteErrorLogByIdErrorLogs" parameterType="String">
+        delete from error_log where id_error_log in 
+        <foreach item="idErrorLog" collection="array" open="(" separator="," close=")">
+            #{idErrorLog}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,7 +1,8 @@
 package com.ruoyi.common.enums;
 
-import java.util.function.Function;
 import com.ruoyi.common.utils.DesensitizedUtil;
+
+import java.util.function.Function;
 
 /**
  * 脱敏类型
@@ -43,7 +44,9 @@ public enum DesensitizedType
     /**
      * 车牌号码，包含普通车辆、新能源车辆
      */
-    CAR_LICENSE(DesensitizedUtil::carLicense);
+    CAR_LICENSE(DesensitizedUtil::carLicense),
+
+    WALLET_ADDRESS(s -> s.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
 
     private final Function<String, String> desensitizer;
 
@@ -56,4 +59,5 @@ public enum DesensitizedType
     {
         return desensitizer;
     }
+
 }

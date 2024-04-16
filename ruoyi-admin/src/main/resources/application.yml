@@ -16,7 +16,7 @@ ruoyi:
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为80
-  port: 80
+  port: 8080
   servlet:
     # 应用的访问路径
     context-path: /
@@ -73,6 +73,28 @@ spring:
       # 热部署开关
       enabled: true
 
+  redis:
+    # Redis数据库索引（默认为0）
+    database: 4
+    # Redis服务器地址
+    host: 127.0.0.1
+    # Redis服务器连接端口
+    port: 6379
+    # Redis服务器连接密码（默认为空）
+    password: myredis
+    jedis:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制）
+        max-active: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1
+        # 连接池中的最大空闲连接
+        max-idle: 8
+        # 连接池中的最小空闲连接
+        min-idle: 0
+    # 连接超时时间（毫秒）
+    timeout: 2000
+
 # MyBatis
 mybatis:
   # 搜索指定包别名
@@ -81,6 +103,8 @@ mybatis:
   mapperLocations: classpath*:mapper/**/*Mapper.xml
   # 加载全局的配置文件
   configLocation: classpath:mybatis/mybatis-config.xml
+  configuration:
+    map-underscore-to-camel-case: true
 
 # PageHelper分页插件
 pagehelper:
@@ -140,3 +164,5 @@ xss:
 swagger:
   # 是否开启swagger
   enabled: true
+
+

@@ -27,6 +27,8 @@ public enum BusinessType
      */
     DELETE,
 
+    ACTIVE_DATA,
+
     /**
      * 授权
      */

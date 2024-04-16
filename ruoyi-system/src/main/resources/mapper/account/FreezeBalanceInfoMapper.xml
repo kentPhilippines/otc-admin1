@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.FreezeBalanceInfoMapper">
+
+    <resultMap type="FreezeBalanceInfo" id="FreezeBalanceInfoResult">
+        <result property="idFreezeBalanceInfo"    column="id_freeze_balance_info"    />
+        <result property="address"    column="address"    />
+        <result property="freezeTrxAmount"    column="freeze_trx_amount"    />
+        <result property="exchangeResourceType"    column="exchange_resource_type"    />
+        <result property="txId"    column="tx_id"    />
+        <result property="fcd"    column="fcd"    />
+        <result property="fcu"    column="fcu"    />
+        <result property="lcd"    column="lcd"    />
+        <result property="lcu"    column="lcu"    />
+    </resultMap>
+
+    <sql id="selectFreezeBalanceInfoVo">
+        select id_freeze_balance_info, address, freeze_trx_amount, exchange_resource_type, tx_id, fcd, fcu, lcd, lcu from freeze_balance_info
+    </sql>
+
+    <select id="selectFreezeBalanceInfoList" parameterType="FreezeBalanceInfo" resultMap="FreezeBalanceInfoResult">
+        <include refid="selectFreezeBalanceInfoVo"/>
+        <where>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="freezeTrxAmount != null "> and freeze_trx_amount = #{freezeTrxAmount}</if>
+            <if test="exchangeResourceType != null  and exchangeResourceType != ''"> and exchange_resource_type = #{exchangeResourceType}</if>
+            <if test="txId != null  and txId != ''"> and tx_id = #{txId}</if>
+            <if test="fcd != null "> and fcd = #{fcd}</if>
+            <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
+            <if test="lcd != null "> and lcd = #{lcd}</if>
+            <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
+        </where>
+    </select>
+
+    <select id="selectFreezeBalanceInfoByIdFreezeBalanceInfo" parameterType="Long" resultMap="FreezeBalanceInfoResult">
+        <include refid="selectFreezeBalanceInfoVo"/>
+        where id_freeze_balance_info = #{idFreezeBalanceInfo}
+    </select>
+
+    <insert id="insertFreezeBalanceInfo" parameterType="FreezeBalanceInfo" useGeneratedKeys="true" keyProperty="idFreezeBalanceInfo">
+        insert into freeze_balance_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="address != null">address,</if>
+            <if test="freezeTrxAmount != null">freeze_trx_amount,</if>
+            <if test="exchangeResourceType != null">exchange_resource_type,</if>
+            <if test="txId != null">tx_id,</if>
+            <if test="fcd != null">fcd,</if>
+            <if test="fcu != null">fcu,</if>
+            <if test="lcd != null">lcd,</if>
+            <if test="lcu != null">lcu,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="address != null">#{address},</if>
+            <if test="freezeTrxAmount != null">#{freezeTrxAmount},</if>
+            <if test="exchangeResourceType != null">#{exchangeResourceType},</if>
+            <if test="txId != null">#{txId},</if>
+            <if test="fcd != null">#{fcd},</if>
+            <if test="fcu != null">#{fcu},</if>
+            <if test="lcd != null">#{lcd},</if>
+            <if test="lcu != null">#{lcu},</if>
+        </trim>
+    </insert>
+
+    <update id="updateFreezeBalanceInfo" parameterType="FreezeBalanceInfo">
+        update freeze_balance_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="address != null">address = #{address},</if>
+            <if test="freezeTrxAmount != null">freeze_trx_amount = #{freezeTrxAmount},</if>
+            <if test="exchangeResourceType != null">exchange_resource_type = #{exchangeResourceType},</if>
+            <if test="txId != null">tx_id = #{txId},</if>
+            <if test="fcd != null">fcd = #{fcd},</if>
+            <if test="fcu != null">fcu = #{fcu},</if>
+            <if test="lcd != null">lcd = #{lcd},</if>
+            <if test="lcu != null">lcu = #{lcu},</if>
+        </trim>
+        where id_freeze_balance_info = #{idFreezeBalanceInfo}
+    </update>
+
+    <delete id="deleteFreezeBalanceInfoByIdFreezeBalanceInfo" parameterType="Long">
+        delete from freeze_balance_info where id_freeze_balance_info = #{idFreezeBalanceInfo}
+    </delete>
+
+    <delete id="deleteFreezeBalanceInfoByIdFreezeBalanceInfos" parameterType="String">
+        delete from freeze_balance_info where id_freeze_balance_info in
+        <foreach item="idFreezeBalanceInfo" collection="array" open="(" separator="," close=")">
+            #{idFreezeBalanceInfo}
+        </foreach>
+    </delete>
+
+</mapper>

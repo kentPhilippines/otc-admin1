@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.MonitorAddressInfoMapper">
+
+    <resultMap type="MonitorAddressInfo" id="MonitorAddressInfoResult">
+        <result property="idMonitorAddress"    column="id_monitor_address"    />
+        <result property="monitorAddress"    column="monitor_address"    />
+        <result property="accountAddress"    column="account_address"    />
+        <result property="price"    column="price"    />
+        <result property="monitorType"    column="monitor_type"    />
+        <result property="apiKey"    column="api_key"    />
+        <result property="isValid"    column="is_valid"    />
+        <result property="fcd"    column="fcd"    />
+        <result property="fcu"    column="fcu"    />
+        <result property="lcd"    column="lcd"    />
+        <result property="lcu"    column="lcu"    />
+    </resultMap>
+
+    <sql id="selectMonitorAddressInfoVo">
+        select id_monitor_address, monitor_address, account_address, price, monitor_type, api_key, is_valid, fcd, fcu, lcd, lcu from monitor_address_info
+    </sql>
+
+    <select id="selectMonitorAddressInfoList" parameterType="MonitorAddressInfo" resultMap="MonitorAddressInfoResult">
+        <include refid="selectMonitorAddressInfoVo"/>
+        <where>
+            <if test="monitorAddress != null  and monitorAddress != ''"> and monitor_address = #{monitorAddress}</if>
+            <if test="accountAddress != null  and accountAddress != ''"> and account_address = #{accountAddress}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="monitorType != null  and monitorType != ''"> and monitor_type = #{monitorType}</if>
+            <if test="apiKey != null  and apiKey != ''"> and api_key = #{apiKey}</if>
+            <if test="isValid != null  and isValid != ''"> and is_valid = #{isValid}</if>
+            <if test="fcd != null "> and fcd = #{fcd}</if>
+            <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
+            <if test="lcd != null "> and lcd = #{lcd}</if>
+            <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
+        </where>
+    </select>
+
+    <select id="selectMonitorAddressInfoByIdMonitorAddress" parameterType="Long" resultMap="MonitorAddressInfoResult">
+        <include refid="selectMonitorAddressInfoVo"/>
+        where id_monitor_address = #{idMonitorAddress}
+    </select>
+
+    <insert id="insertMonitorAddressInfo" parameterType="MonitorAddressInfo" useGeneratedKeys="true" keyProperty="idMonitorAddress">
+        insert into monitor_address_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="monitorAddress != null">monitor_address,</if>
+            <if test="accountAddress != null">account_address,</if>
+            <if test="price != null">price,</if>
+            <if test="monitorType != null">monitor_type,</if>
+            <if test="apiKey != null">api_key,</if>
+            <if test="isValid != null">is_valid,</if>
+            <if test="fcd != null">fcd,</if>
+            <if test="fcu != null">fcu,</if>
+            <if test="lcd != null">lcd,</if>
+            <if test="lcu != null">lcu,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="monitorAddress != null">#{monitorAddress},</if>
+            <if test="accountAddress != null">#{accountAddress},</if>
+            <if test="price != null">#{price},</if>
+            <if test="monitorType != null">#{monitorType},</if>
+            <if test="apiKey != null">#{apiKey},</if>
+            <if test="isValid != null">#{isValid},</if>
+            <if test="fcd != null">#{fcd},</if>
+            <if test="fcu != null">#{fcu},</if>
+            <if test="lcd != null">#{lcd},</if>
+            <if test="lcu != null">#{lcu},</if>
+        </trim>
+    </insert>
+
+    <update id="updateMonitorAddressInfo" parameterType="MonitorAddressInfo">
+        update monitor_address_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="monitorAddress != null">monitor_address = #{monitorAddress},</if>
+            <if test="accountAddress != null">account_address = #{accountAddress},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="monitorType != null">monitor_type = #{monitorType},</if>
+            <if test="apiKey != null">api_key = #{apiKey},</if>
+            <if test="isValid != null">is_valid = #{isValid},</if>
+            <if test="fcd != null">fcd = #{fcd},</if>
+            <if test="fcu != null">fcu = #{fcu},</if>
+            <if test="lcd != null">lcd = #{lcd},</if>
+            <if test="lcu != null">lcu = #{lcu},</if>
+        </trim>
+        where id_monitor_address = #{idMonitorAddress}
+    </update>
+
+    <delete id="deleteMonitorAddressInfoByIdMonitorAddress" parameterType="Long">
+        delete from monitor_address_info where id_monitor_address = #{idMonitorAddress}
+    </delete>
+
+    <delete id="deleteMonitorAddressInfoByIdMonitorAddresss" parameterType="String">
+        delete from monitor_address_info where id_monitor_address in
+        <foreach item="idMonitorAddress" collection="array" open="(" separator="," close=")">
+            #{idMonitorAddress}
+        </foreach>
+    </delete>
+
+</mapper>

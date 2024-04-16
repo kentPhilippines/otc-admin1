@@ -1,13 +1,14 @@
 package com.ruoyi.framework.shiro.web.filter.captcha;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.shiro.web.filter.AccessControlFilter;
 import com.google.code.kaptcha.Constants;
 import com.ruoyi.common.constant.ShiroConstants;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.common.utils.StringUtils;
+import org.apache.shiro.web.filter.AccessControlFilter;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 验证码过滤器
@@ -19,7 +20,8 @@ public class CaptchaValidateFilter extends AccessControlFilter
     /**
      * 是否开启验证码
      */
-    private boolean captchaEnabled = true;
+    private boolean captchaEnabled = true
+            ;
 
     /**
      * 验证码类型

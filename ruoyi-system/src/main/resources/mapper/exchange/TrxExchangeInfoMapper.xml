@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.TrxExchangeInfoMapper">
+
+    <resultMap type="TrxExchangeInfo" id="TrxExchangeInfoResult">
+        <result property="idTrxExchangeInfo"    column="id_trx_exchange_info"    />
+        <result property="fromAddress"    column="from_address"    />
+        <result property="toAddress"    column="to_address"    />
+        <result property="accountAddress"    column="account_address"    />
+        <result property="price"    column="price"    />
+        <result property="trxTxId"    column="trx_tx_id"    />
+        <result property="tranferCount"    column="tranfer_count"    />
+        <result property="busiType"    column="busi_type"    />
+        <result property="trxAmount"    column="trx_amount"    />
+        <result property="delegateAmountTrx"    column="delegate_amount_trx"    />
+        <result property="delegateTxId"    column="delegate_tx_id"    />
+        <result property="lockPeriod"    column="lock_period"    />
+        <result property="delegateStatus"    column="delegate_status"    />
+        <result property="unDelegateTxId"    column="un_delegate_tx_id"    />
+        <result property="fcd"    column="fcd"    />
+        <result property="fcu"    column="fcu"    />
+        <result property="lcd"    column="lcd"    />
+        <result property="lcu"    column="lcu"    />
+    </resultMap>
+
+    <sql id="selectTrxExchangeInfoVo">
+        select id_trx_exchange_info, from_address, to_address, account_address, price, trx_tx_id, tranfer_count, busi_type, trx_amount, delegate_amount_trx, delegate_tx_id, lock_period, delegate_status, un_delegate_tx_id, fcd, fcu, lcd, lcu from trx_exchange_info
+    </sql>
+
+    <select id="selectTrxExchangeInfoList" parameterType="TrxExchangeInfo" resultMap="TrxExchangeInfoResult">
+        <include refid="selectTrxExchangeInfoVo"/>
+        <where> 1=1
+            <if test="fromAddress != null  and fromAddress != ''"> and from_address = #{fromAddress}</if>
+            <if test="toAddress != null  and toAddress != ''"> and to_address = #{toAddress}</if>
+            <if test="accountAddress != null  and accountAddress != ''"> and account_address = #{accountAddress}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="trxTxId != null  and trxTxId != ''"> and trx_tx_id = #{trxTxId}</if>
+            <if test="tranferCount != null "> and tranfer_count = #{tranferCount}</if>
+            <if test="busiType != null  and busiType != ''"> and busi_type = #{busiType}</if>
+            <if test="trxAmount != null "> and trx_amount = #{trxAmount}</if>
+            <if test="delegateAmountTrx != null "> and delegate_amount_trx = #{delegateAmountTrx}</if>
+            <if test="delegateTxId != null  and delegateTxId != ''"> and delegate_tx_id = #{delegateTxId}</if>
+            <if test="lockPeriod != null "> and lock_period = #{lockPeriod}</if>
+            <if test="delegateStatus != null  and delegateStatus != ''"> and delegate_status = #{delegateStatus}</if>
+            <if test="unDelegateTxId != null  and unDelegateTxId != ''"> and un_delegate_tx_id = #{unDelegateTxId}</if>
+            <if test="fcd != null "> and fcd &gt;= #{fcd}</if>
+            <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
+            <if test="lcd != null "> and lcd &lt;= #{lcd}</if>
+            <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
+            order by fcd desc
+        </where>
+    </select>
+
+    <select id="selectTrxExchangeInfoByIdTrxExchangeInfo" parameterType="Long" resultMap="TrxExchangeInfoResult">
+        <include refid="selectTrxExchangeInfoVo"/>
+        where id_trx_exchange_info = #{idTrxExchangeInfo}
+    </select>
+
+    <insert id="insertTrxExchangeInfo" parameterType="TrxExchangeInfo" useGeneratedKeys="true" keyProperty="idTrxExchangeInfo">
+        insert into trx_exchange_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fromAddress != null">from_address,</if>
+            <if test="toAddress != null">to_address,</if>
+            <if test="accountAddress != null">account_address,</if>
+            <if test="price != null">price,</if>
+            <if test="trxTxId != null">trx_tx_id,</if>
+            <if test="tranferCount != null">tranfer_count,</if>
+            <if test="busiType != null">busi_type,</if>
+            <if test="trxAmount != null">trx_amount,</if>
+            <if test="delegateAmountTrx != null">delegate_amount_trx,</if>
+            <if test="delegateTxId != null">delegate_tx_id,</if>
+            <if test="lockPeriod != null">lock_period,</if>
+            <if test="delegateStatus != null">delegate_status,</if>
+            <if test="unDelegateTxId != null">un_delegate_tx_id,</if>
+            <if test="fcd != null">fcd,</if>
+            <if test="fcu != null">fcu,</if>
+            <if test="lcd != null">lcd,</if>
+            <if test="lcu != null">lcu,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fromAddress != null">#{fromAddress},</if>
+            <if test="toAddress != null">#{toAddress},</if>
+            <if test="accountAddress != null">#{accountAddress},</if>
+            <if test="price != null">#{price},</if>
+            <if test="trxTxId != null">#{trxTxId},</if>
+            <if test="tranferCount != null">#{tranferCount},</if>
+            <if test="busiType != null">#{busiType},</if>
+            <if test="trxAmount != null">#{trxAmount},</if>
+            <if test="delegateAmountTrx != null">#{delegateAmountTrx},</if>
+            <if test="delegateTxId != null">#{delegateTxId},</if>
+            <if test="lockPeriod != null">#{lockPeriod},</if>
+            <if test="delegateStatus != null">#{delegateStatus},</if>
+            <if test="unDelegateTxId != null">#{unDelegateTxId},</if>
+            <if test="fcd != null">#{fcd},</if>
+            <if test="fcu != null">#{fcu},</if>
+            <if test="lcd != null">#{lcd},</if>
+            <if test="lcu != null">#{lcu},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTrxExchangeInfo" parameterType="TrxExchangeInfo">
+        update trx_exchange_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fromAddress != null">from_address = #{fromAddress},</if>
+            <if test="toAddress != null">to_address = #{toAddress},</if>
+            <if test="accountAddress != null">account_address = #{accountAddress},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="trxTxId != null">trx_tx_id = #{trxTxId},</if>
+            <if test="tranferCount != null">tranfer_count = #{tranferCount},</if>
+            <if test="busiType != null">busi_type = #{busiType},</if>
+            <if test="trxAmount != null">trx_amount = #{trxAmount},</if>
+            <if test="delegateAmountTrx != null">delegate_amount_trx = #{delegateAmountTrx},</if>
+            <if test="delegateTxId != null">delegate_tx_id = #{delegateTxId},</if>
+            <if test="lockPeriod != null">lock_period = #{lockPeriod},</if>
+            <if test="delegateStatus != null">delegate_status = #{delegateStatus},</if>
+            <if test="unDelegateTxId != null">un_delegate_tx_id = #{unDelegateTxId},</if>
+            <if test="fcd != null">fcd = #{fcd},</if>
+            <if test="fcu != null">fcu = #{fcu},</if>
+            <if test="lcd != null">lcd = #{lcd},</if>
+            <if test="lcu != null">lcu = #{lcu},</if>
+        </trim>
+        where id_trx_exchange_info = #{idTrxExchangeInfo}
+    </update>
+
+    <delete id="deleteTrxExchangeInfoByIdTrxExchangeInfo" parameterType="Long">
+        delete from trx_exchange_info where id_trx_exchange_info = #{idTrxExchangeInfo}
+    </delete>
+
+    <delete id="deleteTrxExchangeInfoByIdTrxExchangeInfos" parameterType="String">
+        delete from trx_exchange_info where id_trx_exchange_info in
+        <foreach item="idTrxExchangeInfo" collection="array" open="(" separator="," close=")">
+            #{idTrxExchangeInfo}
+        </foreach>
+    </delete>
+
+</mapper>

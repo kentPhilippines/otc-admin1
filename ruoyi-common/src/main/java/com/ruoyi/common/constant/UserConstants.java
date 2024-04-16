@@ -35,7 +35,8 @@ public class UserConstants
 
     /** 是否为系统默认（是） */
     public static final String YES = "Y";
-    
+    public static final String NO = "N";
+
     /** 是否唯一的返回标识 */
     public final static boolean UNIQUE = true;
     public final static boolean NOT_UNIQUE = false;
