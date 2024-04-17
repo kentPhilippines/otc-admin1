@@ -2,12 +2,15 @@ package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import com.google.common.base.Preconditions;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
 import com.ruoyi.common.core.domain.entity.TenantInfo;
+import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
 import com.ruoyi.common.core.text.Convert;
+import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.TrxExchange;
 import com.ruoyi.system.mapper.MonitorAddressInfoMapper;
@@ -70,6 +73,13 @@ public class TenantInfoServiceImpl implements ITenantInfoService
     @Override
     public int insertTenantInfo(TenantInfo tenantInfo)
     {
+
+        TenantInfo tenantInfoExample = new TenantInfo();
+        tenantInfoExample.setReceiverAddress(tenantInfo.getReceiverAddress());
+        List<TenantInfo> tenantInfoList = tenantInfoMapper.selectTenantInfoList(tenantInfoExample);
+
+        Preconditions.checkState(CollectionUtil.isEmpty(tenantInfoList), "该接收能量地址已存在,请勿重复添加");
+
         Long price = tenantInfo.getPrice();
         Long transferCount = tenantInfo.getTransferCount();
 
@@ -78,7 +88,7 @@ public class TenantInfoServiceImpl implements ITenantInfoService
         tenantInfo.setIsPaid(UserConstants.NO);
         Long period = tenantInfo.getPeriod();
 
-        DateTime dateTime = DateUtil.offsetDay(DateUtil.date(), period.intValue());
+        DateTime dateTime = DateUtil.offsetDay(DateUtil.date(), period.intValue() -1);
 
         tenantInfo.setFinishTransferTime( DateUtil.endOfDay(dateTime));
 
@@ -150,6 +160,19 @@ public class TenantInfoServiceImpl implements ITenantInfoService
         for (String id : idArray) {
             TenantInfo tenantInfo = tenantInfoMapper.selectTenantInfoByIdTenantInfo(Long.valueOf(id));
 
+            String dictValue = DictUtils.getDictValue("sys_delegate_status", "已委托");
+            String busiType =  DictUtils.getDictValue("sys_busi_type", "天数套餐");
+            TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder().fromAddress(tenantInfo.getReceiverAddress())
+                    .delegateStatus(dictValue)
+                    .busiType(busiType)
+                    .build();
+
+            List<TrxExchangeInfo> trxExchangeInfos = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfo);
+
+
+            Preconditions.checkState(CollectionUtil.isEmpty(trxExchangeInfos), "该接收能量地址已在任务中,请勿重复发起");
+
+
             Date finishTransferTime = tenantInfo.getFinishTransferTime();
             int compare = DateUtil.compare(new Date(), finishTransferTime);
 
@@ -168,11 +191,19 @@ public class TenantInfoServiceImpl implements ITenantInfoService
             trxExchange.setFromAddress(tenantInfo.getReceiverAddress());
             trxExchange.setAccountAddress(monitorAddressInfo.getAccountAddress());
             trxExchange.setTransferNumber(tenantInfo.getTransferCount());
-            trxExchange.setLockNum(24L);
+
+            long between = DateUtil.between(DateUtil.date(), DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR);
+            trxExchange.setLockNum(between + 1);
 
             trxExchangeInfoService.delegate(trxExchange, true);
         }
 
         return 1;
     }
+
+/*    public static void main(String[] args) {
+        System.out.println(DateUtil.date());
+        System.out.println( DateUtil.endOfDay(DateUtil.date()));
+        System.out.println( DateUtil.between(DateUtil.date(),DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR));
+    }*/
 }
