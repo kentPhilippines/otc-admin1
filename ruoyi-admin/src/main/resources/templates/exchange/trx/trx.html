@@ -18,16 +18,16 @@
                                 <label>转入账户：</label>
                                 <input type="text" name="toAddress"/>
                             </li>
-                            <li>
+                    <!--        <li>
                                 <label>实际出账账户：</label>
                                 <input type="text" name="accountAddress"/>
-                            </li>
+                            </li>-->
 
                             <li>
                                 <label>TRX订单：</label>
                                 <input type="text" name="trxTxId"/>
                             </li>
-                            <br/> <br/> <br/>
+
                            <!-- <li>
                                 <label>能量交易订单：</label>
                                 <input type="text" name="delegateTxId"/>
@@ -39,6 +39,7 @@
                                     <option th:each="dict : ${type}"  th:text="${dict.dictLabel}" th:value="${dict.dictValue}" ></option>
                                 </select>
                             </li>
+                            <!--      <br/> <br/> <br/>-->
 <!--
                             <li>
                                 <label>回收资源交易：</label>
@@ -85,6 +86,7 @@
         var datas = [[${@dict.getType('sys_delegate_status')}]];
         var tranferCountDatas = [[${@dict.getType('sys_transfer_number')}]];
         var busiTypeDatas = [[${@dict.getType('sys_busi_type')}]];
+        var lockPeriodDatas = [[${@dict.getType('sys_lock_period')}]];
         $(function() {
             var options = {
                 url: prefix + "/list",
@@ -109,10 +111,10 @@
                     field: 'toAddress',
                     title: '转入账户'
                 },
-                {
+          /*      {
                     field: 'accountAddress',
                     title: '实际出账账户'
-                },
+                },*/
                 {
                     field: 'price',
                     title: '单价'
@@ -149,7 +151,10 @@
                 },
                 {
                     field: 'lockPeriod',
-                    title: '锁定周期(*3s)'
+                    title: '锁定周期',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(lockPeriodDatas, value);
+                    }
                 },
                 {
                     field: 'delegateStatus',

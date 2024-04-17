@@ -3,8 +3,6 @@ package com.ruoyi.common.core.domain.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Date;
 
@@ -57,10 +55,17 @@ public class TenantInfo extends BaseEntity
     @Excel(name = "租期")
     private Long period;
 
-    /** 最终到期日期 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "最终到期日期", width = 30, dateFormat = "yyyy-MM-dd")
-    private Date finishTransferTime;
+    /** 用户id */
+    private String userId;
+
+    /** 状态 */
+    @Excel(name = "状态")
+    private String status;
+
+    /** 已经委托天数 */
+    @Excel(name = "已经委托天数")
+    private Long delegatedDays;
+
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -79,6 +84,31 @@ public class TenantInfo extends BaseEntity
     /** 更新用户 */
     @Excel(name = "更新用户")
     private String lcu;
+
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Long getDelegatedDays() {
+        return delegatedDays;
+    }
+
+    public void setDelegatedDays(Long delegatedDays) {
+        this.delegatedDays = delegatedDays;
+    }
 
     public void setIdTenantInfo(Long idTenantInfo)
     {
@@ -170,15 +200,7 @@ public class TenantInfo extends BaseEntity
     {
         return period;
     }
-    public void setFinishTransferTime(Date finishTransferTime)
-    {
-        this.finishTransferTime = finishTransferTime;
-    }
 
-    public Date getFinishTransferTime()
-    {
-        return finishTransferTime;
-    }
     public void setFcd(Date fcd)
     {
         this.fcd = fcd;
@@ -218,22 +240,24 @@ public class TenantInfo extends BaseEntity
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-                .append("idTenantInfo", getIdTenantInfo())
-                .append("receiverAddress", getReceiverAddress())
-                .append("monitorAddress", getMonitorAddress())
-                .append("price", getPrice())
-                .append("transferCount", getTransferCount())
-                .append("exchangeUnit", getExchangeUnit())
-                .append("txId", getTxId())
-                .append("exchangeAmount", getExchangeAmount())
-                .append("isPaid", getIsPaid())
-                .append("period", getPeriod())
-                .append("finishTransferTime", getFinishTransferTime())
-                .append("fcd", getFcd())
-                .append("fcu", getFcu())
-                .append("lcd", getLcd())
-                .append("lcu", getLcu())
-                .toString();
+        return "TenantInfo{" +
+                "idTenantInfo=" + idTenantInfo +
+                ", receiverAddress='" + receiverAddress + '\'' +
+                ", monitorAddress='" + monitorAddress + '\'' +
+                ", price=" + price +
+                ", transferCount=" + transferCount +
+                ", exchangeUnit='" + exchangeUnit + '\'' +
+                ", txId='" + txId + '\'' +
+                ", exchangeAmount=" + exchangeAmount +
+                ", isPaid='" + isPaid + '\'' +
+                ", period=" + period +
+                ", userId='" + userId + '\'' +
+                ", status='" + status + '\'' +
+                ", delegatedDays=" + delegatedDays +
+                ", fcd=" + fcd +
+                ", fcu='" + fcu + '\'' +
+                ", lcd=" + lcd +
+                ", lcu='" + lcu + '\'' +
+                '}';
     }
 }

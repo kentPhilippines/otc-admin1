@@ -61,6 +61,7 @@
     var exchangeUnitDatas = [[${@dict.getType('sys_monitor_type')}]];
     var isPaidDatas = [[${@dict.getType('sys_is_paid')}]];
     var periodDatas = [[${@dict.getType('sys_lock_period_day')}]];
+    var statusDatas = [[${@dict.getType('sys_tenant_status')}]];
     var prefix = ctx + "account/tenant";
 
     $(function() {
@@ -124,9 +125,17 @@
                         return $.table.selectDictLabel(periodDatas, value);
                     }
                 },
+
                 {
-                    field: 'finishTransferTime',
-                    title: '最终到期日期'
+                    field: 'status',
+                    title: '状态',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(statusDatas, value);
+                    }
+                },
+                {
+                    field: 'delegatedDays',
+                    title: '已经委托天数'
                 },
                 {
                     field: 'fcd',

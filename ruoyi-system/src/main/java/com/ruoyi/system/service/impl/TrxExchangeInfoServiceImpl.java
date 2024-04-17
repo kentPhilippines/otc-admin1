@@ -38,6 +38,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
@@ -382,6 +383,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
      * @param monitorAddressAccount
      * @throws IllegalException
      */
+    @Transactional
     private void doDelegateResource(Contract contract, String txID, MonitorAddressAccount monitorAddressAccount) throws Exception {
 
 
@@ -406,12 +408,12 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
         TenantInfo tenantInfoExample = new TenantInfo();
         tenantInfoExample.setReceiverAddress(ownerAddress);
 //        tenantInfoExample.setMonitorAddress(monitorAddressAccount.getMonitorAddress());
-        tenantInfoExample.setFinishTransferTime(new Date());
         tenantInfoExample.setIsPaid(UserConstants.NO);
+        tenantInfoExample.setStatus(DictUtils.getDictValue("sys_tenant_status", "生效中"));
         List<TenantInfo> tenantInfoList = tenantInfoMapper.selectTenantInfoList(tenantInfoExample);
-
+        TenantInfo tenantInfo = null;
         if (tenantInfoList.size() > 0) {
-            TenantInfo tenantInfo = tenantInfoList.get(0);
+             tenantInfo = tenantInfoList.get(0);
             Long exchangeAmount = tenantInfo.getExchangeAmount();
             //判断入账金额是否与转入金额相等,如果相等则设置为已支付
             if (amount != exchangeAmount) {
@@ -429,7 +431,8 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
             tenantInfo.setIsPaid("Y");
             tenantInfo.setLcu("system");
             tenantInfo.setTxId(txID);
-            tenantInfoMapper.updateTenantInfo(tenantInfo);
+            tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
+
             //取包天的套餐锁定时间和交易笔数
             lockPeriod = 1200L * 24;
             busiType = DictUtils.getDictValue("sys_busi_type", "天数套餐");
@@ -458,6 +461,10 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
         calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, busiType, amount, "system");
         //持久化之后放redis
         redisTemplate.opsForValue().set("transfer_trx_" + txID, txID, 1, TimeUnit.DAYS);
+        if (tenantInfo !=null){
+            tenantInfoMapper.updateTenantInfo(tenantInfo);
+        }
+
     }
 
     /**
@@ -577,23 +584,32 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
             //查询是否是按天支付的租户,是的话需要回收完再次赠送
             TenantInfo tenantInfoExample = new TenantInfo();
             tenantInfoExample.setReceiverAddress(trxExchangeInfo.getFromAddress());
+            tenantInfoExample.setStatus(DictUtils.getDictValue("sys_tenant_status", "生效中"));
 //            tenantInfoExample.setMonitorAddress(trxExchangeInfo.getToAddress());
-            tenantInfoExample.setFinishTransferTime(new Date());
             List<TenantInfo> tenantInfoList = tenantInfoMapper.selectTenantInfoList(tenantInfoExample);
-
+            TenantInfo tenantInfo = null;
             if (tenantInfoList.size() > 0) {
                 Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(accountAddress);
-                TenantInfo tenantInfo = tenantInfoList.get(0);
+                 tenantInfo = tenantInfoList.get(0);
 
                 if (UserConstants.NO.equals(tenantInfo.getIsPaid())) {
                     return;
                 }
 
+          /*      String status = DictUtils.getDictValue("sys_tenant_status", "生效中");
+                if (!status.equals(tenantInfo.getStatus())){
+                    return;//不是生效中状态不处理
+                }*/
+
                 Long period = tenantInfo.getPeriod();
-                Date tenantInfoFcd = tenantInfo.getFcd();
-                long between = DateUtil.between(tenantInfoFcd, new Date(), DateUnit.DAY);
-                if (between > period) {
-                    //已到期不处理
+//                long between = DateUtil.between(tenantInfoFcd, new Date(), DateUnit.DAY);
+                Long delegatedDays = tenantInfo.getDelegatedDays();
+
+                if (delegatedDays == period) {
+                    //委托天数已用完不再处理,更改状态为已满期
+                    String expire = DictUtils.getDictValue("sys_tenant_status", "已满期");
+                    tenantInfo.setStatus(expire);
+                    tenantInfoMapper.updateTenantInfo(tenantInfo);
                     return;
                 }
 
@@ -602,6 +618,8 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
                 if (StringUtils.isNotEmpty(toAddress) && !toAddress.equals(monitorAddress)) {
                     return;
                 }
+
+                tenantInfo.setDelegatedDays(delegatedDays + 1);
 
                 String receiverAddress = tenantInfo.getReceiverAddress();
                 Long transferCount = tenantInfo.getTransferCount();
@@ -645,6 +663,11 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
                         .build();
 
                 trxExchangeInfoMapper.insertTrxExchangeInfo(trxExchangeInfoNew);*/
+            }
+
+            if (tenantInfo != null){
+
+                tenantInfoMapper.updateTenantInfo(tenantInfo);
             }
 
         } catch (Exception e) {

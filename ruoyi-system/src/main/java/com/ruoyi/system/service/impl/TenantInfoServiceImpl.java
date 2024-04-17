@@ -1,10 +1,10 @@
 package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import com.google.common.base.Preconditions;
+import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
 import com.ruoyi.common.core.domain.entity.TenantInfo;
@@ -59,6 +59,7 @@ public class TenantInfoServiceImpl implements ITenantInfoService
      * @return 租户
      */
     @Override
+    @DataScope(userAlias = "u")
     public List<TenantInfo> selectTenantInfoList(TenantInfo tenantInfo)
     {
         return tenantInfoMapper.selectTenantInfoList(tenantInfo);
@@ -86,15 +87,18 @@ public class TenantInfoServiceImpl implements ITenantInfoService
         long exchangeAmount = price * transferCount;
         tenantInfo.setExchangeAmount(exchangeAmount);
         tenantInfo.setIsPaid(UserConstants.NO);
-        Long period = tenantInfo.getPeriod();
 
-        DateTime dateTime = DateUtil.offsetDay(DateUtil.date(), period.intValue() -1);
 
-        tenantInfo.setFinishTransferTime( DateUtil.endOfDay(dateTime));
+        tenantInfo.setDelegatedDays(0L);
+
+        Long userId = ShiroUtils.getUserId();
+        tenantInfo.setUserId(userId.toString());
 
         String loginName = ShiroUtils.getLoginName();
         tenantInfo.setFcd(new Date());
         tenantInfo.setFcu(loginName);
+        String status = DictUtils.getDictValue("sys_tenant_status", "生效中");
+        tenantInfo.setStatus(status);
 
         tenantInfo.setLcd(new Date());
         tenantInfo.setLcu(loginName);
@@ -117,10 +121,6 @@ public class TenantInfoServiceImpl implements ITenantInfoService
 
         long exchangeAmount = price * transferCount;
         tenantInfo.setExchangeAmount(exchangeAmount);
-        Long period = tenantInfo.getPeriod();
-
-        DateTime dateTime = DateUtil.offsetDay(tenantInfo.getFcd(), period.intValue());
-        tenantInfo.setFinishTransferTime( DateUtil.endOfDay(dateTime));
 
         String loginName = ShiroUtils.getLoginName();
 
@@ -160,6 +160,9 @@ public class TenantInfoServiceImpl implements ITenantInfoService
         for (String id : idArray) {
             TenantInfo tenantInfo = tenantInfoMapper.selectTenantInfoByIdTenantInfo(Long.valueOf(id));
 
+            String status = DictUtils.getDictValue("sys_tenant_status", "生效中");
+            Preconditions.checkState(status.equals(tenantInfo.getStatus()), "该租户不是生效中状态,不能发起委托任务");
+
             String dictValue = DictUtils.getDictValue("sys_delegate_status", "已委托");
             String busiType =  DictUtils.getDictValue("sys_busi_type", "天数套餐");
             TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder().fromAddress(tenantInfo.getReceiverAddress())
@@ -172,11 +175,6 @@ public class TenantInfoServiceImpl implements ITenantInfoService
 
             Preconditions.checkState(CollectionUtil.isEmpty(trxExchangeInfos), "该接收能量地址已在任务中,请勿重复发起");
 
-
-            Date finishTransferTime = tenantInfo.getFinishTransferTime();
-            int compare = DateUtil.compare(new Date(), finishTransferTime);
-
-            Preconditions.checkState(compare <= 0, "租户已过期,无法再次委托能量");
 
             MonitorAddressInfo monitorAddressInfoExample = new MonitorAddressInfo();
             monitorAddressInfoExample.setMonitorAddress(tenantInfo.getMonitorAddress());
@@ -196,6 +194,9 @@ public class TenantInfoServiceImpl implements ITenantInfoService
             trxExchange.setLockNum(between + 1);
 
             trxExchangeInfoService.delegate(trxExchange, true);
+
+            tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
+            tenantInfoMapper.updateTenantInfo(tenantInfo);
         }
 
         return 1;
