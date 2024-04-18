@@ -68,6 +68,7 @@
           var removeFlag = [[${@permission.hasPermi('account:transfer:remove')}]];
           var prefix = ctx + "account/transfer";
           var datas = [[${@dict.getType('sys_yes_no')}]];
+          var busiTypeDatas = [[${@dict.getType('sys_busi_type')}]];
           $(function() {
               var options = {
                   url: prefix + "/list",
@@ -87,7 +88,13 @@
                   {
                       field: 'address',
                       title: '地址'
-                  },
+                  }, {
+                          field: 'busiType',
+                          title: '业务类型',
+                          formatter: function(value, row, index) {
+                              return $.table.selectDictLabel(busiTypeDatas, value);
+                          }
+                      },
 /*                  {
                       field: 'encryptPrivateKey',
                       title: '秘钥'

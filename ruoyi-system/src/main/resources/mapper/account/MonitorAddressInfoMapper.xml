@@ -6,6 +6,7 @@
 
     <resultMap type="MonitorAddressInfo" id="MonitorAddressInfoResult">
         <result property="idMonitorAddress"    column="id_monitor_address"    />
+        <result property="busiType"    column="busi_type"    />
         <result property="monitorAddress"    column="monitor_address"    />
         <result property="accountAddress"    column="account_address"    />
         <result property="price"    column="price"    />
@@ -19,12 +20,13 @@
     </resultMap>
 
     <sql id="selectMonitorAddressInfoVo">
-        select id_monitor_address, monitor_address, account_address, price, monitor_type, api_key, is_valid, fcd, fcu, lcd, lcu from monitor_address_info
+        select id_monitor_address, busi_type, monitor_address, account_address, price, monitor_type, api_key, is_valid, fcd, fcu, lcd, lcu from monitor_address_info
     </sql>
 
     <select id="selectMonitorAddressInfoList" parameterType="MonitorAddressInfo" resultMap="MonitorAddressInfoResult">
         <include refid="selectMonitorAddressInfoVo"/>
         <where>
+            <if test="busiType != null  and busiType != ''"> and busi_type = #{busiType}</if>
             <if test="monitorAddress != null  and monitorAddress != ''"> and monitor_address = #{monitorAddress}</if>
             <if test="accountAddress != null  and accountAddress != ''"> and account_address = #{accountAddress}</if>
             <if test="price != null "> and price = #{price}</if>
@@ -46,6 +48,7 @@
     <insert id="insertMonitorAddressInfo" parameterType="MonitorAddressInfo" useGeneratedKeys="true" keyProperty="idMonitorAddress">
         insert into monitor_address_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="busiType != null">busi_type,</if>
             <if test="monitorAddress != null">monitor_address,</if>
             <if test="accountAddress != null">account_address,</if>
             <if test="price != null">price,</if>
@@ -58,6 +61,7 @@
             <if test="lcu != null">lcu,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="busiType != null">#{busiType},</if>
             <if test="monitorAddress != null">#{monitorAddress},</if>
             <if test="accountAddress != null">#{accountAddress},</if>
             <if test="price != null">#{price},</if>
@@ -74,6 +78,7 @@
     <update id="updateMonitorAddressInfo" parameterType="MonitorAddressInfo">
         update monitor_address_info
         <trim prefix="SET" suffixOverrides=",">
+            <if test="busiType != null">busi_type = #{busiType},</if>
             <if test="monitorAddress != null">monitor_address = #{monitorAddress},</if>
             <if test="accountAddress != null">account_address = #{accountAddress},</if>
             <if test="price != null">price = #{price},</if>

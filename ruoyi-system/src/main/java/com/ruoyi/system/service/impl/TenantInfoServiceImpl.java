@@ -168,10 +168,10 @@ public class TenantInfoServiceImpl implements ITenantInfoService
             Preconditions.checkState(status.equals(tenantInfo.getStatus()), "该租户不是生效中状态,不能发起委托任务");
 
             String dictValue = DictUtils.getDictValue("sys_delegate_status", "已委托");
-            String busiType =  DictUtils.getDictValue("sys_busi_type", "天数套餐");
+            String sysEnergyBusiType =  DictUtils.getDictValue("sys_energy_busi_type", "天数套餐");
             TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder().fromAddress(tenantInfo.getReceiverAddress())
                     .delegateStatus(dictValue)
-                    .busiType(busiType)
+                    .energyBusiType(sysEnergyBusiType)
                     .build();
 
             List<TrxExchangeInfo> trxExchangeInfos = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfo);

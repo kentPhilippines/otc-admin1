@@ -22,6 +22,10 @@ public class AccountAddressInfo extends BaseEntity
     /** 主键 */
     private Long idAccoutAddressInfo;
 
+    /** 业务类型 */
+    @Excel(name = "业务类型")
+    private String busiType;
+
     /** 地址 */
     @Excel(name = "地址")
     private String address;
@@ -75,6 +79,7 @@ public class AccountAddressInfo extends BaseEntity
     //** 更新用户 *//*
     @Excel(name = "更新用户")
     private String lcu;
+
 
 
 

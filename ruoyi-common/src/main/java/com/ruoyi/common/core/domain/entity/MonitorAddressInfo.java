@@ -21,6 +21,10 @@ public class MonitorAddressInfo extends BaseEntity
     /** 主键 */
     private Long idMonitorAddress;
 
+    /** 业务类型 */
+    @Excel(name = "业务类型")
+    private String busiType;
+
     /** 监听地址 */
     @Excel(name = "监听地址")
     private String monitorAddress;
@@ -62,6 +66,14 @@ public class MonitorAddressInfo extends BaseEntity
     /** 更新用户 */
     @Excel(name = "更新用户")
     private String lcu;
+
+    public String getBusiType() {
+        return busiType;
+    }
+
+    public void setBusiType(String busiType) {
+        this.busiType = busiType;
+    }
 
     public void setIdMonitorAddress(Long idMonitorAddress)
     {

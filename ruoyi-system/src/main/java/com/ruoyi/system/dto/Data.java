@@ -16,4 +16,14 @@ public class Data {
     private int energy_usage_total;
     private Raw_data raw_data;
     private List<String> internal_transactions;
+
+
+
+    private String transaction_id;
+    private Token_info  token_info;
+
+    private String from;
+    private String to;
+    private String type;
+    private String value;
 }

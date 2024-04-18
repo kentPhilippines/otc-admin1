@@ -7,6 +7,7 @@
     <resultMap type="AccountAddressInfo" id="AccountAddressInfoResult">
         <result property="idAccoutAddressInfo"    column="id_accout_address_info"    />
         <result property="address"    column="address"    />
+        <result property="busiType"    column="busi_type"    />
         <result property="encryptPrivateKey"    column="encrypt_private_key"    />
         <result property="encryptKey"    column="encrypt_key"    />
         <result property="isValid"    column="is_valid"    />
@@ -17,13 +18,14 @@
     </resultMap>
 
     <sql id="selectAccountAddressInfoVo">
-        select id_accout_address_info, address, encrypt_private_key, encrypt_key, is_valid, fcd, fcu, lcd, lcu from account_address_info
+        select id_accout_address_info, address, busi_type, encrypt_private_key, encrypt_key, is_valid, fcd, fcu, lcd, lcu from account_address_info
     </sql>
 
     <select id="selectAccountAddressInfoList" parameterType="AccountAddressInfo" resultMap="AccountAddressInfoResult">
         <include refid="selectAccountAddressInfoVo"/>
         <where>
             <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="busiType != null  and busiType != ''"> and busi_type = #{busiType}</if>
             <if test="encryptPrivateKey != null  and encryptPrivateKey != ''"> and encrypt_private_key = #{encryptPrivateKey}</if>
             <if test="encryptKey != null  and encryptKey != ''"> and encrypt_key = #{encryptKey}</if>
             <if test="isValid != null  and isValid != ''"> and is_valid = #{isValid}</if>
@@ -43,6 +45,7 @@
         insert into account_address_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="address != null">address,</if>
+            <if test="busiType != null">busi_type,</if>
             <if test="encryptPrivateKey != null">encrypt_private_key,</if>
             <if test="encryptKey != null">encrypt_key,</if>
             <if test="isValid != null">is_valid,</if>
@@ -53,6 +56,7 @@
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="address != null">#{address},</if>
+            <if test="busiType != null">#{busiType},</if>
             <if test="encryptPrivateKey != null">#{encryptPrivateKey},</if>
             <if test="encryptKey != null">#{encryptKey},</if>
             <if test="isValid != null">#{isValid},</if>
@@ -67,6 +71,7 @@
         update account_address_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="address != null">address = #{address},</if>
+            <if test="busiType != null">busi_type = #{busiType},</if>
             <if test="encryptPrivateKey != null">encrypt_private_key = #{encryptPrivateKey},</if>
             <if test="encryptKey != null">encrypt_key = #{encryptKey},</if>
             <if test="isValid != null">is_valid = #{isValid},</if>

@@ -53,7 +53,7 @@ public class TrxExchangeInfo extends BaseEntity
 
     /** 业务类型 */
     @Excel(name = "业务类型")
-    private String busiType;
+    private String energyBusiType;
 
 
     /** 转入金额 */
@@ -251,11 +251,11 @@ public class TrxExchangeInfo extends BaseEntity
         this.tranferCount = tranferCount;
     }
 
-    public String getBusiType() {
-        return busiType;
+    public String getEnergyBusiType() {
+        return energyBusiType;
     }
 
-    public void setBusiType(String busiType) {
-        this.busiType = busiType;
+    public void setEnergyBusiType(String energyBusiType) {
+        this.energyBusiType = energyBusiType;
     }
 }
