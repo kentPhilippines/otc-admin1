@@ -155,13 +155,13 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
         Long transferNumber = trxExchange.getTransferNumber();
         //实际锁定周期
         long lockPeriod = trxExchange.getLockNum() * 1200;
-        String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
+//        String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
 
         String fromAddress = trxExchange.getFromAddress();
 
-        String dictValue = DictUtils.getDictValue("sys_delegate_status", "已委托");
+//        String dictValue = DictUtils.getDictValue("sys_delegate_status", "已委托");
 
-        TrxExchangeInfo trxExchangeInfo = null;
+//        TrxExchangeInfo trxExchangeInfo = null;
         String userName = ShiroUtils.getLoginName();
         String busiType = DictUtils.getDictValue("sys_busi_type", "闪兑套餐");
         if (isTenant) {
@@ -169,70 +169,27 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
         } else if (lockPeriod > 1200 && lockPeriod <= 24 * 1200) {
             busiType = DictUtils.getDictValue("sys_busi_type", "笔数套餐");
         }
-        if (UserConstants.YES.equals(systronApiSwitch)) {
-            String accountAddress = trxExchange.getAccountAddress();
-            String decryptPrivateKey = accountAddressInfoService.getDecryptPrivateKey(accountAddress);
+//        if (UserConstants.YES.equals(systronApiSwitch)) {
+        String accountAddress = trxExchange.getAccountAddress();
+        String decryptPrivateKey = accountAddressInfoService.getDecryptPrivateKey(accountAddress);
 
-            String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+        String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
 
-            ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, tronApiKey);
+        ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, tronApiKey);
 
-            calcBalanceAndDelegate(null,
-                    apiWrapper,
-                    accountAddress,
-                    transferNumber,
-                    fromAddress,
-                    lockPeriod,
-                    null,
-                    null,
-                    busiType,
-                    null,
-                    userName);
-          /*  Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(accountAddress);
-
-            //总用于质押换取能量的trx上限
-            long balance = getBalance(accountResource, transferNumber);
-
-            String delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, fromAddress, lockPeriod);
-
-
-            trxExchangeInfo = TrxExchangeInfo.builder()
-                    .delegateAmountTrx(balance)
-                    .tranferCount(transferNumber)
-                    .busiType(busiType)
-                    .lockPeriod(lockPeriod)
-                    .accountAddress(trxExchange.getAccountAddress())
-                    .fromAddress(fromAddress)
-                    .delegateTxId(delegateResourceTxid)
-                    .delegateStatus(dictValue)
-                    .fcu(userName)
-                    .lcu(userName)
-                    .build();*/
-
-        } else {
-//            String busiType = DictUtils.getDictValue("sys_busi_type", "闪兑套餐");
-//            if (isTenant) {
-//                busiType = DictUtils.getDictValue("sys_busi_type", "天数套餐");
-//            } else if (lockPeriod > 1200 && lockPeriod <= 24 * 1200) {
-//                busiType = DictUtils.getDictValue("sys_busi_type", "笔数套餐");
-//            }
-            trxExchangeInfo = TrxExchangeInfo.builder()
-                    .delegateAmountTrx(0L)
-                    .tranferCount(transferNumber)
-                    .lockPeriod(lockPeriod)
-                    .busiType(busiType)
-                    .lockPeriod(lockPeriod)
-                    .accountAddress(trxExchange.getAccountAddress())
-                    .fromAddress(fromAddress)
-                    .delegateStatus(dictValue)
-                    .fcu(userName)
-                    .lcu(userName)
-                    .build();
-        }
-
-        return trxExchangeInfoMapper.insertTrxExchangeInfo(trxExchangeInfo);
+        calcBalanceAndDelegate(null,
+                apiWrapper,
+                accountAddress,
+                transferNumber,
+                fromAddress,
+                lockPeriod,
+                trxExchange.getMonitorAddress(),
+                trxExchange.getPrice(),
+                busiType,
+                null,
+                userName);
+        return 1;
     }
-
 
     /**
      * 按照单个地址监听方法
@@ -401,7 +358,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
 
         long lockPeriod = 1200L;
         long transferCount = 0L;
-        Integer price = null;
+        Long price = null;
         String busiType = DictUtils.getDictValue("sys_busi_type", "闪兑套餐");
 
         //查询是否是按天支付的租户
@@ -413,7 +370,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
         List<TenantInfo> tenantInfoList = tenantInfoMapper.selectTenantInfoList(tenantInfoExample);
         TenantInfo tenantInfo = null;
         if (tenantInfoList.size() > 0) {
-             tenantInfo = tenantInfoList.get(0);
+            tenantInfo = tenantInfoList.get(0);
             Long exchangeAmount = tenantInfo.getExchangeAmount();
             //判断入账金额是否与转入金额相等,如果相等则设置为已支付
             if (amount != exchangeAmount) {
@@ -437,10 +394,10 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
             lockPeriod = 1200L * 24;
             busiType = DictUtils.getDictValue("sys_busi_type", "天数套餐");
             transferCount = tenantInfo.getTransferCount();
-            price = tenantInfo.getPrice().intValue();
+            price = tenantInfo.getPrice();
 
         } else {
-            price = monitorAddressAccount.getPrice();
+            price = monitorAddressAccount.getPrice().longValue();
             transferCount = amount / price;
 
             if (transferCount < 1) {
@@ -461,7 +418,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
         calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, busiType, amount, "system");
         //持久化之后放redis
         redisTemplate.opsForValue().set("transfer_trx_" + txID, txID, 1, TimeUnit.DAYS);
-        if (tenantInfo !=null){
+        if (tenantInfo != null) {
             tenantInfoMapper.updateTenantInfo(tenantInfo);
         }
 
@@ -488,26 +445,29 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
                                         String ownerAddress,
                                         long lockPeriod,
                                         String toAddress,
-                                        Integer price,
+                                        Long price,
                                         String busiType,
                                         Long amount,
                                         String currentUser) throws Exception {
 
+        String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
+        Long balance = null;
+        String delegateResourceTxid = null;
+        if (UserConstants.YES.equals(systronApiSwitch)) {
+            Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(accountAddress);
 
-        Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(accountAddress);
+            //总用于质押换取能量的trx上限
+            balance = getBalance(accountResource, transferCount);
 
-        //总用于质押换取能量的trx上限
-        long balance = getBalance(accountResource, transferCount);
+            /*  lock_period: 锁定周期，以区块时间（3s）为单位，表示锁定多少个区块的时间，当lock为true时，该字段有效。如果代理锁定期为1天，则lock_period为：28800*/
 
-        /*  lock_period: 锁定周期，以区块时间（3s）为单位，表示锁定多少个区块的时间，当lock为true时，该字段有效。如果代理锁定期为1天，则lock_period为：28800*/
-
-        String delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, ownerAddress, lockPeriod);
-
+            delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, ownerAddress, lockPeriod);
+        }
         TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder()
                 .fromAddress(AddressUtil.hexToBase58(ownerAddress))
                 .toAddress(AddressUtil.hexToBase58(toAddress))
                 .accountAddress(accountAddress)
-                .price(Long.valueOf(price))
+                .price(price)
                 .trxTxId(txID)
                 .tranferCount(transferCount)
                 .busiType(busiType)
@@ -590,7 +550,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
             TenantInfo tenantInfo = null;
             if (tenantInfoList.size() > 0) {
                 Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(accountAddress);
-                 tenantInfo = tenantInfoList.get(0);
+                tenantInfo = tenantInfoList.get(0);
 
                 if (UserConstants.NO.equals(tenantInfo.getIsPaid())) {
                     return;
@@ -632,7 +592,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
                         receiverAddress,
                         newLockPeriod,
                         monitorAddress,
-                        tenantInfo.getPrice() == null ? null : tenantInfo.getPrice().intValue(),
+                        tenantInfo.getPrice(),
                         busiType,
                         null,
                         "system");
@@ -665,7 +625,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
                 trxExchangeInfoMapper.insertTrxExchangeInfo(trxExchangeInfoNew);*/
             }
 
-            if (tenantInfo != null){
+            if (tenantInfo != null) {
 
                 tenantInfoMapper.updateTenantInfo(tenantInfo);
             }

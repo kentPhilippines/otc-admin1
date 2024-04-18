@@ -6,6 +6,7 @@ import cn.hutool.core.date.DateUtil;
 import com.google.common.base.Preconditions;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.constant.UserConstants;
+import com.ruoyi.common.core.domain.entity.AccountAddressInfo;
 import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
 import com.ruoyi.common.core.domain.entity.TenantInfo;
 import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
@@ -13,10 +14,12 @@ import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.TrxExchange;
+import com.ruoyi.system.mapper.AccountAddressInfoMapper;
 import com.ruoyi.system.mapper.MonitorAddressInfoMapper;
 import com.ruoyi.system.mapper.TenantInfoMapper;
 import com.ruoyi.system.service.ITenantInfoService;
 import com.ruoyi.system.service.ITrxExchangeInfoService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +42,8 @@ public class TenantInfoServiceImpl implements ITenantInfoService
     private ITrxExchangeInfoService trxExchangeInfoService;
     @Autowired
     private MonitorAddressInfoMapper monitorAddressInfoMapper;
-
+    @Autowired
+    private AccountAddressInfoMapper accountAddressInfoMapper;
     /**
      * 查询租户
      * 
@@ -175,20 +179,39 @@ public class TenantInfoServiceImpl implements ITenantInfoService
 
             Preconditions.checkState(CollectionUtil.isEmpty(trxExchangeInfos), "该接收能量地址已在任务中,请勿重复发起");
 
+            String accountAddress = null;
+            String monitorAddress = null;
+            if (StringUtils.isNotEmpty(tenantInfo.getMonitorAddress())){
+                MonitorAddressInfo monitorAddressInfoExample = new MonitorAddressInfo();
+                monitorAddressInfoExample.setMonitorAddress(tenantInfo.getMonitorAddress());
+                monitorAddressInfoExample.setIsValid(UserConstants.YES);
+                List<MonitorAddressInfo> monitorAddressInfoList = monitorAddressInfoMapper.selectMonitorAddressInfoList(monitorAddressInfoExample);
+                Preconditions.checkState(CollectionUtil.isNotEmpty(monitorAddressInfoList), "监听地址不存在或者已失效,无法再次委托能量");
 
-            MonitorAddressInfo monitorAddressInfoExample = new MonitorAddressInfo();
-            monitorAddressInfoExample.setMonitorAddress(tenantInfo.getMonitorAddress());
-            monitorAddressInfoExample.setIsValid(UserConstants.YES);
-            List<MonitorAddressInfo> monitorAddressInfoList = monitorAddressInfoMapper.selectMonitorAddressInfoList(monitorAddressInfoExample);
+                MonitorAddressInfo monitorAddressInfo = monitorAddressInfoList.get(0);
+                accountAddress = monitorAddressInfo.getAccountAddress();
 
-            Preconditions.checkState(CollectionUtil.isNotEmpty(monitorAddressInfoList), "监听地址不存在或者已失效,无法再次委托能量");
+                monitorAddress = monitorAddressInfo.getMonitorAddress();
+            }else {
+                AccountAddressInfo accountAddressInfo = new AccountAddressInfo();
+                accountAddressInfo.setIsValid("Y");
+                List<AccountAddressInfo> accountAddressInfoList = accountAddressInfoMapper.selectAccountAddressInfoList(accountAddressInfo);
+                Preconditions.checkState(CollectionUtil.isNotEmpty(accountAddressInfoList), "无有效的出账地址无法委托能量");
 
-            MonitorAddressInfo monitorAddressInfo = monitorAddressInfoList.get(0);
+                accountAddress = accountAddressInfoList.get(0).getAddress();
+
+            }
+
 
             TrxExchange trxExchange = new TrxExchange();
             trxExchange.setFromAddress(tenantInfo.getReceiverAddress());
-            trxExchange.setAccountAddress(monitorAddressInfo.getAccountAddress());
+
+            trxExchange.setAccountAddress(accountAddress);
             trxExchange.setTransferNumber(tenantInfo.getTransferCount());
+
+            trxExchange.setPrice(tenantInfo.getPrice());
+
+            trxExchange.setMonitorAddress(monitorAddress);
 
             long between = DateUtil.between(DateUtil.date(), DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR);
             trxExchange.setLockNum(between + 1);

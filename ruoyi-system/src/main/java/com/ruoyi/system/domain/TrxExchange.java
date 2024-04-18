@@ -2,6 +2,7 @@ package com.ruoyi.system.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
 
+
 /**
  * trx兑能量记录对象 trx_exchange_info
  * 
@@ -20,9 +21,30 @@ public class TrxExchange extends BaseEntity
     /** 实际出账账户 */
     private String accountAddress;
 
+    private String monitorAddress;
+
     private Long transferNumber;
 
     private Long lockNum;
+
+    private Long price;
+
+
+    public String getMonitorAddress() {
+        return monitorAddress;
+    }
+
+    public void setMonitorAddress(String monitorAddress) {
+        this.monitorAddress = monitorAddress;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
 
     public String getFromAddress() {
         return fromAddress;
