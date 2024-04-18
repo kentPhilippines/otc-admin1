@@ -479,7 +479,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
                 .fcd(new Date())
                 .fcu(currentUser)
                 .lcd(new Date())
-                .fcu(currentUser)
+                .lcu(currentUser)
                 .build();
         trxExchangeInfoMapper.insertTrxExchangeInfo(trxExchangeInfo);
     }
