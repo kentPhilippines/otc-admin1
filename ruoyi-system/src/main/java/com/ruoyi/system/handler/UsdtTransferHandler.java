@@ -19,6 +19,7 @@ import com.ruoyi.system.service.IAccountAddressInfoService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.util.AddressUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -93,10 +94,24 @@ public class UsdtTransferHandler {
         String dataTo = data.getTo();
         String transactionId = data.getTransaction_id();
 
-        doTransferUsdtAndStore(oneUsdtToTrx, apiKey, decryptPrivateKey, accountAddress, from, trxValue, dataTo, transactionId, transferValue);
+        RLock lock = redissonClient.getLock("lock_" + transactionId);
+        try {
+            boolean res = lock.tryLock(3, 50, TimeUnit.SECONDS);
+            if (!res) {
+                //有其他程序正在处理则不需要再处理
+                return;
+            }
 
-        redisTemplate.opsForValue().set("transfer_USDT_" + transactionId, transactionId, 1, TimeUnit.DAYS);
+            doTransferUsdtAndStore(oneUsdtToTrx, apiKey, decryptPrivateKey, accountAddress, from, trxValue, dataTo, transactionId, transferValue);
 
+            redisTemplate.opsForValue().set("transfer_USDT_" + transactionId, transactionId, 1, TimeUnit.DAYS);
+        }finally {
+            if (lock.isLocked()) {
+                if (lock.isHeldByCurrentThread()) {
+                    lock.unlock();
+                }
+            }
+        }
     }
 
     public void doTransferUsdtAndStore(BigDecimal oneUsdtToTrx, String apiKey, String decryptPrivateKey, String accountAddress, String from, BigDecimal trxValue, String dataTo, String transactionId, BigDecimal transferValue) throws IllegalException {
