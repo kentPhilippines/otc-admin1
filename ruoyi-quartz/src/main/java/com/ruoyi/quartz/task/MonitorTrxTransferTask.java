@@ -3,6 +3,7 @@ package com.ruoyi.quartz.task;
 
 import com.ruoyi.common.core.domain.entity.AccountAddressInfo;
 import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
+import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.system.domain.MonitorAddressAccount;
 import com.ruoyi.system.service.IAccountAddressInfoService;
 import com.ruoyi.system.service.IMonitorAddressInfoService;
@@ -32,7 +33,8 @@ public class MonitorTrxTransferTask {
                 .monitorType("TRX")
                 .build();
         List<MonitorAddressAccount> monitorAddressAccountList = iMonitorAddressInfoService.selectAllMonitorAddressAccount(monitorAddressAccountExample);*/
-        List<MonitorAddressInfo> monitorAddressInfoList = iMonitorAddressInfoService.selectAllValidMonitorAddressAccount();
+        String trx2Energy = DictUtils.getDictValue("sys_busi_type", "TRX兑能量");
+        List<MonitorAddressInfo> monitorAddressInfoList = iMonitorAddressInfoService.selectAllValidMonitorAddressAccount(trx2Energy);
         List<MonitorAddressAccount> monitorAddressAccountList = new ArrayList<>();
 
         for (MonitorAddressInfo monitorAddressInfo : monitorAddressInfoList) {

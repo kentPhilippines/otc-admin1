@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.UsdtExchangeInfoMapper">
+
+    <resultMap type="UsdtExchangeInfo" id="UsdtExchangeInfoResult">
+        <result property="idUsdtExchangeInfo"    column="id_usdt_exchange_info"    />
+        <result property="fromAddress"    column="from_address"    />
+        <result property="toAddress"    column="to_address"    />
+        <result property="accountAddress"    column="account_address"    />
+        <result property="usdtTxId"    column="usdt_tx_id"    />
+        <result property="usdtAmount"    column="usdt_amount"    />
+        <result property="trxAmount"    column="trx_amount"    />
+        <result property="exchangeRate"    column="exchange_rate"    />
+        <result property="trxTxId"    column="trx_tx_id"    />
+        <result property="orginalExchangeRate"    column="orginal_exchange_rate"    />
+        <result property="fcd"    column="fcd"    />
+        <result property="fcu"    column="fcu"    />
+        <result property="lcd"    column="lcd"    />
+        <result property="lcu"    column="lcu"    />
+    </resultMap>
+
+    <sql id="selectUsdtExchangeInfoVo">
+        select id_usdt_exchange_info, from_address, to_address, account_address, usdt_tx_id, usdt_amount, trx_amount, exchange_rate, trx_tx_id, orginal_exchange_rate, fcd, fcu, lcd, lcu from usdt_exchange_info
+    </sql>
+
+    <select id="selectUsdtExchangeInfoList" parameterType="UsdtExchangeInfo" resultMap="UsdtExchangeInfoResult">
+        <include refid="selectUsdtExchangeInfoVo"/>
+        <where>
+            <if test="fromAddress != null  and fromAddress != ''"> and from_address = #{fromAddress}</if>
+            <if test="toAddress != null  and toAddress != ''"> and to_address = #{toAddress}</if>
+            <if test="accountAddress != null  and accountAddress != ''"> and account_address = #{accountAddress}</if>
+            <if test="usdtTxId != null  and usdtTxId != ''"> and usdt_tx_id = #{usdtTxId}</if>
+            <if test="usdtAmount != null "> and usdt_amount = #{usdtAmount}</if>
+            <if test="trxAmount != null "> and trx_amount = #{trxAmount}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="trxTxId != null  and trxTxId != ''"> and trx_tx_id = #{trxTxId}</if>
+            <if test="orginalExchangeRate != null "> and orginal_exchange_rate = #{orginalExchangeRate}</if>
+            <if test="fcd != null "> and fcd = #{fcd}</if>
+            <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
+            <if test="lcd != null "> and lcd = #{lcd}</if>
+            <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
+        </where>
+    </select>
+
+    <select id="selectUsdtExchangeInfoByIdUsdtExchangeInfo" parameterType="Long" resultMap="UsdtExchangeInfoResult">
+        <include refid="selectUsdtExchangeInfoVo"/>
+        where id_usdt_exchange_info = #{idUsdtExchangeInfo}
+    </select>
+
+    <insert id="insertUsdtExchangeInfo" parameterType="UsdtExchangeInfo" useGeneratedKeys="true" keyProperty="idUsdtExchangeInfo">
+        insert into usdt_exchange_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fromAddress != null">from_address,</if>
+            <if test="toAddress != null">to_address,</if>
+            <if test="accountAddress != null">account_address,</if>
+            <if test="usdtTxId != null">usdt_tx_id,</if>
+            <if test="usdtAmount != null">usdt_amount,</if>
+            <if test="trxAmount != null">trx_amount,</if>
+            <if test="exchangeRate != null">exchange_rate,</if>
+            <if test="trxTxId != null">trx_tx_id,</if>
+            <if test="orginalExchangeRate != null">orginal_exchange_rate,</if>
+            <if test="fcd != null">fcd,</if>
+            <if test="fcu != null">fcu,</if>
+            <if test="lcd != null">lcd,</if>
+            <if test="lcu != null">lcu,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fromAddress != null">#{fromAddress},</if>
+            <if test="toAddress != null">#{toAddress},</if>
+            <if test="accountAddress != null">#{accountAddress},</if>
+            <if test="usdtTxId != null">#{usdtTxId},</if>
+            <if test="usdtAmount != null">#{usdtAmount},</if>
+            <if test="trxAmount != null">#{trxAmount},</if>
+            <if test="exchangeRate != null">#{exchangeRate},</if>
+            <if test="trxTxId != null">#{trxTxId},</if>
+            <if test="orginalExchangeRate != null">#{orginalExchangeRate},</if>
+            <if test="fcd != null">#{fcd},</if>
+            <if test="fcu != null">#{fcu},</if>
+            <if test="lcd != null">#{lcd},</if>
+            <if test="lcu != null">#{lcu},</if>
+        </trim>
+    </insert>
+
+    <update id="updateUsdtExchangeInfo" parameterType="UsdtExchangeInfo">
+        update usdt_exchange_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fromAddress != null">from_address = #{fromAddress},</if>
+            <if test="toAddress != null">to_address = #{toAddress},</if>
+            <if test="accountAddress != null">account_address = #{accountAddress},</if>
+            <if test="usdtTxId != null">usdt_tx_id = #{usdtTxId},</if>
+            <if test="usdtAmount != null">usdt_amount = #{usdtAmount},</if>
+            <if test="trxAmount != null">trx_amount = #{trxAmount},</if>
+            <if test="exchangeRate != null">exchange_rate = #{exchangeRate},</if>
+            <if test="trxTxId != null">trx_tx_id = #{trxTxId},</if>
+            <if test="orginalExchangeRate != null">orginal_exchange_rate = #{orginalExchangeRate},</if>
+            <if test="fcd != null">fcd = #{fcd},</if>
+            <if test="fcu != null">fcu = #{fcu},</if>
+            <if test="lcd != null">lcd = #{lcd},</if>
+            <if test="lcu != null">lcu = #{lcu},</if>
+        </trim>
+        where id_usdt_exchange_info = #{idUsdtExchangeInfo}
+    </update>
+
+    <delete id="deleteUsdtExchangeInfoByIdUsdtExchangeInfo" parameterType="Long">
+        delete from usdt_exchange_info where id_usdt_exchange_info = #{idUsdtExchangeInfo}
+    </delete>
+
+    <delete id="deleteUsdtExchangeInfoByIdUsdtExchangeInfos" parameterType="String">
+        delete from usdt_exchange_info where id_usdt_exchange_info in
+        <foreach item="idUsdtExchangeInfo" collection="array" open="(" separator="," close=")">
+            #{idUsdtExchangeInfo}
+        </foreach>
+    </delete>
+
+</mapper>

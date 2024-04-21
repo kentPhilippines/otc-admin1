@@ -7,6 +7,7 @@ import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
 import com.ruoyi.common.core.domain.entity.TenantInfo;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.service.IMonitorAddressInfoService;
 import com.ruoyi.system.service.ITenantInfoService;
@@ -75,8 +76,8 @@ public class TenantInfoController extends BaseController
     @GetMapping("/add")
     public String add(ModelMap mmap)
     {
-
-        List<MonitorAddressInfo> monitorAddressAccountList = monitorAddressInfoService.selectAllValidMonitorAddressAccount();
+        String trx2Energy = DictUtils.getDictValue("sys_busi_type", "TRX兑能量");
+        List<MonitorAddressInfo> monitorAddressAccountList = monitorAddressInfoService.selectAllValidMonitorAddressAccount(trx2Energy);
         mmap.put("monitorAddressInfoList", monitorAddressAccountList);
         return prefix + "/add";
     }
@@ -102,8 +103,8 @@ public class TenantInfoController extends BaseController
     {
         TenantInfo tenantInfo = tenantInfoService.selectTenantInfoByIdTenantInfo(idTenantInfo);
         mmap.put("tenantInfo", tenantInfo);
-
-        List<MonitorAddressInfo> monitorAddressInfoList = monitorAddressInfoService.selectAllValidMonitorAddressAccount();
+        String trx2Energy = DictUtils.getDictValue("sys_busi_type", "TRX兑能量");
+        List<MonitorAddressInfo> monitorAddressInfoList = monitorAddressInfoService.selectAllValidMonitorAddressAccount(trx2Energy);
         mmap.put("monitorAddressInfoList", monitorAddressInfoList);
         return prefix + "/edit";
     }

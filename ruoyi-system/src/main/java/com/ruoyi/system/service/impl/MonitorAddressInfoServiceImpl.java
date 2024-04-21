@@ -102,9 +102,10 @@ public class MonitorAddressInfoServiceImpl implements IMonitorAddressInfoService
     }*/
 
     @Override
-    public List<MonitorAddressInfo> selectAllValidMonitorAddressAccount() {
+    public List<MonitorAddressInfo> selectAllValidMonitorAddressAccount(String busiType) {
         MonitorAddressInfo monitorAddressInfo = new MonitorAddressInfo();
         monitorAddressInfo.setIsValid("Y");
+        monitorAddressInfo.setBusiType(busiType);
 
         return   monitorAddressInfoMapper.selectMonitorAddressInfoList(monitorAddressInfo);
     }

@@ -60,12 +60,6 @@ public interface IMonitorAddressInfoService
      * @return 结果
      */
     public int deleteMonitorAddressInfoByIdMonitorAddress(Long idMonitorAddress);
-/*
 
-    List<MonitorAddressAccount> selectAllMonitorAddressAccount(MonitorAddressAccount monitorAddressAccountExample);
-*/
-
-    List<MonitorAddressInfo> selectAllValidMonitorAddressAccount();
-
-
+    List<MonitorAddressInfo> selectAllValidMonitorAddressAccount(String busiType);
 }
