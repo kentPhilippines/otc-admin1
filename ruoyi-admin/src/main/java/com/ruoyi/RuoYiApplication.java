@@ -1,9 +1,15 @@
 package com.ruoyi;
 
+import com.ruoyi.system.bot.TgLongPollingBot;
+import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 /**
  * 启动程序
@@ -12,8 +18,11 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
  */
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 @MapperScan("com.ruoyi.system.mapper")
-public class RuoYiApplication
+@Slf4j
+public class RuoYiApplication implements CommandLineRunner
 {
+    @Autowired(required = false)
+    private TgLongPollingBot tgLongPollingBot;
     public static void main(String[] args)
     {
         // System.setProperty("spring.devtools.restart.enabled", "false");
@@ -28,5 +37,17 @@ public class RuoYiApplication
                 " |  | \\ `'   /|   `-'  /           \n" +
                 " |  |  \\    /  \\      /           \n" +
                 " ''-'   `'-'    `-..-'              ");
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        if (tgLongPollingBot == null){
+            return;
+        }
+        TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+
+        botsApi.registerBot(tgLongPollingBot);
+        tgLongPollingBot.setCommands();
+        log.info("longPolling模式已启动");
     }
 }

@@ -166,3 +166,8 @@ swagger:
   enabled: true
 
 
+tg:
+  bot:
+    name: CnRogerBot
+    token: 6559243612:AAFOZU6MFq_pX25w71PH874_lVIM2MIhuSE
+  chatid: -1002058165663

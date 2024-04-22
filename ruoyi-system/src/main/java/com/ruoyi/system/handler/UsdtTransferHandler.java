@@ -1,16 +1,20 @@
 package com.ruoyi.system.handler;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.google.common.base.Preconditions;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
 import com.ruoyi.common.core.domain.entity.UsdtExchangeInfo;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.api.IOkxApi;
 import com.ruoyi.system.api.ITronApi;
 import com.ruoyi.system.api.entity.okx.OkxResponse;
 import com.ruoyi.system.api.enums.ContractType;
 import com.ruoyi.system.api.enums.Symbol;
+import com.ruoyi.system.bot.TgLongPollingBot;
+import com.ruoyi.system.bot.utils.SendContent;
 import com.ruoyi.system.dto.Data;
 import com.ruoyi.system.dto.Token_info;
 import com.ruoyi.system.dto.TronGridResponse;
@@ -19,20 +23,28 @@ import com.ruoyi.system.service.IAccountAddressInfoService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.util.AddressUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
 import org.tron.trident.proto.Response;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -56,6 +68,10 @@ public class UsdtTransferHandler {
     private RedisTemplate redisTemplate;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired(required = false)
+    private TgLongPollingBot longPollingBot;
+    @Autowired
+    private SendContent sendContent;
 
     public void doMonitorUsdtTransfer(MonitorAddressInfo monitorAddressInfo) throws Exception {
 
@@ -105,7 +121,7 @@ public class UsdtTransferHandler {
             doTransferUsdtAndStore(oneUsdtToTrx, apiKey, decryptPrivateKey, accountAddress, from, trxValue, dataTo, transactionId, transferValue);
 
             redisTemplate.opsForValue().set("transfer_USDT_" + transactionId, transactionId, 1, TimeUnit.DAYS);
-        }finally {
+        } finally {
             if (lock.isLocked()) {
                 if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
@@ -114,7 +130,7 @@ public class UsdtTransferHandler {
         }
     }
 
-    public void doTransferUsdtAndStore(BigDecimal oneUsdtToTrx, String apiKey, String decryptPrivateKey, String accountAddress, String from, BigDecimal trxValue, String dataTo, String transactionId, BigDecimal transferValue) throws IllegalException {
+    public void doTransferUsdtAndStore(BigDecimal oneUsdtToTrx, String apiKey, String decryptPrivateKey, String accountAddress, String from, BigDecimal trxValue, String dataTo, String transactionId, BigDecimal transferValue) throws IllegalException, TelegramApiException {
 
         String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
 
@@ -143,7 +159,31 @@ public class UsdtTransferHandler {
                 .setOrginalExchangeRate(oneUsdtToTrx)
                 .setTrxTxId(txId);
 
+
         usdtExchangeInfoMapper.insertUsdtExchangeInfo(usdtExchangeInfo);
+
+        doSendTgNotice(oneUsdtToTrx, from, trxValue, transferValue, txId);
+    }
+
+    private void doSendTgNotice(BigDecimal oneUsdtToTrx, String from, BigDecimal trxValue, BigDecimal transferValue, String txId) throws TelegramApiException {
+        String sysUsdtTranferNotice = configService.selectConfigByKey("sys.usdt.tranfer.notice");
+        String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
+        if (longPollingBot != null && StringUtils.isNotEmpty(sysUsdtTranferNotice) && StringUtils.isNotEmpty(sysTgGroupChatId)) {
+            Map<String, Object> arguments = new HashMap<>();
+            arguments.put("usdtAmount", transferValue);
+            arguments.put("exchangeRate", oneUsdtToTrx);
+            arguments.put("trxAmount", trxValue);
+            arguments.put("FromAddress", from);
+            arguments.put("txId", txId);
+            arguments.put("txTime", DateUtil.format(new Date(),"yyyy-MM-dd HH:mm:ss"));
+//            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
+            StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
+            String message = substitutor.replace(sysUsdtTranferNotice);
+            SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
+            longPollingBot.execute(sendMessage);
+        } else {
+            log.warn("longPollingBot OR sysUsdtTranferNotice OR sysTgGroupChatId  is null");
+        }
     }
 
     /**
@@ -186,8 +226,8 @@ public class UsdtTransferHandler {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeyException
      */
-    public BigDecimal getOneUsdtToTrx() throws NoSuchAlgorithmException, InvalidKeyException {
-        OkxResponse oksResponse = okxApi.getSingleTickerOkxResponse();
+    public BigDecimal getOneUsdtToTrx() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+        OkxResponse oksResponse = okxApi.getSingleTickerOkxResponse2();
         Preconditions.checkNotNull(oksResponse, "查询费率失败无法兑换");
         String code = oksResponse.getCode();
 
@@ -196,12 +236,63 @@ public class UsdtTransferHandler {
         List<com.ruoyi.system.api.entity.okx.Data> oksResponseDataList = oksResponse.getData();
         Preconditions.checkState(CollectionUtil.isNotEmpty(oksResponseDataList), "okx费率响应为空:" + JSONUtil.toJsonStr(oksResponse));
 
-        log.info("oksResponse:{}",oksResponse);
+        log.info("oksResponse:{}", oksResponse);
         String last = oksResponseDataList.get(0).getLast();
 
-        BigDecimal oneUsdtToTrx = BigDecimal.ONE.divide(new BigDecimal(last)).setScale(6, BigDecimal.ROUND_HALF_DOWN);
+//        BigDecimal oneUsdtToTrx = BigDecimal.ONE.divide(new BigDecimal(last)).setScale(6, BigDecimal.ROUND_HALF_DOWN);
+
+        double oneUsdtToTrxDouble = 1 / new Double(last);
+        BigDecimal oneUsdtToTrx = BigDecimal.valueOf(oneUsdtToTrxDouble).setScale(6, BigDecimal.ROUND_HALF_DOWN);
+
+        log.info("实时汇率:{}",oneUsdtToTrx);
+        String sysUsdtProportionRate = configService.selectConfigByKey("sys.usdt.proportion.rate");
+
+        if (StringUtils.isNotEmpty(sysUsdtProportionRate)) {
+            oneUsdtToTrx = oneUsdtToTrx.multiply(BigDecimal.ONE.subtract(new BigDecimal(sysUsdtProportionRate))).setScale(6, BigDecimal.ROUND_HALF_DOWN);
+        }
         return oneUsdtToTrx;
     }
+
+
+    public void topicGroupMessage() {
+
+
+        String sysUsdtGroupTopic = configService.selectConfigByKey("sys.usdt.group.topic");
+        String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
+
+        log.info("longPollingBot:{},sysUsdtGroupTopic:{},sysTgGroupChatId:{}", longPollingBot, sysUsdtGroupTopic, sysTgGroupChatId);
+
+        if (longPollingBot != null && StringUtils.isNotEmpty(sysUsdtGroupTopic) && StringUtils.isNotEmpty(sysTgGroupChatId)) {
+            log.info("进入这里1");
+            try {
+                BigDecimal tenUsdtToTrx = getOneUsdtToTrx().multiply(BigDecimal.TEN);
+                Map<String, Object> arguments = new HashMap<>();
+                arguments.put("tenUsdtToTrx", tenUsdtToTrx);
+                StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
+                String message = substitutor.replace(sysUsdtGroupTopic);
+                SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
+
+                longPollingBot.execute(sendMessage);
+            } catch (Exception e) {
+
+                log.error("广播消息异常",e);
+            }
+        }else {
+            log.info("进入这里2");
+            log.warn("sysUsdtTranferNotice OR sysTgGroupChatId  is null");
+        }
+    }
+
+/*    public static void main(String[] args) {
+        String res ="{\"code\":\"0\",\"msg\":\"\",\"data\":[{\"instType\":\"SPOT\",\"instId\":\"TRX-USDT\",\"last\":\"0.11108\",\"lastSz\":\"534.839755\",\"askPx\":\"0.11108\",\"askSz\":\"12244.867483\",\"bidPx\":\"0.11107\",\"bidSz\":\"2776.220524\",\"open24h\":\"0.11093\",\"high24h\":\"0.11199\",\"low24h\":\"0.11018\",\"volCcy24h\":\"3721341.18131714737\",\"vol24h\":\"33527411.881202\",\"ts\":\"1713782792103\",\"sodUtc0\":\"0.11134\",\"sodUtc8\":\"0.11081\"}]}";
+        OkxResponse okxResponse = JSONUtil.toBean(res, OkxResponse.class);
+        List<com.ruoyi.system.api.entity.okx.Data> oksResponseDataList = okxResponse.getData();
+        String last = oksResponseDataList.get(0).getLast();
+
+        double v = 1 / new Double(last);
+        BigDecimal bigDecimal = BigDecimal.valueOf(v).setScale(6, BigDecimal.ROUND_HALF_DOWN);
+        System.out.println(bigDecimal);
+    }*/
 
 
 }
