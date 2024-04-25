@@ -110,6 +110,11 @@ public class UsdtTransferHandler {
         String dataTo = data.getTo();
         String transactionId = data.getTransaction_id();
 
+        Boolean hasKey = redisTemplate.hasKey("transfer_USDT_" + transactionId);
+        if (hasKey) {
+            return;
+        }
+
         RLock lock = redissonClient.getLock("lock_" + transactionId);
         try {
             boolean res = lock.tryLock(3, 50, TimeUnit.SECONDS);
@@ -139,7 +144,7 @@ public class UsdtTransferHandler {
 
             ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, apiKey);
 
-            //转账
+             //转账
             Response.TransactionExtention transfer = apiWrapper.transfer(accountAddress, from, trxValue.movePointRight(6).longValue());
             //签名
             Chain.Transaction transaction = apiWrapper.signTransaction(transfer);
@@ -282,17 +287,6 @@ public class UsdtTransferHandler {
             log.warn("sysUsdtTranferNotice OR sysTgGroupChatId  is null");
         }
     }
-
-/*    public static void main(String[] args) {
-        String res ="{\"code\":\"0\",\"msg\":\"\",\"data\":[{\"instType\":\"SPOT\",\"instId\":\"TRX-USDT\",\"last\":\"0.11108\",\"lastSz\":\"534.839755\",\"askPx\":\"0.11108\",\"askSz\":\"12244.867483\",\"bidPx\":\"0.11107\",\"bidSz\":\"2776.220524\",\"open24h\":\"0.11093\",\"high24h\":\"0.11199\",\"low24h\":\"0.11018\",\"volCcy24h\":\"3721341.18131714737\",\"vol24h\":\"33527411.881202\",\"ts\":\"1713782792103\",\"sodUtc0\":\"0.11134\",\"sodUtc8\":\"0.11081\"}]}";
-        OkxResponse okxResponse = JSONUtil.toBean(res, OkxResponse.class);
-        List<com.ruoyi.system.api.entity.okx.Data> oksResponseDataList = okxResponse.getData();
-        String last = oksResponseDataList.get(0).getLast();
-
-        double v = 1 / new Double(last);
-        BigDecimal bigDecimal = BigDecimal.valueOf(v).setScale(6, BigDecimal.ROUND_HALF_DOWN);
-        System.out.println(bigDecimal);
-    }*/
 
 
 }

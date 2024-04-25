@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -57,10 +56,10 @@ public class TgLongPollingBot extends TelegramLongPollingBot {
     @SneakyThrows
     public void onUpdateReceived(Update update) {
 //        log.info("消息:{}",update.getMessage().getText());
-        SendMessage sendMessage = SendMessage.builder().chatId(update.getMessage().getChatId().toString()).text("收到消息:"+update.getMessage().getChatId().toString()).build();
+//        SendMessage sendMessage = SendMessage.builder().chatId(update.getMessage().getChatId().toString()).text("收到消息:"+update.getMessage().getChatId().toString()).build();
         try {
             customBotFunction.mainFunc(this,update);
-            execute(sendMessage);
+//            execute(sendMessage);
 
         } catch (TelegramApiException e) {
             log.error("ex:{}",e);

@@ -1,5 +1,7 @@
 package com.ruoyi.system.bot;
 
+import com.ruoyi.system.bot.handleService.NewMemberIntoGroup;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -8,20 +10,37 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class CustomBotFunction {
 
+    @Autowired
+    private NewMemberIntoGroup newMemberIntoGroup;
 
 
     /**
      * 对消息进行处理
+     *
      * @param sender
      * @param update
      */
-    public void mainFunc(AbsSender sender, Update update) throws TelegramApiException {
+    public void mainFunc(AbsSender sender, Update update) throws TelegramApiException, IOException, NoSuchAlgorithmException, InvalidKeyException {
+
+
+        if (update.getChatMember() != null && "left".equals(update.getChatMember().getOldChatMember().getStatus())
+                && "member".equals(update.getChatMember().getNewChatMember().getStatus()) &&
+                (update.getChatMember().getChat().isGroupChat() || update.getChatMember().getChat().isSuperGroupChat())) {
+
+            newMemberIntoGroup.handleMessage(sender, update);
+
+            return;
+        }
+
         if ("/start".equals(update.getMessage().getText())) {
 
             SendMessage message = new SendMessage();

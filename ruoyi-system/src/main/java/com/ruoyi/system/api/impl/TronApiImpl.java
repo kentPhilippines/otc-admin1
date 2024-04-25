@@ -1,5 +1,8 @@
 package com.ruoyi.system.api.impl;
 
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.ruoyi.common.utils.http.RestTemplateUtils;
 import com.ruoyi.system.api.ITronApi;
@@ -12,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Date;
 
 @Component
 @Slf4j
@@ -29,10 +34,10 @@ public class TronApiImpl implements ITronApi {
 //        builder.queryParam("only_confirmed", true);
         builder.queryParam("only_to", true);
         builder.queryParam("limit", 200);
-//        String sysTransferBetween = configService.selectConfigByKey("sys.transfer.between");
+        String sysTransferBetween = configService.selectConfigByKey("sys.transfer.between");
 //
-//        DateTime min_timestamp = DateUtil.offset(new Date(), DateField.MINUTE, Integer.valueOf(sysTransferBetween));
-//        builder.queryParam("min_timestamp", min_timestamp.getTime());
+        DateTime min_timestamp = DateUtil.offset(new Date(), DateField.MINUTE, Integer.valueOf(sysTransferBetween));
+        builder.queryParam("min_timestamp", min_timestamp.getTime());
 
         String uriString = builder.toUriString();
         ResponseEntity responseEntity = RestTemplateUtils.get(uriString, headers, String.class);
