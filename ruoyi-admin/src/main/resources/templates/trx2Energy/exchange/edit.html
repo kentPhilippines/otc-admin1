@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改trx兑能量记录')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-trx-edit" th:object="${trxExchangeInfo}">
+            <input name="idTrxExchangeInfo" th:field="*{idTrxExchangeInfo}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">资源委托状态：</label>
+                <div class="col-sm-8">
+                  <!--  <input name="fromAddress" th:field="*{fromAddress}" class="form-control" type="text">-->
+                    <select class="form-control" name="delegateStatus" th:with="type=${@dict.getType('sys_delegate_status')}">
+                        <option th:each="dict : ${type}"  th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{delegateStatus}"></option>
+                    </select>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "trx2Energy/exchange";
+        $("#form-trx-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-trx-edit').serialize());
+            }
+        }
+
+    </script>
+</body>
+</html>

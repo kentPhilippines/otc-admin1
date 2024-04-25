@@ -116,9 +116,10 @@ public class AccountAddressInfoServiceImpl implements IAccountAddressInfoService
     }
 
     @Override
-    public List<AccountAddressInfo> selectAccountAddressInfoAll() {
+    public List<AccountAddressInfo> selectAccountAddressInfoAll(String busiType) {
         AccountAddressInfo accountAddressInfo = new AccountAddressInfo();
         accountAddressInfo.setIsValid(UserConstants.YES);
+        accountAddressInfo.setBusiType(busiType);
         return accountAddressInfoMapper.selectAccountAddressInfoList(accountAddressInfo);
     }
 

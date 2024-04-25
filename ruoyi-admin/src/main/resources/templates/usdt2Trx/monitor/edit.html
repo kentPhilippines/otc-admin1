@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改监听账户入账')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-monitor-edit" th:object="${monitorAddressInfo}">
+            <input name="idMonitorAddress" th:field="*{idMonitorAddress}" type="hidden">
+      <!--      <div class="form-group">
+                <label class="col-sm-3 control-label">业务类型：</label>
+                <div class="col-sm-8">
+                    <select name="busiType" class="form-control m-b" th:with="type=${@dict.getType('sys_busi_type')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{busiType}"></option>
+                    </select>
+                </div>
+            </div>-->
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">监听地址：</label>
+                <div class="col-sm-8">
+                    <input name="monitorAddress" th:field="*{monitorAddress}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">出账地址：</label>
+                <div class="col-sm-8">
+                   <!-- <input name="accountAddress" th:field="*{accountAddress}" class="form-control" type="text">-->
+                    <select id="accountAddress"  name="accountAddress" class="form-control " >
+                        <option th:each="accountAddressInfo:${accountAddressList}" th:value="${accountAddressInfo.address}" th:text="${accountAddressInfo.address}" th:field="*{accountAddress}"></option>
+                    </select>
+
+
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">单价：</label>
+                <div class="col-sm-8">
+                    <input name="price" th:field="*{price}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">是否有效：</label>
+                <div class="col-sm-8">
+                    <select class="form-control" name="isValid" th:with="type=${@dict.getType('sys_yes_no')}">
+                        <option th:each="dict : ${type}"  th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{isValid}"></option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">监听类型：</label>
+                <div class="col-sm-8">
+                    <select class="form-control" name="monitorType" th:with="type=${@dict.getType('sys_monitor_type')}">
+                        <option th:each="dict : ${type}"  th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{monitorType}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">API_KEY：</label>
+                <div class="col-sm-8">
+                    <select name="apiKey" class="form-control m-b" th:with="type=${@dict.getType('sys_tron_api_key')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{apiKey}"></option>
+                    </select>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "usdt2Trx/monitor";
+        $("#form-monitor-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-monitor-edit').serialize());
+            }
+        }
+
+
+    </script>
+</body>
+</html>

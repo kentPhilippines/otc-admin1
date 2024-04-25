@@ -61,7 +61,7 @@ public interface IAccountAddressInfoService
      */
     public int deleteAccountAddressInfoByIdAccoutAddressInfo(Long idAccoutAddressInfo);
 
-    Object selectAccountAddressInfoAll();
+    Object selectAccountAddressInfoAll(String busiType);
 
     String getDecryptPrivateKey(String address) throws Exception;
 
