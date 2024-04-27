@@ -2,8 +2,8 @@ package com.ruoyi.system.service;
 
 
 import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
-import com.ruoyi.system.domain.MonitorAddressAccount;
 import com.ruoyi.system.domain.TrxExchange;
+import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
 
 import java.util.List;
 
@@ -65,7 +65,7 @@ public interface ITrxExchangeInfoService
 
     int delegate(TrxExchange trxExchange,Boolean isTenant) throws Exception;
 
-    void doMonitorTrxTransferByMonitorAddressInfo(MonitorAddressAccount monitorAddressAccount);
 
-    void doUndelegateEnergyByTrxExchangeInfo(TrxExchangeInfo trxExchangeInfo);
+
+    List<TrxExchangeMonitorAccountInfo> selectTrxExchangeMonitorAccountInfo(TrxExchangeInfo trxExchangeInfoExample);
 }

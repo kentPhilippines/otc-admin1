@@ -1,7 +1,7 @@
 package com.ruoyi.system.bot.handleService;
 
 import com.ruoyi.system.bot.utils.SendContent;
-import com.ruoyi.system.handler.UsdtTransferHandler;
+import com.ruoyi.system.handler.Usdt2TrxTransferHandler;
 import com.ruoyi.system.service.ISysConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,7 @@ public class NewMemberIntoGroup {
     @Autowired
     private ISysConfigService configService;
     @Autowired
-    private UsdtTransferHandler usdtTransferHandlerl;
+    private Usdt2TrxTransferHandler usdt2TrxTransferHandlerl;
 
 
     public void handleMessage(AbsSender sender, Update update) throws TelegramApiException, IOException, NoSuchAlgorithmException, InvalidKeyException {
@@ -46,7 +46,7 @@ public class NewMemberIntoGroup {
 
 
         if (StringUtils.isNotEmpty(sysUsdtGroupWelcomTopic) && StringUtils.isNotEmpty(sysTgGroupChatId)){
-            BigDecimal oneUsdtToTrx = usdtTransferHandlerl.getOneUsdtToTrx();
+            BigDecimal oneUsdtToTrx = usdt2TrxTransferHandlerl.getOneUsdtToTrx();
 
             BigDecimal tenUsdtToTrx = oneUsdtToTrx.multiply(BigDecimal.TEN);
             Map<String, Object> arguments = new HashMap<>();

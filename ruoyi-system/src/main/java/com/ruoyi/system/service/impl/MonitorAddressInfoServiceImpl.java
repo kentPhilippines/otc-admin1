@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.system.domain.MonitorAddressAccount;
 import com.ruoyi.system.mapper.MonitorAddressInfoMapper;
 import com.ruoyi.system.service.IMonitorAddressInfoService;
 import lombok.extern.slf4j.Slf4j;
@@ -108,6 +109,11 @@ public class MonitorAddressInfoServiceImpl implements IMonitorAddressInfoService
         monitorAddressInfo.setBusiType(busiType);
 
         return   monitorAddressInfoMapper.selectMonitorAddressInfoList(monitorAddressInfo);
+    }
+
+    @Override
+    public List<MonitorAddressAccount> selectMonitorAddressAccount(MonitorAddressInfo monitorAddressInfoExample) {
+        return monitorAddressInfoMapper.selectMonitorAddressAccount(monitorAddressInfoExample);
     }
 
 

@@ -62,4 +62,6 @@ public interface ITenantInfoService
     public int deleteTenantInfoByIdTenantInfo(Long idTenantInfo);
 
     int activeDataTenantInfoByIdTenantInfos(String ids) throws Exception;
+
+    void doDelegateEnergy(TenantInfo tenantInfo) throws Exception;
 }

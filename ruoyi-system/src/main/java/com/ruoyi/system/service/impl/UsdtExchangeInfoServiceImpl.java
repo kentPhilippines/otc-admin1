@@ -7,7 +7,7 @@ import com.ruoyi.common.core.domain.entity.AccountAddressInfo;
 import com.ruoyi.common.core.domain.entity.UsdtExchangeInfo;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.DictUtils;
-import com.ruoyi.system.handler.UsdtTransferHandler;
+import com.ruoyi.system.handler.Usdt2TrxTransferHandler;
 import com.ruoyi.system.mapper.AccountAddressInfoMapper;
 import com.ruoyi.system.mapper.UsdtExchangeInfoMapper;
 import com.ruoyi.system.service.IUsdtExchangeInfoService;
@@ -30,7 +30,7 @@ public class UsdtExchangeInfoServiceImpl implements IUsdtExchangeInfoService {
     private UsdtExchangeInfoMapper usdtExchangeInfoMapper;
 
     @Autowired
-    private UsdtTransferHandler usdtTransferHandler;
+    private Usdt2TrxTransferHandler usdt2TrxTransferHandler;
     @Autowired
     private AccountAddressInfoMapper accountAddressInfoMapper;
     @Autowired
@@ -72,7 +72,7 @@ public class UsdtExchangeInfoServiceImpl implements IUsdtExchangeInfoService {
         String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
 
         if (UserConstants.YES.equals(systronApiSwitch)) {
-            oneUsdtToTrx = usdtTransferHandler.getOneUsdtToTrx();
+            oneUsdtToTrx = usdt2TrxTransferHandler.getOneUsdtToTrx();
         } else {
             oneUsdtToTrx = new BigDecimal("7.565113");
         }
@@ -95,7 +95,7 @@ public class UsdtExchangeInfoServiceImpl implements IUsdtExchangeInfoService {
         String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
 
         String fromAddress = usdtExchangeInfo.getFromAddress();
-        usdtTransferHandler.
+        usdt2TrxTransferHandler.
                 doTransferUsdtAndStore(oneUsdtToTrx, tronApiKey, decryptPrivateKey, accountAddress, fromAddress, trxValue, null, null, usdtAmount);
 
         return 1;

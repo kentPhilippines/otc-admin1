@@ -4,5 +4,5 @@ import com.ruoyi.system.dto.TronGridResponse;
 
 public interface ITronApi {
 
-    TronGridResponse getTronGridResponse(String monitorAddress, String apiKey);
+    TronGridResponse getTronGridTrc20Response(String monitorAddress,  boolean only_to,boolean only_from,String apiKey, Long min_timestamp);
 }

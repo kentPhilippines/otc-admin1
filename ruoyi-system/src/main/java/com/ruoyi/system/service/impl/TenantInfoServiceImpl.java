@@ -122,8 +122,9 @@ public class TenantInfoServiceImpl implements ITenantInfoService
     {
         Long price = tenantInfo.getPrice();
         Long transferCount = tenantInfo.getTransferCount();
+        Long period = tenantInfo.getPeriod();
 
-        long exchangeAmount = price * transferCount;
+        long exchangeAmount = price * transferCount * period;
         tenantInfo.setExchangeAmount(exchangeAmount);
 
         String loginName = ShiroUtils.getLoginName();
@@ -179,55 +180,55 @@ public class TenantInfoServiceImpl implements ITenantInfoService
 
             Preconditions.checkState(CollectionUtil.isEmpty(trxExchangeInfos), "该接收能量地址已在任务中,请勿重复发起");
 
-            String accountAddress = null;
-            String monitorAddress = null;
-            if (StringUtils.isNotEmpty(tenantInfo.getMonitorAddress())){
-                MonitorAddressInfo monitorAddressInfoExample = new MonitorAddressInfo();
-                monitorAddressInfoExample.setMonitorAddress(tenantInfo.getMonitorAddress());
-                monitorAddressInfoExample.setIsValid(UserConstants.YES);
-                List<MonitorAddressInfo> monitorAddressInfoList = monitorAddressInfoMapper.selectMonitorAddressInfoList(monitorAddressInfoExample);
-                Preconditions.checkState(CollectionUtil.isNotEmpty(monitorAddressInfoList), "监听地址不存在或者已失效,无法再次委托能量");
-
-                MonitorAddressInfo monitorAddressInfo = monitorAddressInfoList.get(0);
-                accountAddress = monitorAddressInfo.getAccountAddress();
-
-                monitorAddress = monitorAddressInfo.getMonitorAddress();
-            }else {
-                AccountAddressInfo accountAddressInfo = new AccountAddressInfo();
-                accountAddressInfo.setIsValid("Y");
-                List<AccountAddressInfo> accountAddressInfoList = accountAddressInfoMapper.selectAccountAddressInfoList(accountAddressInfo);
-                Preconditions.checkState(CollectionUtil.isNotEmpty(accountAddressInfoList), "无有效的出账地址无法委托能量");
-
-                accountAddress = accountAddressInfoList.get(0).getAddress();
-
-            }
-
-
-            TrxExchange trxExchange = new TrxExchange();
-            trxExchange.setFromAddress(tenantInfo.getReceiverAddress());
-
-            trxExchange.setAccountAddress(accountAddress);
-            trxExchange.setTransferNumber(tenantInfo.getTransferCount());
-
-            trxExchange.setPrice(tenantInfo.getPrice());
-
-            trxExchange.setMonitorAddress(monitorAddress);
-
-            long between = DateUtil.between(DateUtil.date(), DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR);
-            trxExchange.setLockNum(between + 1);
-
-            trxExchangeInfoService.delegate(trxExchange, true);
-
-            tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
-            tenantInfoMapper.updateTenantInfo(tenantInfo);
+            doDelegateEnergy(tenantInfo);
         }
 
         return 1;
     }
 
-/*    public static void main(String[] args) {
-        System.out.println(DateUtil.date());
-        System.out.println( DateUtil.endOfDay(DateUtil.date()));
-        System.out.println( DateUtil.between(DateUtil.date(),DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR));
-    }*/
+    @Override
+    public void doDelegateEnergy(TenantInfo tenantInfo) throws Exception {
+        String accountAddress = null;
+        String monitorAddress = null;
+        if (StringUtils.isNotEmpty(tenantInfo.getMonitorAddress())){
+            MonitorAddressInfo monitorAddressInfoExample = new MonitorAddressInfo();
+            monitorAddressInfoExample.setMonitorAddress(tenantInfo.getMonitorAddress());
+            monitorAddressInfoExample.setIsValid(UserConstants.YES);
+            List<MonitorAddressInfo> monitorAddressInfoList = monitorAddressInfoMapper.selectMonitorAddressInfoList(monitorAddressInfoExample);
+            Preconditions.checkState(CollectionUtil.isNotEmpty(monitorAddressInfoList), "监听地址不存在或者已失效,无法再次委托能量");
+
+            MonitorAddressInfo monitorAddressInfo = monitorAddressInfoList.get(0);
+            accountAddress = monitorAddressInfo.getAccountAddress();
+
+            monitorAddress = monitorAddressInfo.getMonitorAddress();
+        }else {
+            AccountAddressInfo accountAddressInfo = new AccountAddressInfo();
+            accountAddressInfo.setIsValid("Y");
+            List<AccountAddressInfo> accountAddressInfoList = accountAddressInfoMapper.selectAccountAddressInfoList(accountAddressInfo);
+            Preconditions.checkState(CollectionUtil.isNotEmpty(accountAddressInfoList), "无有效的出账地址无法委托能量");
+
+            accountAddress = accountAddressInfoList.get(0).getAddress();
+
+        }
+
+
+        TrxExchange trxExchange = new TrxExchange();
+        trxExchange.setFromAddress(tenantInfo.getReceiverAddress());
+
+        trxExchange.setAccountAddress(accountAddress);
+        trxExchange.setTransferNumber(tenantInfo.getTransferCount());
+
+        trxExchange.setPrice(tenantInfo.getPrice());
+
+        trxExchange.setMonitorAddress(monitorAddress);
+
+        long between = DateUtil.between(DateUtil.date(), DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR);
+        trxExchange.setLockNum(between + 1);
+
+        trxExchangeInfoService.delegate(trxExchange, true);
+
+        tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
+        tenantInfoMapper.updateTenantInfo(tenantInfo);
+    }
+
 }

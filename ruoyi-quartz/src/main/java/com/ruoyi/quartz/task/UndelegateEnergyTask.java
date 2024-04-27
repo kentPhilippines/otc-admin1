@@ -4,6 +4,8 @@ package com.ruoyi.quartz.task;
 import cn.hutool.core.date.DateUtil;
 import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
 import com.ruoyi.common.utils.DictUtils;
+import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
+import com.ruoyi.system.handler.UndelegateEnergyHandler;
 import com.ruoyi.system.service.ITrxExchangeInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class UndelegateEnergyTask {
     @Autowired
     private ITrxExchangeInfoService trxExchangeInfoService;
 
+    @Autowired
+    private UndelegateEnergyHandler undelegateEnergyHandler;
+
 
 
     public void doUndelegateEnergy() {
@@ -30,9 +35,10 @@ public class UndelegateEnergyTask {
                                                         .fcd(DateUtil.offsetDay(new Date(),-1))
                                                         .build();
 
-        List<TrxExchangeInfo> trxExchangeInfoList = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfoExample);
-        for (TrxExchangeInfo trxExchangeInfo : trxExchangeInfoList) {
-            trxExchangeInfoService.doUndelegateEnergyByTrxExchangeInfo(trxExchangeInfo);
+        List<TrxExchangeMonitorAccountInfo> trxExchangeMonitorAccountInfoList = trxExchangeInfoService.selectTrxExchangeMonitorAccountInfo(trxExchangeInfoExample);
+
+        for (TrxExchangeMonitorAccountInfo trxExchangeMonitorAccountInfo : trxExchangeMonitorAccountInfoList) {
+            undelegateEnergyHandler.doUndelegateEnergyByTrxExchangeInfo(trxExchangeMonitorAccountInfo);
         }
 
 

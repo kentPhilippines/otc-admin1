@@ -74,7 +74,7 @@
         var removeFlag = [[${@permission.hasPermi('usdt2Trx:monitor:remove')}]];
         var prefix = ctx + "usdt2Trx/monitor";
         var datas = [[${@dict.getType('sys_yes_no')}]];
-        var monitorTypeDatas = [[${@dict.getType('sys_monitor_type')}]];
+        var bindPeriodDatas = [[${@dict.getType('sys_lock_period')}]];
         var apiKeyDatas = [[${@dict.getType('sys_tron_api_key')}]];
         var busiTypeDatas = [[${@dict.getType('sys_busi_type')}]];
         $(function() {
@@ -107,17 +107,7 @@
                     field: 'accountAddress',
                     title: '出账地址'
                 },
-                {
-                    field: 'price',
-                    title: '单价'
-                },
-                {
-                    field: 'monitorType',
-                    title: '监听类型',
-                    formatter: function(value, item, index) {
-                        return $.table.selectDictLabel(monitorTypeDatas, item.monitorType);
-                    }
-                },
+
                     {
                         field: 'apiKey',
                         title: 'API_KEY',

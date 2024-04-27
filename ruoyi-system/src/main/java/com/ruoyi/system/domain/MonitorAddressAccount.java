@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Builder
 @Data
@@ -21,17 +22,10 @@ public class MonitorAddressAccount  implements Serializable {
     /**
      * 单位
      */
-    private Integer price;
+    private Integer trxPrice;
 
-    /**
-     * trx或者usdt
-     */
-    private String monitorType;
+    private BigDecimal usdtPrice;
 
-    /**
-     * 是否有效
-     */
-    private String isValid;
 
     /**
      * 加密之后的账户秘钥
@@ -45,5 +39,6 @@ public class MonitorAddressAccount  implements Serializable {
 
     private String apiKey;
 
+    private String bindPeriod;
 
 }

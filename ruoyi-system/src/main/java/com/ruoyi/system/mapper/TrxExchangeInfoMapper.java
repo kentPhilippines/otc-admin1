@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 
 import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
+import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
 
 import java.util.List;
 
@@ -60,4 +61,6 @@ public interface TrxExchangeInfoMapper
      * @return 结果
      */
     public int deleteTrxExchangeInfoByIdTrxExchangeInfos(String[] idTrxExchangeInfos);
+
+    List<TrxExchangeMonitorAccountInfo> selectTrxExchangeMonitorAccountInfo(TrxExchangeInfo trxExchangeInfo);
 }

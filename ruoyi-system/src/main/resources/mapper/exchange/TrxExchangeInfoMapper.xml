@@ -19,6 +19,7 @@
         <result property="lockPeriod"    column="lock_period"    />
         <result property="delegateStatus"    column="delegate_status"    />
         <result property="unDelegateTxId"    column="un_delegate_tx_id"    />
+
         <result property="fcd"    column="fcd"    />
         <result property="fcu"    column="fcu"    />
         <result property="lcd"    column="lcd"    />
@@ -93,6 +94,7 @@
             <if test="lockPeriod != null">#{lockPeriod},</if>
             <if test="delegateStatus != null">#{delegateStatus},</if>
             <if test="unDelegateTxId != null">#{unDelegateTxId},</if>
+
             <if test="fcd != null">#{fcd},</if>
             <if test="fcu != null">#{fcu},</if>
             <if test="lcd != null">#{lcd},</if>
@@ -135,4 +137,50 @@
         </foreach>
     </delete>
 
+    <resultMap id="selectTrxExchangeMonitorAccountInfoResultMap"
+               type="com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo">
+        <result column="id_trx_exchange_info" property="idTrxExchangeInfo"/>
+        <result column="from_address" property="fromAddress"/>
+        <result column="to_address" property="toAddress"/>
+        <result column="account_address" property="accountAddress"/>
+        <result column="tranfer_count" property="tranferCount"/>
+        <result column="energy_busi_type" property="energyBusiType"/>
+        <result column="delegate_amount_trx" property="delegateAmountTrx"/>
+        <result column="lock_period" property="lockPeriod"/>
+        <result column="delegate_status" property="delegateStatus"/>
+        <result column="delegate_tx_id" property="delegateTxId"/>
+        <result column="un_delegate_tx_id" property="unDelegateTxId"/>
+        <result column="fcd" property="fcd"/>
+        <result column="api_key" property="apiKey"/>
+        <result column="encrypt_key" property="encryptKey"/>
+        <result column="encrypt_private_key" property="encryptPrivateKey"/>
+    </resultMap>
+
+    <select id="selectTrxExchangeMonitorAccountInfo" resultMap="selectTrxExchangeMonitorAccountInfoResultMap">
+        SELECT
+        t.id_trx_exchange_info,
+        t.from_address,
+        t.to_address,
+        t.account_address,
+        t.tranfer_count,
+        t.energy_busi_type,
+        t.delegate_amount_trx,
+        t.lock_period,
+        t.delegate_status,
+        t.delegate_tx_id,
+        t.un_delegate_tx_id,
+        t.fcd,
+        m.api_key,
+        a.encrypt_key,
+        a.encrypt_private_key
+        FROM
+        trx_exchange_info t
+        INNER JOIN account_address_info a ON t.account_address = a.address
+        LEFT JOIN monitor_address_info m ON t.to_address = m.monitor_address
+        WHERE
+        t.fcd &gt;= #{fcd}
+        AND t.delegate_status = #{delegateStatus}
+        and a.busi_type = 'trx2Energy'
+        <if test="fromAddress != null  and fromAddress != ''"> and t.from_address = #{fromAddress}</if>
+    </select>
 </mapper>

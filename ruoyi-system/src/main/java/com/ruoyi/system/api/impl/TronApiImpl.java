@@ -1,8 +1,5 @@
 package com.ruoyi.system.api.impl;
 
-import cn.hutool.core.date.DateField;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.ruoyi.common.utils.http.RestTemplateUtils;
 import com.ruoyi.system.api.ITronApi;
@@ -16,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Date;
-
 @Component
 @Slf4j
 public class TronApiImpl implements ITronApi {
@@ -26,18 +21,20 @@ public class TronApiImpl implements ITronApi {
     private ISysConfigService configService;
 
     @Override
-    public TronGridResponse getTronGridResponse(String monitorAddress, String apiKey) {
+    public TronGridResponse getTronGridTrc20Response(String monitorAddress, boolean only_to,boolean only_from, String apiKey,Long min_timestamp) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("TRON-PRO-API-KEY", apiKey);
         //监听
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://api.trongrid.io/v1/accounts/" + monitorAddress + "/transactions/trc20");
 //        builder.queryParam("only_confirmed", true);
-        builder.queryParam("only_to", true);
+        builder.queryParam("only_to", only_to);
+        builder.queryParam("only_from", only_from);
         builder.queryParam("limit", 200);
-        String sysTransferBetween = configService.selectConfigByKey("sys.transfer.between");
-//
-        DateTime min_timestamp = DateUtil.offset(new Date(), DateField.MINUTE, Integer.valueOf(sysTransferBetween));
-        builder.queryParam("min_timestamp", min_timestamp.getTime());
+//        String sysTransferBetween = configService.selectConfigByKey("sys.transfer.between");
+////
+//        DateTime min_timestamp = DateUtil.offset(new Date(), DateField.MINUTE, Integer.valueOf(sysTransferBetween));
+//        long time = min_timestamp.getTime();
+        builder.queryParam("min_timestamp", min_timestamp);
 
         String uriString = builder.toUriString();
         ResponseEntity responseEntity = RestTemplateUtils.get(uriString, headers, String.class);

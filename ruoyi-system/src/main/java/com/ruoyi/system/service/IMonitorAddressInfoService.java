@@ -2,6 +2,7 @@ package com.ruoyi.system.service;
 
 
 import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
+import com.ruoyi.system.domain.MonitorAddressAccount;
 
 import java.util.List;
 
@@ -62,4 +63,6 @@ public interface IMonitorAddressInfoService
     public int deleteMonitorAddressInfoByIdMonitorAddress(Long idMonitorAddress);
 
     List<MonitorAddressInfo> selectAllValidMonitorAddressAccount(String busiType);
+
+    List<MonitorAddressAccount> selectMonitorAddressAccount(MonitorAddressInfo monitorAddressInfoExample);
 }

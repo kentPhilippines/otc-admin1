@@ -1,13 +1,18 @@
 package com.ruoyi.system.handler;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.google.common.base.Preconditions;
 import com.ruoyi.common.constant.UserConstants;
-import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
+import com.ruoyi.common.core.domain.entity.ErrorLog;
 import com.ruoyi.common.core.domain.entity.UsdtExchangeInfo;
+import com.ruoyi.common.utils.ForwardCounter;
+import com.ruoyi.common.utils.LogUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.encrpt.Dt;
 import com.ruoyi.system.api.IOkxApi;
 import com.ruoyi.system.api.ITronApi;
 import com.ruoyi.system.api.entity.okx.OkxResponse;
@@ -15,9 +20,11 @@ import com.ruoyi.system.api.enums.ContractType;
 import com.ruoyi.system.api.enums.Symbol;
 import com.ruoyi.system.bot.TgLongPollingBot;
 import com.ruoyi.system.bot.utils.SendContent;
+import com.ruoyi.system.domain.MonitorAddressAccount;
 import com.ruoyi.system.dto.Data;
 import com.ruoyi.system.dto.Token_info;
 import com.ruoyi.system.dto.TronGridResponse;
+import com.ruoyi.system.mapper.ErrorLogMapper;
 import com.ruoyi.system.mapper.UsdtExchangeInfoMapper;
 import com.ruoyi.system.service.IAccountAddressInfoService;
 import com.ruoyi.system.service.ISysConfigService;
@@ -49,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
-public class UsdtTransferHandler {
+public class Usdt2TrxTransferHandler {
 
     @Autowired
     private ITronApi tronApi;
@@ -72,37 +79,59 @@ public class UsdtTransferHandler {
     private TgLongPollingBot longPollingBot;
     @Autowired
     private SendContent sendContent;
+    @Autowired
+    private ErrorLogMapper errorLogMapper;
 
-    public void doMonitorUsdtTransfer(MonitorAddressInfo monitorAddressInfo) throws Exception {
+    public void doMonitorUsdtTransfer(MonitorAddressAccount monitorAddressAccount)  {
 
-        String monitorAddress = monitorAddressInfo.getMonitorAddress();
-        String apiKey = monitorAddressInfo.getApiKey();
-        TronGridResponse tronGridResponse = tronApi.getTronGridResponse(monitorAddress, apiKey);
+        try {
+            String monitorAddress = monitorAddressAccount.getMonitorAddress();
+            String apiKey = monitorAddressAccount.getApiKey();
+            String sysTransferBetween = configService.selectConfigByKey("sys.transfer.between");
+//
+            DateTime min_timestamp = DateUtil.offset(new Date(), DateField.MINUTE, Integer.valueOf(sysTransferBetween));
 
-        List<Data> dataList = tronGridResponse.getData();
-        if (CollectionUtil.isEmpty(dataList)) {
-            return;
-        }
+            TronGridResponse tronGridResponse = tronApi.getTronGridTrc20Response(monitorAddress,true,false, apiKey,min_timestamp.getTime());
+
+            List<Data> dataList = tronGridResponse.getData();
+            if (CollectionUtil.isEmpty(dataList)) {
+                return;
+            }
 
 
-        //获取欧易费率
-        BigDecimal oneUsdtToTrx = getOneUsdtToTrx();
+            //获取欧易费率
+            BigDecimal oneUsdtToTrx = getOneUsdtToTrx();
 
 
-        for (Data data : dataList) {
-            doMonitorUsdtTransferByData(monitorAddressInfo, data, oneUsdtToTrx, apiKey);
+            for (Data data : dataList) {
+                doMonitorUsdtTransferByData(monitorAddressAccount, data, oneUsdtToTrx, apiKey);
+            }
+        } catch (Exception e) {
+            String exceptionString = LogUtils.doRecursiveReversePrintStackCause(e, 5, ForwardCounter.builder().count(0).build(), 5);
+            log.error("获取trx20交易列表异常:{}", exceptionString);
+            ErrorLog errorLog = ErrorLog.builder()
+                    .address(monitorAddressAccount.getMonitorAddress())
+                    .errorCode("getTransAction")
+                    .errorMsg(exceptionString.length() > 2000 ? exceptionString.substring(0, 2000) : exceptionString)
+                    .fcu("system")
+                    .lcu("system").build();
+            errorLogMapper.insertErrorLog(errorLog);
+
+            throw new RuntimeException("获取trx20交易列表异常",e);
         }
 
     }
 
-    private void doMonitorUsdtTransferByData(MonitorAddressInfo monitorAddressInfo, Data data, BigDecimal oneUsdtToTrx, String apiKey) throws Exception {
+    private void doMonitorUsdtTransferByData(MonitorAddressAccount monitorAddressAccount, Data data, BigDecimal oneUsdtToTrx, String apiKey) throws Exception {
         BigDecimal transferValue = getTransferValue(data);
         if (transferValue == null) return;
 
         BigDecimal trxValue = transferValue.multiply(oneUsdtToTrx);
 
-        String accountAddress = monitorAddressInfo.getAccountAddress();
-        String decryptPrivateKey = accountAddressInfoService.getDecryptPrivateKey(accountAddress);
+        String accountAddress = monitorAddressAccount.getAccountAddress();
+        String encryptPrivateKey = monitorAddressAccount.getEncryptPrivateKey();
+        String encryptKey = monitorAddressAccount.getEncryptKey();
+        String decryptPrivateKey = Dt.decrypt(encryptPrivateKey, encryptKey);
 
         //转账地址
         String from = data.getFrom();
@@ -184,7 +213,7 @@ public class UsdtTransferHandler {
 //            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
             StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
             String message = substitutor.replace(sysUsdtTranferNotice);
-            SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
+            SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.MARKDOWN);
             longPollingBot.execute(sendMessage);
         } else {
             log.warn("longPollingBot OR sysUsdtTranferNotice OR sysTgGroupChatId  is null");
@@ -275,7 +304,7 @@ public class UsdtTransferHandler {
                 arguments.put("tenUsdtToTrx", tenUsdtToTrx);
                 StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
                 String message = substitutor.replace(sysUsdtGroupTopic);
-                SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
+                SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.MARKDOWN);
 
                 longPollingBot.execute(sendMessage);
             } catch (Exception e) {

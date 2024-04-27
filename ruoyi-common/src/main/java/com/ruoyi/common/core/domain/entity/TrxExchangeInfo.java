@@ -80,6 +80,7 @@ public class TrxExchangeInfo extends BaseEntity
     @Excel(name = "回收资源交易")
     private String unDelegateTxId;
 
+
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
