@@ -66,4 +66,6 @@ public interface IAccountAddressInfoService
     String getDecryptPrivateKey(String address) throws Exception;
 
     List<AccountAddressInfo> selectAccountAddressInfoListByResouce(AccountAddressInfo accountAddressInfo) throws Exception;
+
+    void doQueryResourceInfo(AccountAddressInfo addressInfo) throws Exception;
 }

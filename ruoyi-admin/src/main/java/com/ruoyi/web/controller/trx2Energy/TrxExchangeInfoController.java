@@ -90,7 +90,7 @@ public class TrxExchangeInfoController extends BaseController
     @PostMapping("/delegate")
     @ResponseBody
     public AjaxResult delegate(TrxExchange trxExchange) throws Exception {
-        return toAjax(trxExchangeInfoService.delegate(trxExchange,false));
+        return toAjax(trxExchangeInfoService.delegate(trxExchange,false,null));
     }
 
     /**

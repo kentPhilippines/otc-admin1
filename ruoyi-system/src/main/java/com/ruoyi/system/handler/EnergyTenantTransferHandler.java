@@ -44,7 +44,7 @@ public class EnergyTenantTransferHandler {
             TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder()
                     .fromAddress(tenantInfo.getReceiverAddress())
                     .delegateStatus(delegateStatus)
-                    .fcd(DateUtil.offsetDay(new Date(), -1))
+                    .fcd(DateUtil.offsetDay(new Date(), -2))
                     .build();
 
             List<TrxExchangeMonitorAccountInfo> trxExchangeMonitorAccountInfoList = trxExchangeInfoMapper.selectTrxExchangeMonitorAccountInfo(trxExchangeInfo);
@@ -54,7 +54,7 @@ public class EnergyTenantTransferHandler {
             }
 
             //赠送每天的能量
-            tenantInfoService.doDelegateEnergy(tenantInfo);
+            tenantInfoService.doDelegateEnergy(tenantInfo,"system");
         } catch (Exception e) {
             String exceptionString = LogUtils.doRecursiveReversePrintStackCause(e, 5, ForwardCounter.builder().count(0).build(), 5);
             log.error("获取trx20交易列表异常:{}", exceptionString);

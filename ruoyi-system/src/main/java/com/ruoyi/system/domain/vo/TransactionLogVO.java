@@ -1,5 +1,7 @@
 package com.ruoyi.system.domain.vo;
 
+import com.ruoyi.common.annotation.Sensitive;
+import com.ruoyi.common.enums.DesensitizedType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -13,6 +15,7 @@ public class TransactionLogVO implements Serializable {
     /**
      * 交易地址
      */
+    @Sensitive(desensitizedType = DesensitizedType.WALLET_ADDRESS)
     private String fromAddress;
 
     /**

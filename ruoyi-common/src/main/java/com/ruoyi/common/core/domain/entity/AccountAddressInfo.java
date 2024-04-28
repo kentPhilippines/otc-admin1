@@ -45,6 +45,7 @@ public class AccountAddressInfo extends BaseEntity
     /**
      * 带宽资源
      */
+
     private String netResource;
 
     /**
@@ -61,6 +62,8 @@ public class AccountAddressInfo extends BaseEntity
      * trx账户余额
      */
     private BigDecimal trxBalance;
+    @Excel(isExport = false)
+    private long totalEnergyBalance;
 
     //** 创建时间 *//*
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

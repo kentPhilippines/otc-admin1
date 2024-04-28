@@ -121,7 +121,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
     }
 
     @Override
-    public int delegate(TrxExchange trxExchange, Boolean isTenant) throws Exception {
+    public int delegate(TrxExchange trxExchange, Boolean isTenant,  String userName) throws Exception {
         //转账笔数
         Long transferNumber = trxExchange.getTransferNumber();
         //实际锁定周期
@@ -129,7 +129,8 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
 
         String fromAddress = trxExchange.getFromAddress();
 
-        String userName = ShiroUtils.getLoginName();
+         userName = userName == null ? ShiroUtils.getLoginName() : userName;
+
         String sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "闪兑套餐");
         if (isTenant) {
             sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "天数套餐");

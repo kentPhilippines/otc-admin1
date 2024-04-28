@@ -183,4 +183,8 @@
         and a.busi_type = 'trx2Energy'
         <if test="fromAddress != null  and fromAddress != ''"> and t.from_address = #{fromAddress}</if>
     </select>
+
+    <select id="selectTransactionLogVO" resultType="com.ruoyi.system.domain.vo.TransactionLogVO">
+        select distinct t.from_address fromAddress,t.tranfer_count count from  trx_exchange_info t
+    </select>
 </mapper>

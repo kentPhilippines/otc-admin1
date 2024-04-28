@@ -180,14 +180,14 @@ public class TenantInfoServiceImpl implements ITenantInfoService
 
             Preconditions.checkState(CollectionUtil.isEmpty(trxExchangeInfos), "该接收能量地址已在任务中,请勿重复发起");
 
-            doDelegateEnergy(tenantInfo);
+            doDelegateEnergy(tenantInfo,null);
         }
 
         return 1;
     }
 
     @Override
-    public void doDelegateEnergy(TenantInfo tenantInfo) throws Exception {
+    public void doDelegateEnergy(TenantInfo tenantInfo, String userName) throws Exception {
         String accountAddress = null;
         String monitorAddress = null;
         if (StringUtils.isNotEmpty(tenantInfo.getMonitorAddress())){
@@ -225,9 +225,12 @@ public class TenantInfoServiceImpl implements ITenantInfoService
         long between = DateUtil.between(DateUtil.date(), DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR);
         trxExchange.setLockNum(between + 1);
 
-        trxExchangeInfoService.delegate(trxExchange, true);
+        userName = userName == null ? ShiroUtils.getLoginName() : userName;
+
+        trxExchangeInfoService.delegate(trxExchange, true,userName);
 
         tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
+        tenantInfo.setLcd(new Date());
         tenantInfoMapper.updateTenantInfo(tenantInfo);
     }
 

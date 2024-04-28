@@ -150,57 +150,63 @@ public class AccountAddressInfoServiceImpl implements IAccountAddressInfoService
 
         List<AccountAddressInfo> accountAddressInfoList = accountAddressInfoMapper.selectAccountAddressInfoList(accountAddressInfo);
         for (AccountAddressInfo addressInfo : accountAddressInfoList) {
-            String encryptPrivateKey = addressInfo.getEncryptPrivateKey();
-            String encryptKey = addressInfo.getEncryptKey();
-
-            //解密获得秘钥
-            String decryptPrivateKey = Dt.decrypt(encryptPrivateKey, encryptKey);
-            String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
-
-            ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey,tronApiKey);
-
-            String address = addressInfo.getAddress();
-            Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(address);
-
-            //免费带宽使用量
-            long freeNetUsed = accountResource.getFreeNetUsed();
-            //免费带宽上限
-            long freeNetLimit = accountResource.getFreeNetLimit();
-            //网络带宽消耗
-            long netUsed = accountResource.getNetUsed();
-            //网络上限
-            long netLimit = accountResource.getNetLimit();
-            //能量消耗
-            long energyUsed = accountResource.getEnergyUsed();
-            //能量上限
-            long energyLimit = accountResource.getEnergyLimit();
-
-            long totalNetUsed = freeNetUsed + netUsed;
-
-            long taotalNetLimit = freeNetLimit + netLimit;
-
-            long totalNetBalance = taotalNetLimit - totalNetUsed;
-            long totalEnergyBalance = energyLimit - energyUsed;
-
-            addressInfo.setNetResource(totalNetBalance + "/" + taotalNetLimit);
-            addressInfo.setEnergyResource(totalEnergyBalance + "/" + energyLimit);
-
-            Response.Account account = apiWrapper.getAccount(address);
-
-            long balance = account.getBalance();
-
-            List<Response.Account.FreezeV2> frozenV2List = account.getFrozenV2List();
-
-            Long totalFrozen = 0L;
-            for (Response.Account.FreezeV2 freezeV2 : frozenV2List) {
-                totalFrozen += freezeV2.getAmount();
-
-            }
-            addressInfo.setTrxBalance(BigDecimal.valueOf(balance).movePointLeft(6));
-            addressInfo.setTotalFrozen(BigDecimal.valueOf(totalFrozen).movePointLeft(6));
+            doQueryResourceInfo(addressInfo);
         }
 
 
         return accountAddressInfoList;
+    }
+
+    @Override
+    public   void doQueryResourceInfo(AccountAddressInfo addressInfo) throws Exception {
+        String encryptPrivateKey = addressInfo.getEncryptPrivateKey();
+        String encryptKey = addressInfo.getEncryptKey();
+
+        //解密获得秘钥
+        String decryptPrivateKey = Dt.decrypt(encryptPrivateKey, encryptKey);
+        String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+
+        ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey,tronApiKey);
+
+        String address = addressInfo.getAddress();
+        Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(address);
+
+        //免费带宽使用量
+        long freeNetUsed = accountResource.getFreeNetUsed();
+        //免费带宽上限
+        long freeNetLimit = accountResource.getFreeNetLimit();
+        //网络带宽消耗
+        long netUsed = accountResource.getNetUsed();
+        //网络上限
+        long netLimit = accountResource.getNetLimit();
+        //能量消耗
+        long energyUsed = accountResource.getEnergyUsed();
+        //能量上限
+        long energyLimit = accountResource.getEnergyLimit();
+
+        long totalNetUsed = freeNetUsed + netUsed;
+
+        long taotalNetLimit = freeNetLimit + netLimit;
+
+        long totalNetBalance = taotalNetLimit - totalNetUsed;
+        long totalEnergyBalance = energyLimit - energyUsed;
+
+        addressInfo.setNetResource(totalNetBalance + "/" + taotalNetLimit);
+        addressInfo.setEnergyResource(totalEnergyBalance + "/" + energyLimit);
+        addressInfo.setTotalEnergyBalance(totalEnergyBalance);
+
+        Response.Account account = apiWrapper.getAccount(address);
+
+        long balance = account.getBalance();
+
+        List<Response.Account.FreezeV2> frozenV2List = account.getFrozenV2List();
+
+        Long totalFrozen = 0L;
+        for (Response.Account.FreezeV2 freezeV2 : frozenV2List) {
+            totalFrozen += freezeV2.getAmount();
+
+        }
+        addressInfo.setTrxBalance(BigDecimal.valueOf(balance).movePointLeft(6));
+        addressInfo.setTotalFrozen(BigDecimal.valueOf(totalFrozen).movePointLeft(6));
     }
 }

@@ -63,5 +63,7 @@ public interface ITenantInfoService
 
     int activeDataTenantInfoByIdTenantInfos(String ids) throws Exception;
 
-    void doDelegateEnergy(TenantInfo tenantInfo) throws Exception;
+//    void doDelegateEnergy(TenantInfo tenantInfo) throws Exception;
+
+    void doDelegateEnergy(TenantInfo tenantInfo, String userName) throws Exception;
 }

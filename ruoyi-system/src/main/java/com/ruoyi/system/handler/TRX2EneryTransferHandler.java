@@ -20,9 +20,9 @@ import com.ruoyi.system.dto.TronGridResponse;
 import com.ruoyi.system.dto.Value;
 import com.ruoyi.system.mapper.ErrorLogMapper;
 import com.ruoyi.system.mapper.TenantInfoMapper;
+import com.ruoyi.system.mapper.TrxExchangeInfoMapper;
 import com.ruoyi.system.service.IAccountAddressInfoService;
 import com.ruoyi.system.service.ISysConfigService;
-import com.ruoyi.system.service.impl.TrxExchangeInfoServiceImpl;
 import com.ruoyi.system.util.AddressUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -63,7 +63,7 @@ public class TRX2EneryTransferHandler {
     @Autowired
     private TenantInfoMapper tenantInfoMapper;
     @Autowired
-    private TrxExchangeInfoServiceImpl trxExchangeInfoMapper;
+    private TrxExchangeInfoMapper trxExchangeInfoMapper;
 
 
     public void doMonitorTrxTransferByMonitorAddressInfo(MonitorAddressAccount monitorAddressAccount) {

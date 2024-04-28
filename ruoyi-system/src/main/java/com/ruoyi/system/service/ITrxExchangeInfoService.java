@@ -63,9 +63,10 @@ public interface ITrxExchangeInfoService
      */
     public int deleteTrxExchangeInfoByIdTrxExchangeInfo(Long idTrxExchangeInfo);
 
-    int delegate(TrxExchange trxExchange,Boolean isTenant) throws Exception;
+//    int delegate(TrxExchange trxExchange,Boolean isTenant) throws Exception;
 
 
+    int delegate(TrxExchange trxExchange, Boolean isTenant, String userName) throws Exception;
 
     List<TrxExchangeMonitorAccountInfo> selectTrxExchangeMonitorAccountInfo(TrxExchangeInfo trxExchangeInfoExample);
 }

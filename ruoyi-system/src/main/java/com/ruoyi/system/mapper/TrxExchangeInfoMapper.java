@@ -3,6 +3,7 @@ package com.ruoyi.system.mapper;
 
 import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
 import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
+import com.ruoyi.system.domain.vo.TransactionLogVO;
 
 import java.util.List;
 
@@ -63,4 +64,6 @@ public interface TrxExchangeInfoMapper
     public int deleteTrxExchangeInfoByIdTrxExchangeInfos(String[] idTrxExchangeInfos);
 
     List<TrxExchangeMonitorAccountInfo> selectTrxExchangeMonitorAccountInfo(TrxExchangeInfo trxExchangeInfo);
+
+    List<TransactionLogVO> selectTransactionLogVO();
 }

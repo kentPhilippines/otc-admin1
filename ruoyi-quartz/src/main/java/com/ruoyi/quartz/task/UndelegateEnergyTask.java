@@ -25,14 +25,13 @@ public class UndelegateEnergyTask {
     private UndelegateEnergyHandler undelegateEnergyHandler;
 
 
-
     public void doUndelegateEnergy() {
 
         String dictValue = DictUtils.getDictValue("sys_delegate_status", "已委托");
 
         TrxExchangeInfo trxExchangeInfoExample = TrxExchangeInfo.builder()
                                                         .delegateStatus(dictValue)
-                                                        .fcd(DateUtil.offsetDay(new Date(),-1))
+                                                        .fcd(DateUtil.offsetDay(new Date(),-2))
                                                         .build();
 
         List<TrxExchangeMonitorAccountInfo> trxExchangeMonitorAccountInfoList = trxExchangeInfoService.selectTrxExchangeMonitorAccountInfo(trxExchangeInfoExample);
