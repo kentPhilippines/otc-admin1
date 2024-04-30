@@ -1,6 +1,5 @@
 package com.ruoyi.system.handler;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import com.ruoyi.common.constant.UserConstants;
@@ -12,8 +11,7 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.encrpt.Dt;
 import com.ruoyi.system.api.ITronApi;
 import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
-import com.ruoyi.system.dto.Data;
-import com.ruoyi.system.dto.TronGridResponse;
+import com.ruoyi.system.dto.AccountResourceResponse;
 import com.ruoyi.system.mapper.ErrorLogMapper;
 import com.ruoyi.system.mapper.TenantInfoMapper;
 import com.ruoyi.system.mapper.TrxExchangeInfoMapper;
@@ -69,27 +67,39 @@ public class UndelegateEnergyHandler {
 
             apiKey =  StringUtils.isEmpty(apiKey) ? DictUtils.getDictValue("sys_tron_api_key", "synp@outlook") : apiKey;
 
-            TronGridResponse tronGridResponse = tronApi.getTronGridTrc20Response(fromAddress,false,true, apiKey,fcd.getTime());
+//            TronGridResponse tronGridResponse = tronApi.getTronGridTrc20Response(fromAddress,false,true, apiKey,fcd.getTime());
 
-            List<Data> dataList = tronGridResponse.getData();
-            if (CollectionUtil.isEmpty(dataList)) {
+//            List<Data> dataList = tronGridResponse.getData();
+//            if (CollectionUtil.isEmpty(dataList)) {
+//                return;
+//            }
+//
+//            int transActionCount =  dataList.size();
+//            if (transActionCount < trxExchangeMonitorAccountInfo.getTranferCount()){
+//                return;
+//            }
+
+            AccountResourceResponse accountResource = tronApi.getAccountResource(fromAddress, apiKey);
+            if (accountResource == null){
+                return;
+            }
+            Integer energyUsed = accountResource.getEnergyUsed();
+            if (energyUsed == null){
                 return;
             }
 
-            int transActionCount =  dataList.size();
-            if (transActionCount < trxExchangeMonitorAccountInfo.getTranferCount()){
+           long energyUsedCount  = energyUsed / 30000;
+            if (energyUsedCount <  trxExchangeMonitorAccountInfo.getTranferCount()){
                 return;
             }
 
         }
 
-
-
         unDelegateResource(trxExchangeMonitorAccountInfo);
 
     }
 
-    private void unDelegateResource(TrxExchangeMonitorAccountInfo trxExchangeMonitorAccountInfo) {
+    public void unDelegateResource(TrxExchangeMonitorAccountInfo trxExchangeMonitorAccountInfo) {
         String accountAddress = trxExchangeMonitorAccountInfo.getAccountAddress();
         RLock lock = redissonClient.getLock("lock_undelegate_" + trxExchangeMonitorAccountInfo.getDelegateTxId());
         try {

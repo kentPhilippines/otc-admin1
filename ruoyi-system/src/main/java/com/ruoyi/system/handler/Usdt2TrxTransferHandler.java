@@ -126,7 +126,7 @@ public class Usdt2TrxTransferHandler {
         BigDecimal transferValue = getTransferValue(data);
         if (transferValue == null) return;
 
-        BigDecimal trxValue = transferValue.multiply(oneUsdtToTrx);
+        BigDecimal trxValue = transferValue.multiply(oneUsdtToTrx).setScale(6, BigDecimal.ROUND_HALF_DOWN);
 
         String accountAddress = monitorAddressAccount.getAccountAddress();
         String encryptPrivateKey = monitorAddressAccount.getEncryptPrivateKey();
@@ -204,11 +204,11 @@ public class Usdt2TrxTransferHandler {
         String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
         if (longPollingBot != null && StringUtils.isNotEmpty(sysUsdtTranferNotice) && StringUtils.isNotEmpty(sysTgGroupChatId)) {
             Map<String, Object> arguments = new HashMap<>();
-            arguments.put("usdtAmount", transferValue);
+            arguments.put("usdtAmount", transferValue.setScale(2, BigDecimal.ROUND_HALF_DOWN));
             arguments.put("exchangeRate", oneUsdtToTrx);
             arguments.put("trxAmount", trxValue);
-            arguments.put("FromAddress", from);
-            arguments.put("txId", txId);
+            arguments.put("FromAddress", from.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
+            arguments.put("txId", txId.replaceAll("(.{6})(.*)(.{8})", "$1*******************$3"));
             arguments.put("txTime", DateUtil.format(new Date(),"yyyy-MM-dd HH:mm:ss"));
 //            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
             StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");

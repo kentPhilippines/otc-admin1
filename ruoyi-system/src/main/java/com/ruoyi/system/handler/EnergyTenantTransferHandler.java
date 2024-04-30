@@ -44,13 +44,14 @@ public class EnergyTenantTransferHandler {
             TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder()
                     .fromAddress(tenantInfo.getReceiverAddress())
                     .delegateStatus(delegateStatus)
+                    .energyBusiType(DictUtils.getDictValue("sys_energy_busi_type", "天数套餐"))
                     .fcd(DateUtil.offsetDay(new Date(), -2))
                     .build();
 
             List<TrxExchangeMonitorAccountInfo> trxExchangeMonitorAccountInfoList = trxExchangeInfoMapper.selectTrxExchangeMonitorAccountInfo(trxExchangeInfo);
 
             for (TrxExchangeMonitorAccountInfo trxExchangeMonitorAccountInfo : trxExchangeMonitorAccountInfoList) {
-                undelegateEnergyHandler.doUndelegateEnergyByTrxExchangeInfo(trxExchangeMonitorAccountInfo);
+                undelegateEnergyHandler.unDelegateResource(trxExchangeMonitorAccountInfo);
             }
 
             //赠送每天的能量
