@@ -55,11 +55,9 @@ public class TgLongPollingBot extends TelegramLongPollingBot {
     @Override
     @SneakyThrows
     public void onUpdateReceived(Update update) {
-//        log.info("消息:{}",update.getMessage().getText());
 //        SendMessage sendMessage = SendMessage.builder().chatId(update.getMessage().getChatId().toString()).text("收到消息:"+update.getMessage().getChatId().toString()).build();
         try {
             customBotFunction.mainFunc(this,update);
-//            execute(sendMessage);
 
         } catch (TelegramApiException e) {
             log.error("ex:{}",e);

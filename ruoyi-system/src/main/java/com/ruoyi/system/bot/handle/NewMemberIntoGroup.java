@@ -1,4 +1,4 @@
-package com.ruoyi.system.bot.handleService;
+package com.ruoyi.system.bot.handle;
 
 import com.ruoyi.system.bot.utils.SendContent;
 import com.ruoyi.system.handler.Usdt2TrxTransferHandler;

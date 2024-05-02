@@ -213,7 +213,7 @@ public class Usdt2TrxTransferHandler {
 //            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
             StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
             String message = substitutor.replace(sysUsdtTranferNotice);
-            SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.MARKDOWN);
+            SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
             longPollingBot.execute(sendMessage);
         } else {
             log.warn("longPollingBot OR sysUsdtTranferNotice OR sysTgGroupChatId  is null");

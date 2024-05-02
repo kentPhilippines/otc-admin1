@@ -11,8 +11,11 @@ import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ForwardCounter;
 import com.ruoyi.common.utils.LogUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.encrpt.Dt;
 import com.ruoyi.common.utils.http.RestTemplateUtils;
+import com.ruoyi.system.bot.TgLongPollingBot;
+import com.ruoyi.system.bot.utils.SendContent;
 import com.ruoyi.system.domain.MonitorAddressAccount;
 import com.ruoyi.system.dto.Contract;
 import com.ruoyi.system.dto.Data;
@@ -21,10 +24,10 @@ import com.ruoyi.system.dto.Value;
 import com.ruoyi.system.mapper.ErrorLogMapper;
 import com.ruoyi.system.mapper.TenantInfoMapper;
 import com.ruoyi.system.mapper.TrxExchangeInfoMapper;
-import com.ruoyi.system.service.IAccountAddressInfoService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.util.AddressUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
@@ -43,7 +48,9 @@ import org.tron.trident.proto.Response;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -52,8 +59,8 @@ public class TRX2EneryTransferHandler {
 
     @Autowired
     private ISysConfigService configService;
-    @Autowired
-    private IAccountAddressInfoService accountAddressInfoService;
+    @Autowired(required = false)
+    private TgLongPollingBot longPollingBot;
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
@@ -64,6 +71,8 @@ public class TRX2EneryTransferHandler {
     private TenantInfoMapper tenantInfoMapper;
     @Autowired
     private TrxExchangeInfoMapper trxExchangeInfoMapper;
+    @Autowired
+    private SendContent sendContent;
 
 
     public void doMonitorTrxTransferByMonitorAddressInfo(MonitorAddressAccount monitorAddressAccount) {
@@ -338,8 +347,9 @@ public class TRX2EneryTransferHandler {
             delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, ownerAddress, lockPeriod);
 
         }
+        String fromAddress = AddressUtil.hexToBase58(ownerAddress);
         TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder()
-                .fromAddress(AddressUtil.hexToBase58(ownerAddress))
+                .fromAddress(fromAddress)
                 .toAddress(AddressUtil.hexToBase58(toAddress))
                 .accountAddress(accountAddress)
                 .price(price)
@@ -357,6 +367,34 @@ public class TRX2EneryTransferHandler {
                 .lcu(currentUser)
                 .build();
         trxExchangeInfoMapper.insertTrxExchangeInfo(trxExchangeInfo);
+
+        String sysenTrxTransferNotice  = configService.selectConfigByKey("sys.energy.transaction.notice");
+        String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
+        if (longPollingBot != null && StringUtils.isNotEmpty(sysenTrxTransferNotice) && StringUtils.isNotEmpty(sysTgGroupChatId)) {
+           /*
+           * 转账TRX：{trxAmount}
+            单价:     {price}
+            兑换笔数:  {transferCount}
+            兑换地址：{FromAddress}
+            交易哈希：{txId}
+            订单时间：{txTime}
+               * */
+            Map<String, Object> arguments = new HashMap<>();
+            arguments.put("trxAmount", amount == null ? "" : amount.toString());
+            arguments.put("price", price == null ? "" : price.toString());
+            arguments.put("transferCount", transferCount);
+            arguments.put("FromAddress", fromAddress.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
+            arguments.put("txId", StringUtils.isEmpty(txID) ? "" : txID.replaceAll("(.{6})(.*)(.{8})", "$1*******************$3"));
+            arguments.put("txTime", DateUtil.format(new Date(),"yyyy-MM-dd HH:mm:ss"));
+//            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
+            StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
+            String message = substitutor.replace(sysenTrxTransferNotice);
+            SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
+            longPollingBot.execute(sendMessage);
+        } else {
+            log.warn("longPollingBot OR sysUsdtTranferNotice OR sysTgGroupChatId  is null");
+        }
+
     }
 
 

@@ -80,11 +80,14 @@
                 },
                 {
                     field: 'fromAddress',
-                    title: '转入地址'
+                    title: '交易地址',
+                    formatter:function(value, row, index) {
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/"+value+"' target='_blank'>" + value + "</a>";
+                    }
                 },
                 {
                     field: 'toAddress',
-                    title: '转出地址'
+                    title: '转入地址'
                 },
                 {
                     field: 'usdtTxId',

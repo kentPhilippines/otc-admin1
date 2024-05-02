@@ -13,8 +13,8 @@ import java.util.List;
 public class CustomBotCommands {
     public void setCustomBotCommands(AbsSender sender) throws TelegramApiException {
         List<BotCommand> commands = Arrays.asList(
-                new BotCommand("/start", "开始使用"),
-                new BotCommand("/rank", "汇率信息")
+                new BotCommand("/start", "开始使用")
+//                new BotCommand("/rank", "汇率信息")
          /*       new BotCommand("/ban", "!或/ban user 时间(可选) 原因(可选)"),
                 new BotCommand("/dban","可Ban掉用户的同时，删除他的发言，格式参考Ban"),
                 new BotCommand("/unban", "解封用户，!或/unban user"),
