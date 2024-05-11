@@ -54,7 +54,7 @@ public class ApiServiceImpl implements IApiService {
         CompletableFuture<Void> queryOkxFuture = CompletableFuture.runAsync(() -> {
             BigDecimal oneUsdtToTrx = null;
             try {
-                oneUsdtToTrx = usdt2TrxTransferHandler.getOneUsdtToTrx();
+                oneUsdtToTrx = usdt2TrxTransferHandler.getOneUsdtToTrx().getFirst();
 //                oneUsdtToTrx = BigDecimal.valueOf(7.53);
             } catch (Exception e) {
                 throw new RuntimeException(e);

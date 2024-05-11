@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('TG会员充值列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>tg用户名：</label>
+                                <input type="text" name="rechargeTgUserName"/>
+                            </li>
+
+                            <li>
+                                <label>是否到账：</label>
+                                <select name="isPaid" th:with="type=${@dict.getType('sys_yes_no')}">
+                                    <option value="">所有</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <label>交易账户：</label>
+                                <input type="text" name="fromAddress"/>
+                            </li>
+
+                            <li>
+                                <label>创建时间：</label>
+                                <input type="text" class="time-input" placeholder="请选择创建时间" name="fcd"/>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="tg:recharge:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+         <!--       <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="tg:recharge:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>-->
+                <a class="btn btn-primary multiple disabled" onclick="$.operate.activeDataAll()" shiro:hasPermission="tg:recharge:edit">
+                    <i class="fa fa-edit"></i> 开通
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="tg:recharge:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="tg:recharge:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('tg:recharge:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('tg:recharge:remove')}]];
+        var monthsDatas = [[${@dict.getType('sys_tg_recharge_moths')}]];
+        var isPaidDatas = [[${@dict.getType('sys_is_paid')}]];
+        var sysTgPaymentStatusDatas = [[${@dict.getType('sys_tg_payment_status')}]];
+        var prefix = ctx + "tg/recharge";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                activeDataUrl: prefix + "/activeData",
+                modalName: "TG会员充值",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'idTgPremiumOrderInfo',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'rechargeTgUserName',
+                    title: 'TG用户名'
+                },
+                {
+                    field: 'months',
+                    title: '开通时长', formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(monthsDatas, value);
+                    }
+                },
+                {
+                    field: 'actualAmount',
+                    title: '支付金额',
+                    formatter: function(value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
+                        return value + ' TON';
+                    }
+                },
+                {
+                    field: 'idTg',
+                    title: 'tg订单id',
+                    visible: false
+                },
+                {
+                    field: 'tgPaymentStatus',
+                    title: 'tg支付状态',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(sysTgPaymentStatusDatas, value);
+                    },
+
+                },
+                {
+                    field: 'orderAmount',
+                    title: '售出金额',
+                    formatter: function(value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
+                        return value + ' USDT';
+                    },
+                    visible: false
+                },
+                {
+                    field: 'isPaid',
+                    title: '是否到账',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(isPaidDatas, value);
+                    },
+                    visible: false
+                },
+                {
+                    field: 'fromAddress',
+                    title: '交易账户',
+                    visible: false
+                },
+                {
+                    field: 'txId',
+                    title: '交易id',
+                    visible: false
+                },
+                {
+                    field: 'fcd',
+                    title: '创建时间'
+                },
+                {
+                    field: 'fcu',
+                    title: '创建用户',
+                    visible: false
+                },
+                {
+                    field: 'lcd',
+                    title: '更新时间',
+                    visible: false
+                },
+                {
+                    field: 'lcu',
+                    title: '更新用户',
+                    visible: false
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        /*actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.idTgPremiumOrderInfo + '\')"><i class="fa fa-edit"></i>编辑</a> ');*/
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.idTgPremiumOrderInfo + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

@@ -24,9 +24,9 @@ import com.ruoyi.system.domain.MonitorAddressAccount;
 import com.ruoyi.system.dto.Data;
 import com.ruoyi.system.dto.Token_info;
 import com.ruoyi.system.dto.TronGridResponse;
-import com.ruoyi.system.mapper.ErrorLogMapper;
 import com.ruoyi.system.mapper.UsdtExchangeInfoMapper;
 import com.ruoyi.system.service.IAccountAddressInfoService;
+import com.ruoyi.system.service.IErrorLogService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.util.AddressUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +35,7 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -79,10 +80,11 @@ public class Usdt2TrxTransferHandler {
     private TgLongPollingBot longPollingBot;
     @Autowired
     private SendContent sendContent;
-    @Autowired
-    private ErrorLogMapper errorLogMapper;
 
-    public void doMonitorUsdtTransfer(MonitorAddressAccount monitorAddressAccount)  {
+    @Autowired
+    private IErrorLogService errorLogService;
+
+    public void doMonitorUsdtTransfer(MonitorAddressAccount monitorAddressAccount) {
 
         try {
             String monitorAddress = monitorAddressAccount.getMonitorAddress();
@@ -91,7 +93,7 @@ public class Usdt2TrxTransferHandler {
 //
             DateTime min_timestamp = DateUtil.offset(new Date(), DateField.MINUTE, Integer.valueOf(sysTransferBetween));
 
-            TronGridResponse tronGridResponse = tronApi.getTronGridTrc20Response(monitorAddress,true,false, apiKey,min_timestamp.getTime());
+            TronGridResponse tronGridResponse = tronApi.getTronGridTrc20Response(monitorAddress, true, false, apiKey, min_timestamp.getTime());
 
             List<Data> dataList = tronGridResponse.getData();
             if (CollectionUtil.isEmpty(dataList)) {
@@ -100,11 +102,13 @@ public class Usdt2TrxTransferHandler {
 
 
             //获取欧易费率
-            BigDecimal oneUsdtToTrx = getOneUsdtToTrx();
+//            BigDecimal oneUsdtToTrx = getOneUsdtToTrx();
+
+            Pair<BigDecimal, BigDecimal> oneUsdtToTrxPair = getOneUsdtToTrx();
 
 
             for (Data data : dataList) {
-                doMonitorUsdtTransferByData(monitorAddressAccount, data, oneUsdtToTrx, apiKey);
+                doMonitorUsdtTransferByData(monitorAddressAccount, data, oneUsdtToTrxPair, apiKey);
             }
         } catch (Exception e) {
             String exceptionString = LogUtils.doRecursiveReversePrintStackCause(e, 5, ForwardCounter.builder().count(0).build(), 5);
@@ -115,18 +119,18 @@ public class Usdt2TrxTransferHandler {
                     .errorMsg(exceptionString.length() > 2000 ? exceptionString.substring(0, 2000) : exceptionString)
                     .fcu("system")
                     .lcu("system").build();
-            errorLogMapper.insertErrorLog(errorLog);
+            errorLogService.insertErrorLog(errorLog);
 
-            throw new RuntimeException("获取trx20交易列表异常",e);
+            throw new RuntimeException("获取trx20交易列表异常", e);
         }
 
     }
 
-    private void doMonitorUsdtTransferByData(MonitorAddressAccount monitorAddressAccount, Data data, BigDecimal oneUsdtToTrx, String apiKey) throws Exception {
+    private void doMonitorUsdtTransferByData(MonitorAddressAccount monitorAddressAccount, Data data, Pair<BigDecimal, BigDecimal> oneUsdtToTrxPair, String apiKey) throws Exception {
         BigDecimal transferValue = getTransferValue(data);
         if (transferValue == null) return;
 
-        BigDecimal trxValue = transferValue.multiply(oneUsdtToTrx).setScale(6, BigDecimal.ROUND_HALF_DOWN);
+        BigDecimal trxValue = transferValue.multiply(oneUsdtToTrxPair.getFirst()).setScale(6, BigDecimal.ROUND_HALF_DOWN);
 
         String accountAddress = monitorAddressAccount.getAccountAddress();
         String encryptPrivateKey = monitorAddressAccount.getEncryptPrivateKey();
@@ -152,7 +156,7 @@ public class Usdt2TrxTransferHandler {
                 return;
             }
 
-            doTransferUsdtAndStore(oneUsdtToTrx, apiKey, decryptPrivateKey, accountAddress, from, trxValue, dataTo, transactionId, transferValue);
+            doTransferUsdtAndStore(oneUsdtToTrxPair, apiKey, decryptPrivateKey, accountAddress, from, trxValue, dataTo, transactionId, transferValue);
 
             redisTemplate.opsForValue().set("transfer_USDT_" + transactionId, transactionId, 1, TimeUnit.DAYS);
         } finally {
@@ -164,7 +168,7 @@ public class Usdt2TrxTransferHandler {
         }
     }
 
-    public void doTransferUsdtAndStore(BigDecimal oneUsdtToTrx, String apiKey, String decryptPrivateKey, String accountAddress, String from, BigDecimal trxValue, String dataTo, String transactionId, BigDecimal transferValue) throws IllegalException, TelegramApiException {
+    public void doTransferUsdtAndStore(Pair<BigDecimal, BigDecimal> oneUsdtToTrxPair, String apiKey, String decryptPrivateKey, String accountAddress, String from, BigDecimal trxValue, String dataTo, String transactionId, BigDecimal transferValue) throws IllegalException, TelegramApiException {
 
         String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
 
@@ -173,7 +177,7 @@ public class Usdt2TrxTransferHandler {
 
             ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, apiKey);
 
-             //转账
+            //转账
             Response.TransactionExtention transfer = apiWrapper.transfer(accountAddress, from, trxValue.movePointRight(6).longValue());
             //签名
             Chain.Transaction transaction = apiWrapper.signTransaction(transfer);
@@ -189,14 +193,16 @@ public class Usdt2TrxTransferHandler {
                 .setUsdtTxId(transactionId)
                 .setUsdtAmount(transferValue)
                 .setTrxAmount(trxValue)
-                .setExchangeRate(oneUsdtToTrx)
-                .setOrginalExchangeRate(oneUsdtToTrx)
-                .setTrxTxId(txId);
+                .setExchangeRate(oneUsdtToTrxPair.getFirst())
+                .setOrginalExchangeRate(oneUsdtToTrxPair.getSecond())
+                .setTrxTxId(txId)
+                .setFcu("system")
+                .setLcu("system");
 
 
         usdtExchangeInfoMapper.insertUsdtExchangeInfo(usdtExchangeInfo);
 
-        doSendTgNotice(oneUsdtToTrx, from, trxValue, transferValue, txId);
+        doSendTgNotice(oneUsdtToTrxPair.getFirst(), from, trxValue, transferValue, txId);
     }
 
     private void doSendTgNotice(BigDecimal oneUsdtToTrx, String from, BigDecimal trxValue, BigDecimal transferValue, String txId) throws TelegramApiException {
@@ -209,7 +215,7 @@ public class Usdt2TrxTransferHandler {
             arguments.put("trxAmount", trxValue);
             arguments.put("FromAddress", from.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
             arguments.put("txId", txId.replaceAll("(.{6})(.*)(.{8})", "$1*******************$3"));
-            arguments.put("txTime", DateUtil.format(new Date(),"yyyy-MM-dd HH:mm:ss"));
+            arguments.put("txTime", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
 //            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
             StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
             String message = substitutor.replace(sysUsdtTranferNotice);
@@ -260,7 +266,7 @@ public class Usdt2TrxTransferHandler {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeyException
      */
-    public BigDecimal getOneUsdtToTrx() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+    public Pair<BigDecimal, BigDecimal> getOneUsdtToTrx() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         OkxResponse oksResponse = okxApi.getSingleTickerOkxResponse2();
         Preconditions.checkNotNull(oksResponse, "查询费率失败无法兑换");
         String code = oksResponse.getCode();
@@ -278,13 +284,13 @@ public class Usdt2TrxTransferHandler {
         double oneUsdtToTrxDouble = 1 / new Double(last);
         BigDecimal oneUsdtToTrx = BigDecimal.valueOf(oneUsdtToTrxDouble).setScale(6, BigDecimal.ROUND_HALF_DOWN);
 
-        log.info("实时汇率:{}",oneUsdtToTrx);
+        log.info("实时汇率:{}", oneUsdtToTrx);
         String sysUsdtProportionRate = configService.selectConfigByKey("sys.usdt.proportion.rate");
-
+        BigDecimal discountOneUsdtToTrx = oneUsdtToTrx;
         if (StringUtils.isNotEmpty(sysUsdtProportionRate)) {
-            oneUsdtToTrx = oneUsdtToTrx.multiply(BigDecimal.ONE.subtract(new BigDecimal(sysUsdtProportionRate))).setScale(6, BigDecimal.ROUND_HALF_DOWN);
+            discountOneUsdtToTrx = oneUsdtToTrx.multiply(BigDecimal.ONE.subtract(new BigDecimal(sysUsdtProportionRate))).setScale(6, BigDecimal.ROUND_HALF_DOWN);
         }
-        return oneUsdtToTrx;
+        return Pair.of(discountOneUsdtToTrx, oneUsdtToTrx);
     }
 
 
@@ -299,7 +305,8 @@ public class Usdt2TrxTransferHandler {
         if (longPollingBot != null && StringUtils.isNotEmpty(sysUsdtGroupTopic) && StringUtils.isNotEmpty(sysTgGroupChatId)) {
             log.info("进入这里1");
             try {
-                BigDecimal tenUsdtToTrx = getOneUsdtToTrx().multiply(BigDecimal.TEN);
+                BigDecimal oneUsdtToTrx = getOneUsdtToTrx().getFirst();
+                BigDecimal tenUsdtToTrx = oneUsdtToTrx.multiply(BigDecimal.TEN);
                 Map<String, Object> arguments = new HashMap<>();
                 arguments.put("tenUsdtToTrx", tenUsdtToTrx);
                 StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
@@ -309,9 +316,9 @@ public class Usdt2TrxTransferHandler {
                 longPollingBot.execute(sendMessage);
             } catch (Exception e) {
 
-                log.error("广播消息异常",e);
+                log.error("广播消息异常", e);
             }
-        }else {
+        } else {
             log.info("进入这里2");
             log.warn("sysUsdtTranferNotice OR sysTgGroupChatId  is null");
         }

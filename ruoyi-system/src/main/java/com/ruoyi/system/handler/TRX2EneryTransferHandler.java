@@ -21,9 +21,9 @@ import com.ruoyi.system.dto.Contract;
 import com.ruoyi.system.dto.Data;
 import com.ruoyi.system.dto.TronGridResponse;
 import com.ruoyi.system.dto.Value;
-import com.ruoyi.system.mapper.ErrorLogMapper;
 import com.ruoyi.system.mapper.TenantInfoMapper;
 import com.ruoyi.system.mapper.TrxExchangeInfoMapper;
+import com.ruoyi.system.service.IErrorLogService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.util.AddressUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -65,14 +65,15 @@ public class TRX2EneryTransferHandler {
     private RedisTemplate redisTemplate;
     @Autowired
     private RedissonClient redissonClient;
-    @Autowired
-    private ErrorLogMapper errorLogMapper;
+
     @Autowired
     private TenantInfoMapper tenantInfoMapper;
     @Autowired
     private TrxExchangeInfoMapper trxExchangeInfoMapper;
     @Autowired
     private SendContent sendContent;
+    @Autowired
+    private IErrorLogService errorLogService;
 
 
     public void doMonitorTrxTransferByMonitorAddressInfo(MonitorAddressAccount monitorAddressAccount) {
@@ -94,8 +95,7 @@ public class TRX2EneryTransferHandler {
                     .errorMsg(exceptionString.length() > 2000 ? exceptionString.substring(0, 2000) : exceptionString)
                     .fcu("system")
                     .lcu("system").build();
-            errorLogMapper.insertErrorLog(errorLog);
-
+            errorLogService.insertErrorLog(errorLog);
         }
 
         Object responseEntityBody = getResponseEntityBody(responseEntity, monitorAddress);
@@ -147,7 +147,7 @@ public class TRX2EneryTransferHandler {
                         .fcu("system")
                         .lcu("system").build();
 
-                errorLogMapper.insertErrorLog(errorLog);
+                errorLogService.insertErrorLog(errorLog);
 //                throw new RuntimeException("doDelegateResource业务处理异常", e);
             } finally {
                 if (lock.isLocked()) {
@@ -262,7 +262,7 @@ public class TRX2EneryTransferHandler {
                         .trxId(txID)
                         .fcu("system")
                         .lcu("system").build();
-                errorLogMapper.insertErrorLog(errorLog);
+                errorLogService.insertErrorLog(errorLog);
                 return;
             }
             tenantInfo.setIsPaid("Y");

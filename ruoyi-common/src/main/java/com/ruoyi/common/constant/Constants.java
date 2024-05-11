@@ -1,5 +1,8 @@
 package com.ruoyi.common.constant;
 
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -119,4 +122,7 @@ public class Constants
      */
     public static final String[] JOB_ERROR_STR = { "java.net.URL", "javax.naming.InitialContext", "org.yaml.snakeyaml",
             "org.springframework", "org.apache", "com.ruoyi.common.utils.file", "com.ruoyi.common.config", "com.ruoyi.generator" };
+
+
+    public static final List<String> MONTHS = Arrays.asList("3", "6", "12");
 }

@@ -13,6 +13,7 @@ import com.ruoyi.system.mapper.UsdtExchangeInfoMapper;
 import com.ruoyi.system.service.IUsdtExchangeInfoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -70,17 +71,18 @@ public class UsdtExchangeInfoServiceImpl implements IUsdtExchangeInfoService {
     public int insertUsdtExchangeInfo(UsdtExchangeInfo usdtExchangeInfo) throws Exception {
         BigDecimal oneUsdtToTrx;
         String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
-
+        Pair<BigDecimal, BigDecimal> oneUsdtToTrxPair = null;
         if (UserConstants.YES.equals(systronApiSwitch)) {
-            oneUsdtToTrx = usdt2TrxTransferHandler.getOneUsdtToTrx();
+//            oneUsdtToTrx = usdt2TrxTransferHandler.getOneUsdtToTrx().getFirst();
+            oneUsdtToTrxPair = usdt2TrxTransferHandler.getOneUsdtToTrx();
         } else {
-            oneUsdtToTrx = new BigDecimal("7.565113");
+            oneUsdtToTrxPair=Pair.of(BigDecimal.TEN,BigDecimal.TEN);
         }
 
 
         BigDecimal usdtAmount = usdtExchangeInfo.getUsdtAmount();
 
-        BigDecimal trxValue = usdtAmount.multiply(oneUsdtToTrx);
+        BigDecimal trxValue = usdtAmount.multiply(oneUsdtToTrxPair.getFirst());
         String accountAddress = usdtExchangeInfo.getAccountAddress();
         if (StringUtils.isEmpty(accountAddress)) {
             AccountAddressInfo accountAddressInfoExample = new AccountAddressInfo();
@@ -96,7 +98,7 @@ public class UsdtExchangeInfoServiceImpl implements IUsdtExchangeInfoService {
 
         String fromAddress = usdtExchangeInfo.getFromAddress();
         usdt2TrxTransferHandler.
-                doTransferUsdtAndStore(oneUsdtToTrx, tronApiKey, decryptPrivateKey, accountAddress, fromAddress, trxValue, null, null, usdtAmount);
+                doTransferUsdtAndStore(oneUsdtToTrxPair, tronApiKey, decryptPrivateKey, accountAddress, fromAddress, trxValue, null, null, usdtAmount);
 
         return 1;
     }

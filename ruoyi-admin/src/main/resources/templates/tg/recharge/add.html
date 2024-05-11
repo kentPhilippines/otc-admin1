@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增TG会员充值')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-recharge-add">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">tg用户列表：</label>
+                <div class="col-sm-8" >
+                    <textarea name="tgPremiumOrderInfo" class="form-control" style="height: 200px"></textarea>
+                </div>
+            </div>
+           <div class="form-group">
+                <label class="col-sm-3 control-label">是否立刻开通：</label>
+                <div class="col-sm-8">
+                    <select name="isJoindNow" class="form-control m-b" th:with="type=${@dict.getType('sys_yes_no')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+            <!--
+
+                       <div class="form-group">
+                           <label class="col-sm-3 control-label">售出金额(USDT)：</label>
+                           <div class="col-sm-8">
+                               <input name="orderAmount" class="form-control" type="text">
+                           </div>
+                       </div>-->
+
+
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "tg/recharge"
+        $("#form-recharge-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/addMultiple", $('#form-recharge-add').serialize());
+            }
+        }
+
+
+    </script>
+</body>
+</html>

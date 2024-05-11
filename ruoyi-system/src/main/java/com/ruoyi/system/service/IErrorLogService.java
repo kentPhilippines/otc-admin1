@@ -35,7 +35,7 @@ public interface IErrorLogService
      * @param errorLog 错误日志
      * @return 结果
      */
-    public int insertErrorLog(ErrorLog errorLog);
+    public int insertErrorLog(ErrorLog errorLog) ;
 
     /**
      * 修改错误日志

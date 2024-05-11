@@ -1,6 +1,5 @@
 package com.ruoyi.system.bot;
 
-import com.ruoyi.system.bot.handle.NewMemberIntoGroup;
 import com.ruoyi.system.bot.handle.UserChatHandle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +17,6 @@ import java.security.NoSuchAlgorithmException;
 @Slf4j
 public class CustomBotFunction {
 
-    @Autowired
-    private NewMemberIntoGroup newMemberIntoGroup;
     @Autowired
     private UserChatHandle userChatHandle;
 

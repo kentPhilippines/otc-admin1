@@ -143,11 +143,11 @@
                     },
                 {
                     field: 'trxAmount',
-                    title: '转入金额TRX'
+                    title: '转入TRX'
                 },
                 {
                     field: 'delegateAmountTrx',
-                    title: '兑换支出TRX'
+                    title: '支出TRX'
                 },
                 {
                     field: 'delegateTxId',
@@ -163,7 +163,7 @@
                 },
                 {
                     field: 'delegateStatus',
-                    title: '资源委托状态',
+                    title: '资源状态',
                     formatter: function(value, item, index) {
                         return $.table.selectDictLabel(datas, item.delegateStatus);
                     }
@@ -175,8 +175,7 @@
                 },
                 {
                     field: 'fcd',
-                    title: '创建时间',
-                    visible: false
+                    title: '创建时间'
                 },
                /* {
                     field: 'fcu',

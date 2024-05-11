@@ -12,9 +12,9 @@ import com.ruoyi.common.utils.encrpt.Dt;
 import com.ruoyi.system.api.ITronApi;
 import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
 import com.ruoyi.system.dto.AccountResourceResponse;
-import com.ruoyi.system.mapper.ErrorLogMapper;
 import com.ruoyi.system.mapper.TenantInfoMapper;
 import com.ruoyi.system.mapper.TrxExchangeInfoMapper;
+import com.ruoyi.system.service.IErrorLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RLock;
@@ -41,12 +41,15 @@ public class UndelegateEnergyHandler {
     private TenantInfoMapper tenantInfoMapper;
     @Autowired
     private TRX2EneryTransferHandler trx2EneryTransferHandler;
-    @Autowired
-    private ErrorLogMapper errorLogMapper;
+
     @Autowired
     private TrxExchangeInfoMapper trxExchangeInfoMapper;
     @Autowired
     private ITronApi tronApi;
+
+
+    @Autowired
+    private IErrorLogService errorLogService;
 
 
     public void doUndelegateEnergyByTrxExchangeInfo(TrxExchangeMonitorAccountInfo trxExchangeMonitorAccountInfo) {
@@ -193,8 +196,8 @@ public class UndelegateEnergyHandler {
                     .otherId(trxExchangeMonitorAccountInfo.getIdTrxExchangeInfo().toString())
                     .fcu("system")
                     .lcu("system").build();
-            errorLogMapper.insertErrorLog(errorLog);
-            throw new RuntimeException("回收能量业务处理异常", e);
+            errorLogService.insertErrorLog(errorLog);
+//            throw new RuntimeException("回收能量业务处理异常", e);
         } finally {
             if (lock.isLocked()) {
                 if (lock.isHeldByCurrentThread()) {
@@ -238,4 +241,6 @@ public class UndelegateEnergyHandler {
                 .build();
         trxExchangeInfoMapper.updateTrxExchangeInfo(trxExchangeInfo);
     }
+
+
 }

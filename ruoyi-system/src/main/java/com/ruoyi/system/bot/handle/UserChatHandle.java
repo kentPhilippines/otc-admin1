@@ -48,7 +48,7 @@ public class UserChatHandle {
             configValue = StringUtils.isEmpty(configValue) ? "configKey is null" : configValue;
             String message = "";
             if (StringUtils.isNotEmpty(configValue)){
-                BigDecimal tenUsdtToTrx = usdt2TrxTransferHandler.getOneUsdtToTrx().multiply(BigDecimal.TEN);
+                BigDecimal tenUsdtToTrx = usdt2TrxTransferHandler.getOneUsdtToTrx().getFirst().multiply(BigDecimal.TEN);
                 Map<String, Object> arguments = new HashMap<>();
                 arguments.put("tenUsdtToTrx", tenUsdtToTrx);
                 StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");

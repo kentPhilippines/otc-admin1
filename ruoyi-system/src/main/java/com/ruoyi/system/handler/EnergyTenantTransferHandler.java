@@ -8,8 +8,8 @@ import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ForwardCounter;
 import com.ruoyi.common.utils.LogUtils;
 import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
-import com.ruoyi.system.mapper.ErrorLogMapper;
 import com.ruoyi.system.mapper.TrxExchangeInfoMapper;
+import com.ruoyi.system.service.IErrorLogService;
 import com.ruoyi.system.service.ITenantInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +29,9 @@ public class EnergyTenantTransferHandler {
     private UndelegateEnergyHandler undelegateEnergyHandler;
     @Autowired
     private ITenantInfoService tenantInfoService;
+
     @Autowired
-    private ErrorLogMapper errorLogMapper;
+    private IErrorLogService errorLogService;
 
     /**
      * 按照定制客户一个一个处理
@@ -65,7 +66,7 @@ public class EnergyTenantTransferHandler {
                     .errorMsg(exceptionString.length() > 2000 ? exceptionString.substring(0, 2000) : exceptionString)
                     .fcu("system")
                     .lcu("system").build();
-            errorLogMapper.insertErrorLog(errorLog);
+            errorLogService.insertErrorLog(errorLog);
             throw new RuntimeException(e);
         }
 
