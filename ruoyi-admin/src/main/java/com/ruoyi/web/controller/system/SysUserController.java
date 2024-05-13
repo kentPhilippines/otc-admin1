@@ -130,6 +130,12 @@ public class SysUserController extends BaseController
     @ResponseBody
     public AjaxResult addSave(@Validated SysUser user)
     {
+         //检查部门数据权限，检测角色权限
+        deptService.checkDeptDataScope(user.getDeptId());
+        for (Long roleId :user.getRoleIds()){
+            roleService.checkRoleDataScope(roleId); 
+        }
+
         if (!userService.checkLoginNameUnique(user))
         {
             return error("新增用户'" + user.getLoginName() + "'失败，登录账号已存在");
@@ -189,6 +195,13 @@ public class SysUserController extends BaseController
     {
         userService.checkUserAllowed(user);
         userService.checkUserDataScope(user.getUserId());
+        
+        //检查部门数据权限，检测角色权限
+        deptService.checkDeptDataScope(user.getDeptId());
+        for (Long roleId :user.getRoleIds()){
+            roleService.checkRoleDataScope(roleId); 
+        }
+
         if (!userService.checkLoginNameUnique(user))
         {
             return error("修改用户'" + user.getLoginName() + "'失败，登录账号已存在");
@@ -259,6 +272,9 @@ public class SysUserController extends BaseController
     public AjaxResult insertAuthRole(Long userId, Long[] roleIds)
     {
         userService.checkUserDataScope(userId);
+        for (Long roleId :roleIds){
+            roleService.checkRoleDataScope(roleId);
+        }
         userService.insertUserAuth(userId, roleIds);
         AuthorizationUtils.clearAllCachedAuthorizationInfo();
         return success();
