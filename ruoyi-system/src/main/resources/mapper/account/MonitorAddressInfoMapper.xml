@@ -4,9 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.MonitorAddressInfoMapper">
 
+
     <resultMap type="MonitorAddressInfo" id="MonitorAddressInfoResult">
         <result property="idMonitorAddress"    column="id_monitor_address"    />
         <result property="busiType"    column="busi_type"    />
+        <result property="monitorAddressName"    column="monitor_address_name"    />
         <result property="monitorAddress"    column="monitor_address"    />
         <result property="accountAddress"    column="account_address"    />
         <result property="trxPrice"    column="trx_price"    />
@@ -15,6 +17,7 @@
         <result property="apiKey"    column="api_key"    />
         <result property="bindPeriod"    column="bind_period"    />
         <result property="isValid"    column="is_valid"    />
+        <result property="comment"    column="comment"    />
         <result property="fcd"    column="fcd"    />
         <result property="fcu"    column="fcu"    />
         <result property="lcd"    column="lcd"    />
@@ -22,13 +25,14 @@
     </resultMap>
 
     <sql id="selectMonitorAddressInfoVo">
-        select id_monitor_address, busi_type, monitor_address, account_address, trx_price, usdt_price, monitor_type, api_key, bind_period, is_valid, fcd, fcu, lcd, lcu from monitor_address_info
+        select id_monitor_address, busi_type, monitor_address_name, monitor_address, account_address, trx_price, usdt_price, monitor_type, api_key, bind_period, is_valid, comment, fcd, fcu, lcd, lcu from monitor_address_info
     </sql>
 
     <select id="selectMonitorAddressInfoList" parameterType="MonitorAddressInfo" resultMap="MonitorAddressInfoResult">
         <include refid="selectMonitorAddressInfoVo"/>
         <where>
             <if test="busiType != null  and busiType != ''"> and busi_type = #{busiType}</if>
+            <if test="monitorAddressName != null  and monitorAddressName != ''"> and monitor_address_name like concat('%', #{monitorAddressName}, '%')</if>
             <if test="monitorAddress != null  and monitorAddress != ''"> and monitor_address = #{monitorAddress}</if>
             <if test="accountAddress != null  and accountAddress != ''"> and account_address = #{accountAddress}</if>
             <if test="trxPrice != null "> and trx_price = #{trxPrice}</if>
@@ -37,7 +41,8 @@
             <if test="apiKey != null  and apiKey != ''"> and api_key = #{apiKey}</if>
             <if test="bindPeriod != null  and bindPeriod != ''"> and bind_period = #{bindPeriod}</if>
             <if test="isValid != null  and isValid != ''"> and is_valid = #{isValid}</if>
-            <if test="fcd != null "> and fcd = #{fcd}</if>
+            <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
+            <if test="params.beginFcd != null and params.beginFcd != '' and params.endFcd != null and params.endFcd != ''"> and fcd between #{params.beginFcd} and #{params.endFcd}</if>
             <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
             <if test="lcd != null "> and lcd = #{lcd}</if>
             <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
@@ -53,6 +58,7 @@
         insert into monitor_address_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="busiType != null">busi_type,</if>
+            <if test="monitorAddressName != null">monitor_address_name,</if>
             <if test="monitorAddress != null">monitor_address,</if>
             <if test="accountAddress != null">account_address,</if>
             <if test="trxPrice != null">trx_price,</if>
@@ -61,6 +67,7 @@
             <if test="apiKey != null">api_key,</if>
             <if test="bindPeriod != null">bind_period,</if>
             <if test="isValid != null">is_valid,</if>
+            <if test="comment != null">comment,</if>
             <if test="fcd != null">fcd,</if>
             <if test="fcu != null">fcu,</if>
             <if test="lcd != null">lcd,</if>
@@ -68,6 +75,7 @@
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="busiType != null">#{busiType},</if>
+            <if test="monitorAddressName != null">#{monitorAddressName},</if>
             <if test="monitorAddress != null">#{monitorAddress},</if>
             <if test="accountAddress != null">#{accountAddress},</if>
             <if test="trxPrice != null">#{trxPrice},</if>
@@ -76,6 +84,7 @@
             <if test="apiKey != null">#{apiKey},</if>
             <if test="bindPeriod != null">#{bindPeriod},</if>
             <if test="isValid != null">#{isValid},</if>
+            <if test="comment != null">#{comment},</if>
             <if test="fcd != null">#{fcd},</if>
             <if test="fcu != null">#{fcu},</if>
             <if test="lcd != null">#{lcd},</if>
@@ -87,6 +96,7 @@
         update monitor_address_info
         <trim prefix="SET" suffixOverrides=",">
             <if test="busiType != null">busi_type = #{busiType},</if>
+            <if test="monitorAddressName != null">monitor_address_name = #{monitorAddressName},</if>
             <if test="monitorAddress != null">monitor_address = #{monitorAddress},</if>
             <if test="accountAddress != null">account_address = #{accountAddress},</if>
             <if test="trxPrice != null">trx_price = #{trxPrice},</if>
@@ -95,6 +105,7 @@
             <if test="apiKey != null">api_key = #{apiKey},</if>
             <if test="bindPeriod != null">bind_period = #{bindPeriod},</if>
             <if test="isValid != null">is_valid = #{isValid},</if>
+            <if test="comment != null">comment = #{comment},</if>
             <if test="fcd != null">fcd = #{fcd},</if>
             <if test="fcu != null">fcu = #{fcu},</if>
             <if test="lcd != null">lcd = #{lcd},</if>
@@ -113,6 +124,7 @@
             #{idMonitorAddress}
         </foreach>
     </delete>
+
 
     <select id="selectMonitorAddressAccount" resultType="com.ruoyi.system.domain.MonitorAddressAccount" parameterType="MonitorAddressInfo">
         select m.monitor_address,

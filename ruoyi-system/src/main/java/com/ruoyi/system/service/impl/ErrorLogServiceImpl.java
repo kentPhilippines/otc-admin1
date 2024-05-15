@@ -14,7 +14,6 @@ import com.ruoyi.system.service.ISysConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -75,7 +74,6 @@ public class ErrorLogServiceImpl implements IErrorLogService {
      * @return 结果
      */
     @Override
-    @Async
     public int insertErrorLog(ErrorLog errorLog){
         String sysErrorLogTemplate = configService.selectConfigByKey("sys.error.log.template");
         String sysErrorLogChatId = configService.selectConfigByKey("sys.error.log.chatid");

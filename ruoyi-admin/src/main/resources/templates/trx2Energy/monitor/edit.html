@@ -8,14 +8,13 @@
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-monitor-edit" th:object="${monitorAddressInfo}">
             <input name="idMonitorAddress" th:field="*{idMonitorAddress}" type="hidden">
-    <!--        <div class="form-group">
-                <label class="col-sm-3 control-label">业务类型：</label>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">地址别名：</label>
                 <div class="col-sm-8">
-                    <select name="busiType" class="form-control m-b" th:with="type=${@dict.getType('sys_busi_type')}">
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{busiType}"></option>
-                    </select>
+                    <input name="monitorAddressName" th:field="*{monitorAddressName}" class="form-control" type="text">
                 </div>
-            </div>-->
+            </div>
             <div class="form-group">    
                 <label class="col-sm-3 control-label">监听地址：</label>
                 <div class="col-sm-8">
@@ -69,6 +68,12 @@
                     <select name="apiKey" class="form-control m-b" th:with="type=${@dict.getType('sys_tron_api_key')}">
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{apiKey}"></option>
                     </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <input name="comment" th:field="*{comment}" class="form-control" type="text">
                 </div>
             </div>
 

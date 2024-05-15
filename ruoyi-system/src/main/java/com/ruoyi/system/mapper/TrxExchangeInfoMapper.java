@@ -66,4 +66,6 @@ public interface TrxExchangeInfoMapper
     List<TrxExchangeMonitorAccountInfo> selectTrxExchangeMonitorAccountInfo(TrxExchangeInfo trxExchangeInfo);
 
     List<TransactionLogVO> selectTransactionLogVO();
+
+    List<TrxExchangeInfo> selectTrxExchangeInfoAndMonitorNameList(TrxExchangeInfo trxExchangeInfo);
 }

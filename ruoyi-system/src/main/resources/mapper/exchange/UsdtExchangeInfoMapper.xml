@@ -114,4 +114,42 @@
         </foreach>
     </delete>
 
+
+
+    <select id="selectUsdtExchangeInfoAndMonitorNameList" parameterType="UsdtExchangeInfo" resultType="UsdtExchangeInfo">
+        SELECT
+        u.id_usdt_exchange_info idUsdtExchangeInfo,
+        u.from_address fromAddress,
+        u.to_address toAddress,
+        m.monitor_address_name monitorAddressName,
+        u.account_address accountAddress,
+        u.usdt_tx_id usdtTxId,
+        u.usdt_amount usdtAmount,
+        u.trx_amount trxAmount,
+        u.exchange_rate exchangeRate,
+        u.trx_tx_id trxTxId,
+        u.orginal_exchange_rate orginalExchangeRate,
+        u.fcd,
+        u.fcu,
+        u.lcd,
+        u.lcu
+        FROM
+        usdt_exchange_info u left join monitor_address_info m
+        on u.to_address=m.monitor_address
+        <where>
+            <if test="fromAddress != null  and fromAddress != ''"> and u.from_address = #{fromAddress}</if>
+            <if test="toAddress != null  and toAddress != ''"> and u.to_address = #{toAddress}</if>
+            <if test="accountAddress != null  and accountAddress != ''"> and u.account_address = #{accountAddress}</if>
+            <if test="usdtTxId != null  and usdtTxId != ''"> and u.usdt_tx_id = #{usdtTxId}</if>
+            <if test="usdtAmount != null "> and u.usdt_amount = #{usdtAmount}</if>
+            <if test="trxAmount != null "> and u.trx_amount = #{trxAmount}</if>
+            <if test="exchangeRate != null "> and u.exchange_rate = #{exchangeRate}</if>
+            <if test="trxTxId != null  and trxTxId != ''"> and u.trx_tx_id = #{trxTxId}</if>
+            <if test="orginalExchangeRate != null "> and u.orginal_exchange_rate = #{orginalExchangeRate}</if>
+            <if test="params.beginFcd != null and params.beginFcd != '' and params.endFcd != null and params.endFcd != ''"> and u.fcd between #{params.beginFcd} and #{params.endFcd}</if>
+            <if test="fcu != null  and fcu != ''"> and u.fcu = #{fcu}</if>
+            <if test="lcd != null "> and u.lcd = #{lcd}</if>
+            <if test="lcu != null  and lcu != ''"> and u.lcu = #{lcu}</if>
+        </where>
+    </select>
 </mapper>

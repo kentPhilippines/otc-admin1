@@ -32,7 +32,8 @@ public class UsdtExchangeInfo extends BaseEntity
     @Excel(name = "转入地址")
     private String toAddress;
 
-
+    @Excel(name = "收款账号别名")
+    private String monitorAddressName;
     /** 出账地址 */
     @Excel(name = "出账地址")
     private String accountAddress;

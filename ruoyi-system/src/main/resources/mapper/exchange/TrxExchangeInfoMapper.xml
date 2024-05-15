@@ -47,6 +47,7 @@
             <if test="delegateStatus != null  and delegateStatus != ''"> and delegate_status = #{delegateStatus}</if>
             <if test="unDelegateTxId != null  and unDelegateTxId != ''"> and un_delegate_tx_id = #{unDelegateTxId}</if>
             <if test="fcd != null "> and fcd &gt;= #{fcd}</if>
+            <if test="params.beginFcd != null and params.beginFcd != '' and params.endFcd != null and params.endFcd != ''"> and fcd between #{params.beginFcd} and #{params.endFcd}</if>
             <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
             <if test="lcd != null "> and lcd &lt;= #{lcd}</if>
             <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
@@ -186,5 +187,54 @@
 
     <select id="selectTransactionLogVO" resultType="com.ruoyi.system.domain.vo.TransactionLogVO">
         select distinct t.from_address fromAddress,t.tranfer_count count from  trx_exchange_info t
+    </select>
+
+
+    <select id="selectTrxExchangeInfoAndMonitorNameList" parameterType="TrxExchangeInfo" resultType="TrxExchangeInfo" >
+        SELECT
+        t.id_trx_exchange_info,
+        t.from_address,
+        t.to_address,
+        m.monitor_address_name,
+        t.account_address,
+        t.price,
+        t.trx_tx_id,
+        t.tranfer_count,
+        t.energy_busi_type,
+        t.trx_amount,
+        t.delegate_amount_trx,
+        t.delegate_tx_id,
+        t.lock_period,
+        t.delegate_status,
+        t.un_delegate_tx_id,
+        t.fcd,
+        t.fcu,
+        t.lcd,
+        t.lcu
+        FROM
+        trx_exchange_info t
+        LEFT JOIN monitor_address_info m
+        ON t.to_address = m.monitor_address
+        <where> 1=1
+            <if test="fromAddress != null  and fromAddress != ''"> and t.from_address = #{fromAddress}</if>
+            <if test="toAddress != null  and toAddress != ''"> and t.to_address = #{toAddress}</if>
+            <if test="accountAddress != null  and accountAddress != ''"> and t.account_address = #{accountAddress}</if>
+            <if test="price != null "> and t.price = #{price}</if>
+            <if test="trxTxId != null  and trxTxId != ''"> and t.trx_tx_id = #{trxTxId}</if>
+            <if test="tranferCount != null "> and t.tranfer_count = #{tranferCount}</if>
+            <if test="energyBusiType != null  and energyBusiType != ''"> and t.energy_busi_type = #{energyBusiType}</if>
+            <if test="trxAmount != null "> and t.trx_amount = #{trxAmount}</if>
+            <if test="delegateAmountTrx != null "> and t.delegate_amount_trx = #{delegateAmountTrx}</if>
+            <if test="delegateTxId != null  and delegateTxId != ''"> and t.delegate_tx_id = #{delegateTxId}</if>
+            <if test="lockPeriod != null "> and t.lock_period = #{lockPeriod}</if>
+            <if test="delegateStatus != null  and delegateStatus != ''"> and t.delegate_status = #{delegateStatus}</if>
+            <if test="unDelegateTxId != null  and unDelegateTxId != ''"> and t.un_delegate_tx_id = #{unDelegateTxId}</if>
+            <if test="fcd != null "> and t.fcd &gt;= #{fcd}</if>
+            <if test="params.beginFcd != null and params.beginFcd != '' and params.endFcd != null and params.endFcd != ''"> and t.fcd between #{params.beginFcd} and #{params.endFcd}</if>
+            <if test="fcu != null  and fcu != ''"> and t.fcu = #{fcu}</if>
+            <if test="lcd != null "> and lcd &lt;= #{lcd}</if>
+            <if test="lcu != null  and lcu != ''"> and t.lcu = #{lcu}</if>
+            order by fcd desc
+        </where>
     </select>
 </mapper>

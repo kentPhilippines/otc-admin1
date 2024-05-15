@@ -23,9 +23,11 @@
                                 <input type="text" name="usdtTxId"/>
                             </li>
 
-                            <li>
+                            <li class="select-time">
                                 <label>创建时间：</label>
-                                <input type="text" class="time-input" placeholder="请选择创建时间" name="fcd"/>
+                                <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginFcd]"/>
+                                <span>-</span>
+                                <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endFcd]"/>
                             </li>
 
                             <li>
@@ -80,15 +82,25 @@
                 },
                 {
                     field: 'fromAddress',
-                    title: '交易地址',
+                    title: '付款账户',
                     formatter:function(value, row, index) {
                         return "<a href='https://www.oklink.com/zh-hans/trx/address/"+value+"' target='_blank'>" + value + "</a>";
                     }
                 },
-                {
-                    field: 'toAddress',
-                    title: '转入地址'
-                },
+                    {
+                        field: 'toAddress',
+                        title: '收款账户',
+                        visible: false
+                    },   {
+                        field: 'monitorAddressName',
+                        title: '收款账户别名',
+                        formatter: function (value, row, index) {
+                            if (value == null) {
+                                return value;
+                            }
+                            return "<a href='https://www.oklink.com/zh-hans/trx/address/" + row['toAddress'] + "' target='_blank'>" + value + "</a>";
+                        }
+                    },
                 {
                     field: 'usdtTxId',
                     title: '交易订单'

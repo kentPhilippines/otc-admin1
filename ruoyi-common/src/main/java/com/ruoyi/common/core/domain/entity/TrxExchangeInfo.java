@@ -34,6 +34,9 @@ public class TrxExchangeInfo extends BaseEntity
     @Sensitive(desensitizedType = DesensitizedType.WALLET_ADDRESS)
     private String toAddress;
 
+    @Excel(name = "监听账户别名")
+    private String monitorAddressName;
+
     /** 实际出账账户 */
     @Excel(name = "实际出账账户")
     @Sensitive(desensitizedType = DesensitizedType.WALLET_ADDRESS)

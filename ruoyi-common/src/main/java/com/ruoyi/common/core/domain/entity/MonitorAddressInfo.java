@@ -28,6 +28,10 @@ public class MonitorAddressInfo extends BaseEntity
     @Excel(name = "业务类型")
     private String busiType;
 
+    /** 地址别名 */
+    @Excel(name = "地址别名")
+    private String monitorAddressName;
+
     /** 监听地址 */
     @Excel(name = "监听地址")
     private String monitorAddress;
@@ -60,6 +64,9 @@ public class MonitorAddressInfo extends BaseEntity
     /** 绑定时长 */
     @Excel(name = "绑定时长")
     private String bindPeriod;
+    /** 备注 */
+    @Excel(name = "备注")
+    private String comment;
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

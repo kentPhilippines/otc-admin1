@@ -68,7 +68,8 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
      */
     @Override
     public List<TrxExchangeInfo> selectTrxExchangeInfoList(TrxExchangeInfo trxExchangeInfo) {
-        return trxExchangeInfoMapper.selectTrxExchangeInfoList(trxExchangeInfo);
+//        return trxExchangeInfoMapper.selectTrxExchangeInfoList(trxExchangeInfo);
+        return trxExchangeInfoMapper.selectTrxExchangeInfoAndMonitorNameList(trxExchangeInfo);
     }
 
     /**

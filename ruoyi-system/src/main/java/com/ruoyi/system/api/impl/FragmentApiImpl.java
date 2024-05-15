@@ -209,7 +209,8 @@ public class FragmentApiImpl implements IFragmentApi {
         String formBody = "{\"" + address + "\":\"" + amount + "\"}";
         StringEntity requestEntity = new StringEntity(formBody, ContentType.APPLICATION_FORM_URLENCODED);
         httpPost.setEntity(requestEntity);
-
+//        httpClient.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 50000); // 设置连接超时时间为5秒
+//        httpClient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, 50000); // 设置读取超时时间为5秒
         // 发送请求并获取响应
         HttpResponse response = httpClient.execute(httpPost);
         if (response.getStatusLine().getStatusCode() != 200) {

@@ -14,6 +14,7 @@ import com.ruoyi.system.mapper.TgPremiumOrderInfoMapper;
 import com.ruoyi.system.service.IErrorLogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -34,10 +35,11 @@ public class TgPremiumTransferHandler {
     @Autowired
     private TgPremiumOrderInfoMapper tgPremiumOrderInfoMapper;
 
+    @Async
     public void doRechargeAndUpdate(TgPremiumOrderInfo tgPremiumOrderInfo) {
 
          doRecharge(tgPremiumOrderInfo);
-        tgPremiumOrderInfo.setLcu("syste");
+        tgPremiumOrderInfo.setLcu("system");
         tgPremiumOrderInfoMapper.updateTgPremiumOrderInfo(tgPremiumOrderInfo);
     }
 
@@ -124,7 +126,10 @@ public class TgPremiumTransferHandler {
             } while (count < 5);
         }
 
-        tgPremiumOrderInfo.setTgPaymentStatus("E");
+        if (count >= 5) {
+            tgPremiumOrderInfo.setTgPaymentStatus("E");
+        }
+
 
     }
 

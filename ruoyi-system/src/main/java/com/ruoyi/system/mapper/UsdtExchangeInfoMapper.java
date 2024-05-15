@@ -60,4 +60,6 @@ public interface UsdtExchangeInfoMapper
      * @return 结果
      */
     public int deleteUsdtExchangeInfoByIdUsdtExchangeInfos(String[] idUsdtExchangeInfos);
+
+    List<UsdtExchangeInfo> selectUsdtExchangeInfoAndMonitorNameList(UsdtExchangeInfo usdtExchangeInfo);
 }

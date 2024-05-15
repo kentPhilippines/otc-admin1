@@ -58,7 +58,8 @@ public class UsdtExchangeInfoServiceImpl implements IUsdtExchangeInfoService {
      */
     @Override
     public List<UsdtExchangeInfo> selectUsdtExchangeInfoList(UsdtExchangeInfo usdtExchangeInfo) {
-        return usdtExchangeInfoMapper.selectUsdtExchangeInfoList(usdtExchangeInfo);
+//        return usdtExchangeInfoMapper.selectUsdtExchangeInfoList(usdtExchangeInfo);
+        return usdtExchangeInfoMapper.selectUsdtExchangeInfoAndMonitorNameList(usdtExchangeInfo);
     }
 
     /**
