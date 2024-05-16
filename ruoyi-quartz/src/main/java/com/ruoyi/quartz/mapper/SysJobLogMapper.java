@@ -61,4 +61,6 @@ public interface SysJobLogMapper
      * 清空任务日志
      */
     public void cleanJobLog();
+
+    Integer countJobLog(SysJobLog sysJobLogExample);
 }

@@ -223,7 +223,6 @@ public class TRX2EneryTransferHandler {
     @Transactional
     public void doDelegateResource(Contract contract, String txID, MonitorAddressAccount monitorAddressAccount) throws Exception {
 
-
         Value value = contract.getParameter().getValue();
         //转账金额需除以10的6次方精度
         long amountSun = value.getAmount();
@@ -294,7 +293,27 @@ public class TRX2EneryTransferHandler {
         String apiKey = monitorAddressAccount.getApiKey();
 
         String decryptPrivateKey = Dt.decrypt(encryptPrivateKey, encryptKey);
-        ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, apiKey);
+
+        ApiWrapper apiWrapper = null;
+        try {
+            apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, apiKey);
+        } catch (Exception e) {
+            String exceptionString = LogUtils.doRecursiveReversePrintStackCause(e, 5, ForwardCounter.builder().count(0).build(), 5);
+
+//                log.error("获取交易列表异常:{}", exceptionString);
+            log.error("ofMainnet业务处理异常{},txid:{},exception:{}", monitorAddressAccount.getMonitorAddress(), txID, e);
+            ErrorLog errorLog = ErrorLog.builder()
+                    .address(monitorAddressAccount.getMonitorAddress())
+                    .trxId(txID)
+                    .errorCode("ofMainnet")
+                    .errorMsg(exceptionString.length() > 2000 ? exceptionString.substring(0, 2000) : exceptionString)
+                    .fcu("system")
+                    .lcu("system").build();
+
+            errorLogService.insertErrorLog(errorLog);
+
+            throw new RuntimeException(e);
+        }
 
 
         calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, sysEnergyBusiType, amount, "system");

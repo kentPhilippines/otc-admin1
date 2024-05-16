@@ -91,4 +91,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  		)
 	</insert>
 
-</mapper> 
+	<select id="countJobLog" resultType="java.lang.Integer">
+
+		select count(1) from sys_job_log s where s.create_time &gt;= #{createTime}
+			 and s.job_name = #{jobName}
+
+	</select>
+</mapper>
