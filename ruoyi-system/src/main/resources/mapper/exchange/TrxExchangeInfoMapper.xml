@@ -3,7 +3,30 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.TrxExchangeInfoMapper">
-
+    <resultMap id="selectTrxExchangeInfoAndMonitorNameListResultMap"
+               type="com.ruoyi.system.domain.vo.TrxExchangeInfoVO">
+        <result column="idTrxExchangeInfo" property="idTrxExchangeInfo"/>
+        <result column="fromAddress" property="fromAddress"/>
+        <result column="toAddress" property="toAddress"/>
+        <result column="monitorAddressName" property="monitorAddressName"/>
+        <result column="accountAddress" property="accountAddress"/>
+        <result column="price" property="price"/>
+        <result column="trxTxId" property="trxTxId"/>
+        <result column="tranferCount" property="tranferCount"/>
+        <result column="energyBusiType" property="energyBusiType"/>
+        <result column="trxAmount" property="trxAmount"/>
+        <result column="trxAmountUnit" property="trxAmountUnit"/>
+        <result column="delegateAmountTrx" property="delegateAmountTrx"/>
+        <result column="resourceCode" property="resourceCode"/>
+        <result column="delegateTxId" property="delegateTxId"/>
+        <result column="lockPeriod" property="lockPeriod"/>
+        <result column="delegateStatus" property="delegateStatus"/>
+        <result column="unDelegateTxId" property="unDelegateTxId"/>
+        <result column="fcd" property="fcd"/>
+        <result column="fcu" property="fcu"/>
+        <result column="lcd" property="lcd"/>
+        <result column="lcu" property="lcu"/>
+    </resultMap>
     <resultMap type="TrxExchangeInfo" id="TrxExchangeInfoResult">
         <result property="idTrxExchangeInfo"    column="id_trx_exchange_info"    />
         <result property="fromAddress"    column="from_address"    />
@@ -14,12 +37,13 @@
         <result property="tranferCount"    column="tranfer_count"    />
         <result property="energyBusiType"    column="energy_busi_type"    />
         <result property="trxAmount"    column="trx_amount"    />
+        <result property="trxAmountUnit"    column="trx_amount_unit"    />
         <result property="delegateAmountTrx"    column="delegate_amount_trx"    />
+        <result property="resourceCode"    column="resource_code"    />
         <result property="delegateTxId"    column="delegate_tx_id"    />
         <result property="lockPeriod"    column="lock_period"    />
         <result property="delegateStatus"    column="delegate_status"    />
         <result property="unDelegateTxId"    column="un_delegate_tx_id"    />
-
         <result property="fcd"    column="fcd"    />
         <result property="fcu"    column="fcu"    />
         <result property="lcd"    column="lcd"    />
@@ -27,12 +51,12 @@
     </resultMap>
 
     <sql id="selectTrxExchangeInfoVo">
-        select id_trx_exchange_info, from_address, to_address, account_address, price, trx_tx_id, tranfer_count, energy_busi_type, trx_amount, delegate_amount_trx, delegate_tx_id, lock_period, delegate_status, un_delegate_tx_id, fcd, fcu, lcd, lcu from trx_exchange_info
+        select id_trx_exchange_info, from_address, to_address, account_address, price, trx_tx_id, tranfer_count, energy_busi_type, trx_amount, trx_amount_unit, delegate_amount_trx, resource_code, delegate_tx_id, lock_period, delegate_status, un_delegate_tx_id, fcd, fcu, lcd, lcu from trx_exchange_info
     </sql>
 
     <select id="selectTrxExchangeInfoList" parameterType="TrxExchangeInfo" resultMap="TrxExchangeInfoResult">
         <include refid="selectTrxExchangeInfoVo"/>
-        <where> 1=1
+        <where>
             <if test="fromAddress != null  and fromAddress != ''"> and from_address = #{fromAddress}</if>
             <if test="toAddress != null  and toAddress != ''"> and to_address = #{toAddress}</if>
             <if test="accountAddress != null  and accountAddress != ''"> and account_address = #{accountAddress}</if>
@@ -41,17 +65,17 @@
             <if test="tranferCount != null "> and tranfer_count = #{tranferCount}</if>
             <if test="energyBusiType != null  and energyBusiType != ''"> and energy_busi_type = #{energyBusiType}</if>
             <if test="trxAmount != null "> and trx_amount = #{trxAmount}</if>
+            <if test="trxAmountUnit != null  and trxAmountUnit != ''"> and trx_amount_unit = #{trxAmountUnit}</if>
             <if test="delegateAmountTrx != null "> and delegate_amount_trx = #{delegateAmountTrx}</if>
+            <if test="resourceCode != null  and resourceCode != ''"> and resource_code = #{resourceCode}</if>
             <if test="delegateTxId != null  and delegateTxId != ''"> and delegate_tx_id = #{delegateTxId}</if>
             <if test="lockPeriod != null "> and lock_period = #{lockPeriod}</if>
             <if test="delegateStatus != null  and delegateStatus != ''"> and delegate_status = #{delegateStatus}</if>
             <if test="unDelegateTxId != null  and unDelegateTxId != ''"> and un_delegate_tx_id = #{unDelegateTxId}</if>
-            <if test="fcd != null "> and fcd &gt;= #{fcd}</if>
             <if test="params.beginFcd != null and params.beginFcd != '' and params.endFcd != null and params.endFcd != ''"> and fcd between #{params.beginFcd} and #{params.endFcd}</if>
             <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
-            <if test="lcd != null "> and lcd &lt;= #{lcd}</if>
+            <if test="lcd != null "> and lcd = #{lcd}</if>
             <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
-            order by fcd desc
         </where>
     </select>
 
@@ -71,7 +95,9 @@
             <if test="tranferCount != null">tranfer_count,</if>
             <if test="energyBusiType != null">energy_busi_type,</if>
             <if test="trxAmount != null">trx_amount,</if>
+            <if test="trxAmountUnit != null">trx_amount_unit,</if>
             <if test="delegateAmountTrx != null">delegate_amount_trx,</if>
+            <if test="resourceCode != null">resource_code,</if>
             <if test="delegateTxId != null">delegate_tx_id,</if>
             <if test="lockPeriod != null">lock_period,</if>
             <if test="delegateStatus != null">delegate_status,</if>
@@ -90,12 +116,13 @@
             <if test="tranferCount != null">#{tranferCount},</if>
             <if test="energyBusiType != null">#{energyBusiType},</if>
             <if test="trxAmount != null">#{trxAmount},</if>
+            <if test="trxAmountUnit != null">#{trxAmountUnit},</if>
             <if test="delegateAmountTrx != null">#{delegateAmountTrx},</if>
+            <if test="resourceCode != null">#{resourceCode},</if>
             <if test="delegateTxId != null">#{delegateTxId},</if>
             <if test="lockPeriod != null">#{lockPeriod},</if>
             <if test="delegateStatus != null">#{delegateStatus},</if>
             <if test="unDelegateTxId != null">#{unDelegateTxId},</if>
-
             <if test="fcd != null">#{fcd},</if>
             <if test="fcu != null">#{fcu},</if>
             <if test="lcd != null">#{lcd},</if>
@@ -114,7 +141,9 @@
             <if test="tranferCount != null">tranfer_count = #{tranferCount},</if>
             <if test="energyBusiType != null">energy_busi_type = #{energyBusiType},</if>
             <if test="trxAmount != null">trx_amount = #{trxAmount},</if>
+            <if test="trxAmountUnit != null">trx_amount_unit = #{trxAmountUnit},</if>
             <if test="delegateAmountTrx != null">delegate_amount_trx = #{delegateAmountTrx},</if>
+            <if test="resourceCode != null">resource_code = #{resourceCode},</if>
             <if test="delegateTxId != null">delegate_tx_id = #{delegateTxId},</if>
             <if test="lockPeriod != null">lock_period = #{lockPeriod},</if>
             <if test="delegateStatus != null">delegate_status = #{delegateStatus},</if>
@@ -147,6 +176,7 @@
         <result column="tranfer_count" property="tranferCount"/>
         <result column="energy_busi_type" property="energyBusiType"/>
         <result column="delegate_amount_trx" property="delegateAmountTrx"/>
+        <result column="resource_code" property="resourceCode"/>
         <result column="lock_period" property="lockPeriod"/>
         <result column="delegate_status" property="delegateStatus"/>
         <result column="delegate_tx_id" property="delegateTxId"/>
@@ -166,6 +196,7 @@
         t.tranfer_count,
         t.energy_busi_type,
         t.delegate_amount_trx,
+        t.resource_code,
         t.lock_period,
         t.delegate_status,
         t.delegate_tx_id,
@@ -190,23 +221,26 @@
     </select>
 
 
-    <select id="selectTrxExchangeInfoAndMonitorNameList" parameterType="TrxExchangeInfo" resultType="TrxExchangeInfo" >
+    <select id="selectTrxExchangeInfoAndMonitorNameList" parameterType="TrxExchangeInfo"
+            resultMap="selectTrxExchangeInfoAndMonitorNameListResultMap">
         SELECT
-        t.id_trx_exchange_info,
-        t.from_address,
-        t.to_address,
-        m.monitor_address_name,
-        t.account_address,
-        t.price,
-        t.trx_tx_id,
-        t.tranfer_count,
-        t.energy_busi_type,
-        t.trx_amount,
-        t.delegate_amount_trx,
-        t.delegate_tx_id,
-        t.lock_period,
-        t.delegate_status,
-        t.un_delegate_tx_id,
+        t.id_trx_exchange_info idTrxExchangeInfo,
+        t.from_address fromAddress,
+        t.to_address toAddress,
+        m.monitor_address_name monitorAddressName,
+        t.account_address accountAddress,
+        t.price price,
+        t.trx_tx_id trxTxId,
+        t.tranfer_count tranferCount,
+        t.energy_busi_type energyBusiType,
+        t.trx_amount trxAmount,
+        t.trx_amount_unit trxAmountUnit,
+        t.delegate_amount_trx delegateAmountTrx,
+        t.resource_code resourceCode,
+        t.delegate_tx_id delegateTxId,
+        t.lock_period lockPeriod,
+        t.delegate_status delegateStatus,
+        t.un_delegate_tx_id unDelegateTxId,
         t.fcd,
         t.fcu,
         t.lcd,

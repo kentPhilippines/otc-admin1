@@ -1,6 +1,7 @@
 package com.ruoyi.system.domain;
 
 import com.ruoyi.common.core.domain.BaseEntity;
+import lombok.Data;
 
 
 /**
@@ -9,7 +10,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author dorion
  * @date 2024-04-13
  */
-
+@Data
 public class TrxExchange extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -23,6 +24,8 @@ public class TrxExchange extends BaseEntity
 
     private String monitorAddress;
 
+    private String resourceCode;
+
     private Long transferNumber;
 
     private Long lockNum;
@@ -30,51 +33,7 @@ public class TrxExchange extends BaseEntity
     private Long price;
 
 
-    public String getMonitorAddress() {
-        return monitorAddress;
-    }
 
-    public void setMonitorAddress(String monitorAddress) {
-        this.monitorAddress = monitorAddress;
-    }
 
-    public Long getPrice() {
-        return price;
-    }
 
-    public void setPrice(Long price) {
-        this.price = price;
-    }
-
-    public String getFromAddress() {
-        return fromAddress;
-    }
-
-    public void setFromAddress(String fromAddress) {
-        this.fromAddress = fromAddress;
-    }
-
-    public String getAccountAddress() {
-        return accountAddress;
-    }
-
-    public void setAccountAddress(String accountAddress) {
-        this.accountAddress = accountAddress;
-    }
-
-    public Long getTransferNumber() {
-        return transferNumber;
-    }
-
-    public void setTransferNumber(Long transferNumber) {
-        this.transferNumber = transferNumber;
-    }
-
-    public Long getLockNum() {
-        return lockNum;
-    }
-
-    public void setLockNum(Long lockNum) {
-        this.lockNum = lockNum;
-    }
 }

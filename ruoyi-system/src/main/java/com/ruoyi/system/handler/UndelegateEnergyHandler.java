@@ -86,14 +86,27 @@ public class UndelegateEnergyHandler {
             if (accountResource == null){
                 return;
             }
-            Integer energyUsed = accountResource.getEnergyUsed();
-            if (energyUsed == null){
-                return;
-            }
 
-           long energyUsedCount  = energyUsed / 30000;
-            if (energyUsedCount <  trxExchangeMonitorAccountInfo.getTranferCount()){
-                return;
+            String resourceCode = trxExchangeMonitorAccountInfo.getResourceCode();
+            if (resourceCode.equals(Common.ResourceCode.ENERGY.name())) {
+                Integer energyUsed = accountResource.getEnergyUsed();
+                if (energyUsed == null){
+                    return;
+                }
+
+                long energyUsedCount  = energyUsed / 30000;
+                if (energyUsedCount <  trxExchangeMonitorAccountInfo.getTranferCount()){
+                    return;
+                }
+            }else {
+                Integer netUsed = accountResource.getNetUsed();
+                if (netUsed == null){
+                    return;
+                }
+                int bandWidthUsedCount = netUsed / 250;
+                if (bandWidthUsedCount <  trxExchangeMonitorAccountInfo.getTranferCount()){
+                    return;
+                }
             }
 
         }
@@ -223,7 +236,7 @@ public class UndelegateEnergyHandler {
         long balance = trxExchangeMonitorAccountInfo.getDelegateAmountTrx() * 1000000;
 
         Response.TransactionExtention transactionExtention = apiWrapper.undelegateResource(accountAddress,
-                balance, Common.ResourceCode.ENERGY_VALUE, fromAddress);
+                balance,  Common.ResourceCode.valueOf(trxExchangeMonitorAccountInfo.getResourceCode()).getNumber(), fromAddress);
 
         Chain.Transaction transaction = apiWrapper.signTransaction(transactionExtention);
 

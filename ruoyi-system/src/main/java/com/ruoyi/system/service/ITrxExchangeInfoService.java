@@ -4,6 +4,7 @@ package com.ruoyi.system.service;
 import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
 import com.ruoyi.system.domain.TrxExchange;
 import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
+import com.ruoyi.system.domain.vo.TrxExchangeInfoVO;
 
 import java.util.List;
 
@@ -25,11 +26,11 @@ public interface ITrxExchangeInfoService
 
     /**
      * 查询trx兑能量记录列表
-     * 
+     *
      * @param trxExchangeInfo trx兑能量记录
      * @return trx兑能量记录集合
      */
-    public List<TrxExchangeInfo> selectTrxExchangeInfoList(TrxExchangeInfo trxExchangeInfo);
+    public List<TrxExchangeInfoVO> selectTrxExchangeInfoList(TrxExchangeInfo trxExchangeInfo);
 
     /**
      * 新增trx兑能量记录

@@ -270,7 +270,7 @@ public class TRX2EneryTransferHandler {
             tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
 
             //取包天的套餐锁定时间和交易笔数
-            lockPeriod =  24;
+            lockPeriod = 24;
             sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "天数套餐");
             transferCount = tenantInfo.getTransferCount();
             price = tenantInfo.getPrice();
@@ -316,7 +316,7 @@ public class TRX2EneryTransferHandler {
         }
 
 
-        calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, sysEnergyBusiType, amount, "system");
+        calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, sysEnergyBusiType, amount,"TRX","system",Common.ResourceCode.ENERGY.name());
         //持久化之后放redis
         redisTemplate.opsForValue().set("transfer_trx_" + txID, txID, 1, TimeUnit.DAYS);
         if (tenantInfo != null) {
@@ -327,30 +327,32 @@ public class TRX2EneryTransferHandler {
 
 
     /**
-     * @param txID           转账交易订单号
-     * @param apiWrapper     apiWrapper
-     * @param accountAddress 出账地址
-     * @param transferCount  转账笔数
-     * @param ownerAddress   转入地址
-     * @param lockPeriod     锁定周期
-     * @param toAddress      监听地址
-     * @param price          单价
-     * @param sysEnergyBusiType      业务类型
-     * @param amount         转入金额
-     * @param currentUser    当前处理人
+     * @param txID              转账交易订单号
+     * @param apiWrapper        apiWrapper
+     * @param accountAddress    出账地址
+     * @param transferCount     转账笔数
+     * @param ownerAddress      转入地址
+     * @param lockPeriod        锁定周期
+     * @param toAddress         监听地址
+     * @param price             单价
+     * @param sysEnergyBusiType 业务类型
+     * @param amount            转入金额
+     * @param currentUser       当前处理人
      * @throws Exception 异常
      */
     public void calcBalanceAndDelegate(String txID,
-                                        ApiWrapper apiWrapper,
-                                        String accountAddress,
-                                        long transferCount,
-                                        String ownerAddress,
-                                        long lockPeriod,
-                                        String toAddress,
-                                        Long price,
-                                        String sysEnergyBusiType,
-                                        Long amount,
-                                        String currentUser) throws Exception {
+                                       ApiWrapper apiWrapper,
+                                       String accountAddress,
+                                       long transferCount,
+                                       String ownerAddress,
+                                       long lockPeriod,
+                                       String toAddress,
+                                       Long price,
+                                       String sysEnergyBusiType,
+                                       Long amount,
+                                       String trxAmountUnit,
+                                       String currentUser,
+                                       String resourceCode) throws Exception {
 
         String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
         Long balance = null;
@@ -359,11 +361,11 @@ public class TRX2EneryTransferHandler {
             Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(accountAddress);
 
             //总用于质押换取能量的trx上限
-            balance = getBalance(accountResource, transferCount);
+            balance = getBalance(accountResource, transferCount, resourceCode);
 
             /*  lock_period: 锁定周期，以区块时间（3s）为单位，表示锁定多少个区块的时间，当lock为true时，该字段有效。如果代理锁定期为1天，则lock_period为：28800*/
 
-            delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, ownerAddress, lockPeriod);
+            delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, ownerAddress, resourceCode);
 
         }
         String fromAddress = AddressUtil.hexToBase58(ownerAddress);
@@ -376,7 +378,9 @@ public class TRX2EneryTransferHandler {
                 .tranferCount(transferCount)
                 .energyBusiType(sysEnergyBusiType)
                 .trxAmount(amount)
+                .trxAmountUnit(trxAmountUnit)
                 .delegateAmountTrx(balance)
+                .resourceCode(resourceCode)
                 .delegateTxId(delegateResourceTxid)
                 .lockPeriod(lockPeriod)
                 .delegateStatus("0")
@@ -387,7 +391,7 @@ public class TRX2EneryTransferHandler {
                 .build();
         trxExchangeInfoMapper.insertTrxExchangeInfo(trxExchangeInfo);
 
-        String sysenTrxTransferNotice  = configService.selectConfigByKey("sys.energy.transaction.notice");
+        String sysenTrxTransferNotice = configService.selectConfigByKey("sys.energy.transaction.notice");
         String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
         if (longPollingBot != null && StringUtils.isNotEmpty(sysenTrxTransferNotice) && StringUtils.isNotEmpty(sysTgGroupChatId)) {
            /*
@@ -404,7 +408,7 @@ public class TRX2EneryTransferHandler {
             arguments.put("transferCount", transferCount);
             arguments.put("FromAddress", fromAddress.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
             arguments.put("txId", StringUtils.isEmpty(txID) ? "" : txID.replaceAll("(.{6})(.*)(.{8})", "$1*******************$3"));
-            arguments.put("txTime", DateUtil.format(new Date(),"yyyy-MM-dd HH:mm:ss"));
+            arguments.put("txTime", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
 //            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
             StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
             String message = substitutor.replace(sysenTrxTransferNotice);
@@ -417,25 +421,32 @@ public class TRX2EneryTransferHandler {
     }
 
 
-    private  long getBalance(Response.AccountResourceMessage accountResource, long energyNum) {
-        long totalEnergyLimit = accountResource.getTotalEnergyLimit();
-        //已经用于质押换取能量的trx
-        long totalEnergyWeight = accountResource.getTotalEnergyWeight();
+    private long getBalance(Response.AccountResourceMessage accountResource, long transferCount, String resourceCode) {
+        Long balance = null;
+        if (resourceCode.equals(Common.ResourceCode.ENERGY.name())) {
+            long totalEnergyLimit = accountResource.getTotalEnergyLimit();
+            //已经用于质押换取能量的trx
+            long totalEnergyWeight = accountResource.getTotalEnergyWeight();
 
-        //系数 保留一位或者保留2位,算出trx往上进一位
-        BigDecimal trxToFreezeEnergyTimes = BigDecimal.valueOf(totalEnergyLimit).divide(BigDecimal.valueOf(totalEnergyWeight), 2, BigDecimal.ROUND_DOWN);
-        //计算代理的数量
+            //系数 保留一位或者保留2位,算出trx往上进一位
+            BigDecimal trxToFreezeEnergyTimes = BigDecimal.valueOf(totalEnergyLimit).divide(BigDecimal.valueOf(totalEnergyWeight), 2, BigDecimal.ROUND_DOWN);
+            //计算代理的数量
 //        long balance = energyNum * 32000 / 12;
-        long balance = BigDecimal.valueOf(energyNum * 32000).divide(trxToFreezeEnergyTimes, 0, BigDecimal.ROUND_UP).longValue();
+            balance = BigDecimal.valueOf(transferCount * 32000).divide(trxToFreezeEnergyTimes, 0, BigDecimal.ROUND_UP).longValue();
+        }else {
+
+            balance = transferCount * 350;
+        }
         return balance;
     }
 
-    private  String getDelegateResourceTxid(ApiWrapper apiWrapper, String accountAddress, long balance, String ownerAddress, long lockPeriod) throws IllegalException {
-        Response.TransactionExtention transactionExtention = apiWrapper.delegateResourceV2(accountAddress, balance * 1000000, Common.ResourceCode.ENERGY_VALUE, ownerAddress, false,0);
+    private String getDelegateResourceTxid(ApiWrapper apiWrapper, String accountAddress, long balance, String ownerAddress, String resourceCode) throws IllegalException {
+        Response.TransactionExtention transactionExtention = apiWrapper.delegateResourceV2(accountAddress, balance * 1000000, Common.ResourceCode.valueOf(resourceCode).getNumber(), ownerAddress, false, 0);
 
         Chain.Transaction transaction = apiWrapper.signTransaction(transactionExtention);
 
         String delegateResourceTxid = apiWrapper.broadcastTransaction(transaction);
         return delegateResourceTxid;
     }
+
 }

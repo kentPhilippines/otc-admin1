@@ -14,6 +14,7 @@ import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.TrxExchange;
+import com.ruoyi.system.domain.vo.TrxExchangeInfoVO;
 import com.ruoyi.system.mapper.AccountAddressInfoMapper;
 import com.ruoyi.system.mapper.MonitorAddressInfoMapper;
 import com.ruoyi.system.mapper.TenantInfoMapper;
@@ -28,13 +29,12 @@ import java.util.List;
 
 /**
  * 租户Service业务层处理
- * 
+ *
  * @author dorion
  * @date 2024-04-14
  */
 @Service
-public class TenantInfoServiceImpl implements ITenantInfoService 
-{
+public class TenantInfoServiceImpl implements ITenantInfoService {
     @Autowired
     private TenantInfoMapper tenantInfoMapper;
 
@@ -44,46 +44,49 @@ public class TenantInfoServiceImpl implements ITenantInfoService
     private MonitorAddressInfoMapper monitorAddressInfoMapper;
     @Autowired
     private AccountAddressInfoMapper accountAddressInfoMapper;
+
     /**
      * 查询租户
-     * 
+     *
      * @param idTenantInfo 租户主键
      * @return 租户
      */
     @Override
-    public TenantInfo selectTenantInfoByIdTenantInfo(Long idTenantInfo)
-    {
+    public TenantInfo selectTenantInfoByIdTenantInfo(Long idTenantInfo) {
         return tenantInfoMapper.selectTenantInfoByIdTenantInfo(idTenantInfo);
     }
 
     /**
      * 查询租户列表
-     * 
+     *
      * @param tenantInfo 租户
      * @return 租户
      */
     @Override
     @DataScope(userAlias = "u")
-    public List<TenantInfo> selectTenantInfoList(TenantInfo tenantInfo)
-    {
+    public List<TenantInfo> selectTenantInfoList(TenantInfo tenantInfo) {
         return tenantInfoMapper.selectTenantInfoList(tenantInfo);
     }
 
     /**
      * 新增租户
-     * 
+     *
      * @param tenantInfo 租户
      * @return 结果
      */
     @Override
-    public int insertTenantInfo(TenantInfo tenantInfo)
-    {
+    public int insertTenantInfo(TenantInfo tenantInfo) {
 
         TenantInfo tenantInfoExample = new TenantInfo();
         tenantInfoExample.setReceiverAddress(tenantInfo.getReceiverAddress());
         List<TenantInfo> tenantInfoList = tenantInfoMapper.selectTenantInfoList(tenantInfoExample);
-
-        Preconditions.checkState(CollectionUtil.isEmpty(tenantInfoList), "该接收能量地址已存在,请勿重复添加");
+        boolean exists = false;
+        if (CollectionUtil.isEmpty(tenantInfoList)) {
+            exists = !tenantInfoList.stream().anyMatch(tenantInfo1 -> {
+                return tenantInfo1.getStatus().equals(DictUtils.getDictValue("sys_tenant_status", "生效中"));
+            });
+        }
+        Preconditions.checkState( !exists, "该接收能量地址已存在,请勿重复添加");
 
         Long price = tenantInfo.getPrice();
         Long transferCount = tenantInfo.getTransferCount();
@@ -113,13 +116,12 @@ public class TenantInfoServiceImpl implements ITenantInfoService
 
     /**
      * 修改租户
-     * 
+     *
      * @param tenantInfo 租户
      * @return 结果
      */
     @Override
-    public int updateTenantInfo(TenantInfo tenantInfo)
-    {
+    public int updateTenantInfo(TenantInfo tenantInfo) {
         Long price = tenantInfo.getPrice();
         Long transferCount = tenantInfo.getTransferCount();
         Long period = tenantInfo.getPeriod();
@@ -137,25 +139,23 @@ public class TenantInfoServiceImpl implements ITenantInfoService
 
     /**
      * 批量删除租户
-     * 
+     *
      * @param idTenantInfos 需要删除的租户主键
      * @return 结果
      */
     @Override
-    public int deleteTenantInfoByIdTenantInfos(String idTenantInfos)
-    {
+    public int deleteTenantInfoByIdTenantInfos(String idTenantInfos) {
         return tenantInfoMapper.deleteTenantInfoByIdTenantInfos(Convert.toStrArray(idTenantInfos));
     }
 
     /**
      * 删除租户信息
-     * 
+     *
      * @param idTenantInfo 租户主键
      * @return 结果
      */
     @Override
-    public int deleteTenantInfoByIdTenantInfo(Long idTenantInfo)
-    {
+    public int deleteTenantInfoByIdTenantInfo(Long idTenantInfo) {
         return tenantInfoMapper.deleteTenantInfoByIdTenantInfo(idTenantInfo);
     }
 
@@ -169,18 +169,18 @@ public class TenantInfoServiceImpl implements ITenantInfoService
             Preconditions.checkState(status.equals(tenantInfo.getStatus()), "该租户不是生效中状态,不能发起委托任务");
 
             String dictValue = DictUtils.getDictValue("sys_delegate_status", "已委托");
-            String sysEnergyBusiType =  DictUtils.getDictValue("sys_energy_busi_type", "天数套餐");
+            String sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "天数套餐");
             TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder().fromAddress(tenantInfo.getReceiverAddress())
                     .delegateStatus(dictValue)
                     .energyBusiType(sysEnergyBusiType)
                     .build();
 
-            List<TrxExchangeInfo> trxExchangeInfos = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfo);
+            List<TrxExchangeInfoVO> trxExchangeInfos = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfo);
 
 
             Preconditions.checkState(CollectionUtil.isEmpty(trxExchangeInfos), "该接收能量地址已在任务中,请勿重复发起");
 
-            doDelegateEnergy(tenantInfo,null);
+            doDelegateEnergy(tenantInfo, null);
         }
 
         return 1;
@@ -190,7 +190,7 @@ public class TenantInfoServiceImpl implements ITenantInfoService
     public void doDelegateEnergy(TenantInfo tenantInfo, String userName) throws Exception {
         String accountAddress = null;
         String monitorAddress = null;
-        if (StringUtils.isNotEmpty(tenantInfo.getMonitorAddress())){
+        if (StringUtils.isNotEmpty(tenantInfo.getMonitorAddress())) {
             MonitorAddressInfo monitorAddressInfoExample = new MonitorAddressInfo();
             monitorAddressInfoExample.setMonitorAddress(tenantInfo.getMonitorAddress());
             monitorAddressInfoExample.setIsValid(UserConstants.YES);
@@ -201,7 +201,7 @@ public class TenantInfoServiceImpl implements ITenantInfoService
             accountAddress = monitorAddressInfo.getAccountAddress();
 
             monitorAddress = monitorAddressInfo.getMonitorAddress();
-        }else {
+        } else {
             AccountAddressInfo accountAddressInfo = new AccountAddressInfo();
             accountAddressInfo.setIsValid("Y");
             List<AccountAddressInfo> accountAddressInfoList = accountAddressInfoMapper.selectAccountAddressInfoList(accountAddressInfo);
@@ -227,7 +227,7 @@ public class TenantInfoServiceImpl implements ITenantInfoService
 
         userName = userName == null ? ShiroUtils.getLoginName() : userName;
 
-        trxExchangeInfoService.delegate(trxExchange, true,userName);
+        trxExchangeInfoService.delegate(trxExchange, true, userName);
 
         tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
         tenantInfo.setLcd(new Date());

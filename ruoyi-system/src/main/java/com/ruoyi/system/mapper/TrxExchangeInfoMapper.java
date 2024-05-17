@@ -4,6 +4,7 @@ package com.ruoyi.system.mapper;
 import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
 import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
 import com.ruoyi.system.domain.vo.TransactionLogVO;
+import com.ruoyi.system.domain.vo.TrxExchangeInfoVO;
 
 import java.util.List;
 
@@ -67,5 +68,5 @@ public interface TrxExchangeInfoMapper
 
     List<TransactionLogVO> selectTransactionLogVO();
 
-    List<TrxExchangeInfo> selectTrxExchangeInfoAndMonitorNameList(TrxExchangeInfo trxExchangeInfo);
+    List<TrxExchangeInfoVO> selectTrxExchangeInfoAndMonitorNameList(TrxExchangeInfo trxExchangeInfo);
 }

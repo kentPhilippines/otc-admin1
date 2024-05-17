@@ -95,6 +95,8 @@
     var tranferCountDatas = [[${@dict.getType('sys_transfer_number')}]];
     var sysEnergyBusiTypeDatas = [[${@dict.getType('sys_energy_busi_type')}]];
     var lockPeriodDatas = [[${@dict.getType('sys_lock_period')}]];
+    var trxAmountUnitDatas = [[${@dict.getType('sys_monitor_type')}]];
+    var resourceCodeDatas = [[${@dict.getType('sys_trx_exchange')}]];
     $(function () {
         var options = {
             url: prefix + "/list",
@@ -161,11 +163,32 @@
                 },
                 {
                     field: 'trxAmount',
-                    title: '转入TRX'
+                    title: '转入金额',
+                    formatter: function (value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
+                        return value + ' ' + row['trxAmountUnit'];
+                    }
+                },
+                {
+                    field: 'trxAmountUnit',
+                    title: '转入单位',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(trxAmountUnitDatas, value);
+                    },
+                    visible: false
                 },
                 {
                     field: 'delegateAmountTrx',
                     title: '支出TRX'
+                },
+                {
+                    field: 'resourceCode',
+                    title: '资源类型',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(resourceCodeDatas, value);
+                    }
                 },
                 {
                     field: 'delegateTxId',

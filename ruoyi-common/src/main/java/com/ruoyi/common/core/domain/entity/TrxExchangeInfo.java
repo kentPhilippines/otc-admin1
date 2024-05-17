@@ -34,8 +34,8 @@ public class TrxExchangeInfo extends BaseEntity
     @Sensitive(desensitizedType = DesensitizedType.WALLET_ADDRESS)
     private String toAddress;
 
-    @Excel(name = "监听账户别名")
-    private String monitorAddressName;
+   /* @Excel(name = "监听账户别名")
+    private String monitorAddressName;*/
 
     /** 实际出账账户 */
     @Excel(name = "实际出账账户")
@@ -54,6 +54,8 @@ public class TrxExchangeInfo extends BaseEntity
     @Excel(name = "笔数")
     private Long tranferCount;
 
+
+
     /** 业务类型 */
     @Excel(name = "业务类型")
     private String energyBusiType;
@@ -63,9 +65,18 @@ public class TrxExchangeInfo extends BaseEntity
     @Excel(name = "转入金额")
     private Long trxAmount;
 
+    /** 转入单位 */
+    @Excel(name = "转入单位")
+    private String trxAmountUnit;
+
     /** 兑换支出能量 */
     @Excel(name = "兑换支出能量")
     private Long delegateAmountTrx;
+
+    /** 资源类型 */
+    @Excel(name = "资源类型")
+    private String resourceCode;
+
 
     /** 能量交易订单hash */
     @Excel(name = "能量交易订单")
@@ -102,164 +113,5 @@ public class TrxExchangeInfo extends BaseEntity
     @Excel(name = "更新用户")
     private String lcu;
 
-    public void setIdTrxExchangeInfo(Long idTrxExchangeInfo) 
-    {
-        this.idTrxExchangeInfo = idTrxExchangeInfo;
-    }
 
-    public Long getIdTrxExchangeInfo() 
-    {
-        return idTrxExchangeInfo;
-    }
-    public void setFromAddress(String fromAddress) 
-    {
-        this.fromAddress = fromAddress;
-    }
-
-    public String getFromAddress() 
-    {
-        return fromAddress;
-    }
-    public void setToAddress(String toAddress) 
-    {
-        this.toAddress = toAddress;
-    }
-
-    public String getToAddress() 
-    {
-        return toAddress;
-    }
-    public void setAccountAddress(String accountAddress) 
-    {
-        this.accountAddress = accountAddress;
-    }
-
-    public String getAccountAddress() 
-    {
-        return accountAddress;
-    }
-    public void setPrice(Long price) 
-    {
-        this.price = price;
-    }
-
-    public Long getPrice() 
-    {
-        return price;
-    }
-    public void setTrxTxId(String trxTxId) 
-    {
-        this.trxTxId = trxTxId;
-    }
-
-    public String getTrxTxId() 
-    {
-        return trxTxId;
-    }
-    public void setTrxAmount(Long trxAmount) 
-    {
-        this.trxAmount = trxAmount;
-    }
-
-    public Long getTrxAmount() 
-    {
-        return trxAmount;
-    }
-    public void setDelegateAmountTrx(Long delegateAmountTrx) 
-    {
-        this.delegateAmountTrx = delegateAmountTrx;
-    }
-
-    public Long getDelegateAmountTrx() 
-    {
-        return delegateAmountTrx;
-    }
-    public void setDelegateTxId(String delegateTxId) 
-    {
-        this.delegateTxId = delegateTxId;
-    }
-
-    public String getDelegateTxId() 
-    {
-        return delegateTxId;
-    }
-    public void setLockPeriod(Long lockPeriod) 
-    {
-        this.lockPeriod = lockPeriod;
-    }
-
-    public Long getLockPeriod() 
-    {
-        return lockPeriod;
-    }
-    public void setDelegateStatus(String delegateStatus) 
-    {
-        this.delegateStatus = delegateStatus;
-    }
-
-    public String getDelegateStatus() 
-    {
-        return delegateStatus;
-    }
-    public void setUnDelegateTxId(String unDelegateTxId) 
-    {
-        this.unDelegateTxId = unDelegateTxId;
-    }
-
-    public String getUnDelegateTxId() 
-    {
-        return unDelegateTxId;
-    }
-    public void setFcd(Date fcd) 
-    {
-        this.fcd = fcd;
-    }
-
-    public Date getFcd() 
-    {
-        return fcd;
-    }
-    public void setFcu(String fcu) 
-    {
-        this.fcu = fcu;
-    }
-
-    public String getFcu() 
-    {
-        return fcu;
-    }
-    public void setLcd(Date lcd) 
-    {
-        this.lcd = lcd;
-    }
-
-    public Date getLcd() 
-    {
-        return lcd;
-    }
-    public void setLcu(String lcu) 
-    {
-        this.lcu = lcu;
-    }
-
-    public String getLcu() 
-    {
-        return lcu;
-    }
-
-    public Long getTranferCount() {
-        return tranferCount;
-    }
-
-    public void setTranferCount(Long tranferCount) {
-        this.tranferCount = tranferCount;
-    }
-
-    public String getEnergyBusiType() {
-        return energyBusiType;
-    }
-
-    public void setEnergyBusiType(String energyBusiType) {
-        this.energyBusiType = energyBusiType;
-    }
 }

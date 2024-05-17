@@ -7,6 +7,7 @@ import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.domain.TrxExchange;
 import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
+import com.ruoyi.system.domain.vo.TrxExchangeInfoVO;
 import com.ruoyi.system.handler.TRX2EneryTransferHandler;
 import com.ruoyi.system.mapper.ErrorLogMapper;
 import com.ruoyi.system.mapper.TenantInfoMapper;
@@ -67,7 +68,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
      * @return trx兑能量记录
      */
     @Override
-    public List<TrxExchangeInfo> selectTrxExchangeInfoList(TrxExchangeInfo trxExchangeInfo) {
+    public List<TrxExchangeInfoVO> selectTrxExchangeInfoList(TrxExchangeInfo trxExchangeInfo) {
 //        return trxExchangeInfoMapper.selectTrxExchangeInfoList(trxExchangeInfo);
         return trxExchangeInfoMapper.selectTrxExchangeInfoAndMonitorNameList(trxExchangeInfo);
     }
@@ -156,7 +157,9 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
                 trxExchange.getPrice(),
                 sysEnergyBusiType,
                 null,
-                userName);
+                null,
+                userName,
+                trxExchange.getResourceCode());
         return 1;
     }
 

@@ -41,6 +41,8 @@ public class TrxExchangeMonitorAccountInfo implements Serializable {
      */
     private Long delegateAmountTrx;
 
+    private String  resourceCode;
+
     /**
      *
      */

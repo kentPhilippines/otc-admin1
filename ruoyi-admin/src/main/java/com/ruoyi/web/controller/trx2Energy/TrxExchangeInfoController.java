@@ -9,6 +9,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.TrxExchange;
+import com.ruoyi.system.domain.vo.TrxExchangeInfoVO;
 import com.ruoyi.system.service.IAccountAddressInfoService;
 import com.ruoyi.system.service.ITrxExchangeInfoService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -53,7 +54,7 @@ public class TrxExchangeInfoController extends BaseController
     public TableDataInfo list(TrxExchangeInfo trxExchangeInfo)
     {
         startPage();
-        List<TrxExchangeInfo> list = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfo);
+        List<TrxExchangeInfoVO> list = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfo);
         return getDataTable(list);
     }
 
@@ -66,8 +67,8 @@ public class TrxExchangeInfoController extends BaseController
     @ResponseBody
     public AjaxResult export(TrxExchangeInfo trxExchangeInfo)
     {
-        List<TrxExchangeInfo> list = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfo);
-        ExcelUtil<TrxExchangeInfo> util = new ExcelUtil<TrxExchangeInfo>(TrxExchangeInfo.class);
+        List<TrxExchangeInfoVO> list = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfo);
+        ExcelUtil<TrxExchangeInfoVO> util = new ExcelUtil<TrxExchangeInfoVO>(TrxExchangeInfoVO.class);
         return util.exportExcel(list, "trx兑能量记录数据");
     }
 

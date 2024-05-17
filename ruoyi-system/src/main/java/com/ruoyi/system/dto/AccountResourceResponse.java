@@ -21,6 +21,8 @@ public class AccountResourceResponse implements Serializable {
     private Long TotalEnergyLimit;
     private Long TotalEnergyWeight;
 
+    private Integer NetUsed;
+
 
 
 }
