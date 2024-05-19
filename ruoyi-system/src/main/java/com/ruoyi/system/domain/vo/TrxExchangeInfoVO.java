@@ -110,4 +110,7 @@ public class TrxExchangeInfoVO {
      *
      */
     private String lcu;
+    private String calcRule;
+
+
 }

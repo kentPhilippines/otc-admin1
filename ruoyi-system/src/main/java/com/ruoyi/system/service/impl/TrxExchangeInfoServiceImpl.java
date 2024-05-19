@@ -133,19 +133,23 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
 
          userName = userName == null ? ShiroUtils.getLoginName() : userName;
 
+        String calcRule = "energy_used";
         String sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "闪兑套餐");
         if (isTenant) {
-            sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "天数套餐");
+//            sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "天数套餐");
+            sysEnergyBusiType = trxExchange.getEnergyBusiType();
+            calcRule = trxExchange.getCalcRule();
         } else if (lockPeriod > 1 && lockPeriod <= 24 ) {
-            sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "笔数套餐");
+            sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "笔数限时套餐");
         }
 //        if (UserConstants.YES.equals(systronApiSwitch)) {
         String accountAddress = trxExchange.getAccountAddress();
         String decryptPrivateKey = accountAddressInfoService.getDecryptPrivateKey(accountAddress);
 
-        String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+//        String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+        String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
 
-        ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, tronApiKey);
+        ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, apiKey);
 
         trx2EneryTransferHandler.calcBalanceAndDelegate(null,
                 apiWrapper,
@@ -159,7 +163,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
                 null,
                 null,
                 userName,
-                trxExchange.getResourceCode());
+                trxExchange.getResourceCode(), calcRule);
         return 1;
     }
 

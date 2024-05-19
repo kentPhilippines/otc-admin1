@@ -1,8 +1,6 @@
 package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUnit;
-import cn.hutool.core.date.DateUtil;
 import com.google.common.base.Preconditions;
 import com.ruoyi.common.annotation.DataScope;
 import com.ruoyi.common.constant.UserConstants;
@@ -23,6 +21,7 @@ import com.ruoyi.system.service.ITrxExchangeInfoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.tron.trident.proto.Common;
 
 import java.util.Date;
 import java.util.List;
@@ -77,16 +76,26 @@ public class TenantInfoServiceImpl implements ITenantInfoService {
     @Override
     public int insertTenantInfo(TenantInfo tenantInfo) {
 
+        String energyBusiType = tenantInfo.getEnergyBusiType();
+        Preconditions.checkState(!(energyBusiType.equals("1") || energyBusiType.equals("2")), "套餐类型不正确,定制业务不支持");
+
+        Long delegatedDays = tenantInfo.getDelegatedDays();
+
+        if (energyBusiType.equals("4")) {
+            Preconditions.checkState(delegatedDays == null, "笔数不限时套餐天数必须为无");
+        }
+
+
         TenantInfo tenantInfoExample = new TenantInfo();
         tenantInfoExample.setReceiverAddress(tenantInfo.getReceiverAddress());
         List<TenantInfo> tenantInfoList = tenantInfoMapper.selectTenantInfoList(tenantInfoExample);
         boolean exists = false;
-        if (CollectionUtil.isEmpty(tenantInfoList)) {
-            exists = !tenantInfoList.stream().anyMatch(tenantInfo1 -> {
+        if (CollectionUtil.isNotEmpty(tenantInfoList)) {
+            exists = tenantInfoList.stream().anyMatch(tenantInfo1 -> {
                 return tenantInfo1.getStatus().equals(DictUtils.getDictValue("sys_tenant_status", "生效中"));
             });
         }
-        Preconditions.checkState( !exists, "该接收能量地址已存在,请勿重复添加");
+        Preconditions.checkState(!exists, "该接收能量地址已有一笔正在生效中的业务,请勿重复添加");
 
         Long price = tenantInfo.getPrice();
         Long transferCount = tenantInfo.getTransferCount();
@@ -106,6 +115,8 @@ public class TenantInfoServiceImpl implements ITenantInfoService {
         tenantInfo.setFcu(loginName);
         String status = DictUtils.getDictValue("sys_tenant_status", "生效中");
         tenantInfo.setStatus(status);
+
+        tenantInfo.setTotalCountUsed(0L);
 
         tenantInfo.setLcd(new Date());
         tenantInfo.setLcu(loginName);
@@ -165,6 +176,10 @@ public class TenantInfoServiceImpl implements ITenantInfoService {
         for (String id : idArray) {
             TenantInfo tenantInfo = tenantInfoMapper.selectTenantInfoByIdTenantInfo(Long.valueOf(id));
 
+            Long totalCountUsed = tenantInfo.getTotalCountUsed();
+
+            Preconditions.checkState(totalCountUsed == 0, "该接收能量地址已在任务中,请勿重复发起");
+
             String status = DictUtils.getDictValue("sys_tenant_status", "生效中");
             Preconditions.checkState(status.equals(tenantInfo.getStatus()), "该租户不是生效中状态,不能发起委托任务");
 
@@ -216,20 +231,27 @@ public class TenantInfoServiceImpl implements ITenantInfoService {
         trxExchange.setFromAddress(tenantInfo.getReceiverAddress());
 
         trxExchange.setAccountAddress(accountAddress);
-        trxExchange.setTransferNumber(tenantInfo.getTransferCount());
+//        trxExchange.setTransferNumber(tenantInfo.getTransferCount());
+        trxExchange.setTransferNumber(2L);
 
         trxExchange.setPrice(tenantInfo.getPrice());
 
         trxExchange.setMonitorAddress(monitorAddress);
 
-        long between = DateUtil.between(DateUtil.date(), DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR);
-        trxExchange.setLockNum(between + 1);
+//        long between = DateUtil.between(DateUtil.date(), DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR);
+        trxExchange.setLockNum(24L);
+
+        trxExchange.setEnergyBusiType(tenantInfo.getEnergyBusiType());
+        trxExchange.setResourceCode(Common.ResourceCode.ENERGY.name());
+        trxExchange.setCalcRule(tenantInfo.getCalcRule());
+
 
         userName = userName == null ? ShiroUtils.getLoginName() : userName;
 
         trxExchangeInfoService.delegate(trxExchange, true, userName);
 
         tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
+        tenantInfo.setTotalCountUsed(0L);
         tenantInfo.setLcd(new Date());
         tenantInfoMapper.updateTenantInfo(tenantInfo);
     }

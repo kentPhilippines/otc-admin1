@@ -21,6 +21,8 @@ public class EnergyTenantTransferTask {
     public void doEnergyTenantTransfer(){
         TenantInfo tenantInfoExample = new TenantInfo();
         tenantInfoExample.setStatus(DictUtils.getDictValue("sys_tenant_status", "生效中"));
+    /*    String energyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "天数套餐");
+        tenantInfoExample.setEnergyBusiType(energyBusiType);*/
         List<TenantInfo> tenantInfoList = tenantInfoMapper.selectTenantInfoList(tenantInfoExample);
 
         for (TenantInfo tenantInfo : tenantInfoList) {

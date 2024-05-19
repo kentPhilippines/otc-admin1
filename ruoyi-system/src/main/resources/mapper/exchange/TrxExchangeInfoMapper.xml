@@ -21,6 +21,7 @@
         <result column="delegateTxId" property="delegateTxId"/>
         <result column="lockPeriod" property="lockPeriod"/>
         <result column="delegateStatus" property="delegateStatus"/>
+        <result column="calcRule" property="calcRule"/>
         <result column="unDelegateTxId" property="unDelegateTxId"/>
         <result column="fcd" property="fcd"/>
         <result column="fcu" property="fcu"/>
@@ -43,6 +44,7 @@
         <result property="delegateTxId"    column="delegate_tx_id"    />
         <result property="lockPeriod"    column="lock_period"    />
         <result property="delegateStatus"    column="delegate_status"    />
+        <result property="calcRule"    column="calc_rule"    />
         <result property="unDelegateTxId"    column="un_delegate_tx_id"    />
         <result property="fcd"    column="fcd"    />
         <result property="fcu"    column="fcu"    />
@@ -51,7 +53,7 @@
     </resultMap>
 
     <sql id="selectTrxExchangeInfoVo">
-        select id_trx_exchange_info, from_address, to_address, account_address, price, trx_tx_id, tranfer_count, energy_busi_type, trx_amount, trx_amount_unit, delegate_amount_trx, resource_code, delegate_tx_id, lock_period, delegate_status, un_delegate_tx_id, fcd, fcu, lcd, lcu from trx_exchange_info
+        select id_trx_exchange_info, from_address, to_address, account_address, price, trx_tx_id, tranfer_count, energy_busi_type, trx_amount, trx_amount_unit, delegate_amount_trx, resource_code, delegate_tx_id, lock_period, delegate_status, calc_rule, un_delegate_tx_id, fcd, fcu, lcd, lcu from trx_exchange_info
     </sql>
 
     <select id="selectTrxExchangeInfoList" parameterType="TrxExchangeInfo" resultMap="TrxExchangeInfoResult">
@@ -71,6 +73,7 @@
             <if test="delegateTxId != null  and delegateTxId != ''"> and delegate_tx_id = #{delegateTxId}</if>
             <if test="lockPeriod != null "> and lock_period = #{lockPeriod}</if>
             <if test="delegateStatus != null  and delegateStatus != ''"> and delegate_status = #{delegateStatus}</if>
+            <if test="calcRule != null  and calcRule != ''"> and calc_rule = #{calcRule}</if>
             <if test="unDelegateTxId != null  and unDelegateTxId != ''"> and un_delegate_tx_id = #{unDelegateTxId}</if>
             <if test="params.beginFcd != null and params.beginFcd != '' and params.endFcd != null and params.endFcd != ''"> and fcd between #{params.beginFcd} and #{params.endFcd}</if>
             <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
@@ -101,6 +104,7 @@
             <if test="delegateTxId != null">delegate_tx_id,</if>
             <if test="lockPeriod != null">lock_period,</if>
             <if test="delegateStatus != null">delegate_status,</if>
+            <if test="calcRule != null">calc_rule,</if>
             <if test="unDelegateTxId != null">un_delegate_tx_id,</if>
             <if test="fcd != null">fcd,</if>
             <if test="fcu != null">fcu,</if>
@@ -122,6 +126,7 @@
             <if test="delegateTxId != null">#{delegateTxId},</if>
             <if test="lockPeriod != null">#{lockPeriod},</if>
             <if test="delegateStatus != null">#{delegateStatus},</if>
+            <if test="calcRule != null">#{calcRule},</if>
             <if test="unDelegateTxId != null">#{unDelegateTxId},</if>
             <if test="fcd != null">#{fcd},</if>
             <if test="fcu != null">#{fcu},</if>
@@ -147,6 +152,7 @@
             <if test="delegateTxId != null">delegate_tx_id = #{delegateTxId},</if>
             <if test="lockPeriod != null">lock_period = #{lockPeriod},</if>
             <if test="delegateStatus != null">delegate_status = #{delegateStatus},</if>
+            <if test="calcRule != null">calc_rule = #{calcRule},</if>
             <if test="unDelegateTxId != null">un_delegate_tx_id = #{unDelegateTxId},</if>
             <if test="fcd != null">fcd = #{fcd},</if>
             <if test="fcu != null">fcu = #{fcu},</if>
@@ -179,6 +185,7 @@
         <result column="resource_code" property="resourceCode"/>
         <result column="lock_period" property="lockPeriod"/>
         <result column="delegate_status" property="delegateStatus"/>
+        <result column="calc_rule" property="calcRule"/>
         <result column="delegate_tx_id" property="delegateTxId"/>
         <result column="un_delegate_tx_id" property="unDelegateTxId"/>
         <result column="fcd" property="fcd"/>
@@ -199,6 +206,7 @@
         t.resource_code,
         t.lock_period,
         t.delegate_status,
+        t.calc_rule,
         t.delegate_tx_id,
         t.un_delegate_tx_id,
         t.fcd,
@@ -240,6 +248,7 @@
         t.delegate_tx_id delegateTxId,
         t.lock_period lockPeriod,
         t.delegate_status delegateStatus,
+        t.calc_rule calcRule,
         t.un_delegate_tx_id unDelegateTxId,
         t.fcd,
         t.fcu,

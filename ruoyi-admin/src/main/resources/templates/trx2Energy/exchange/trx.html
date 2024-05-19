@@ -97,6 +97,7 @@
     var lockPeriodDatas = [[${@dict.getType('sys_lock_period')}]];
     var trxAmountUnitDatas = [[${@dict.getType('sys_monitor_type')}]];
     var resourceCodeDatas = [[${@dict.getType('sys_trx_exchange')}]];
+    var calcRuleDatas = [[${@dict.getType('sys_transaction_count_calc_rule')}]];
     $(function () {
         var options = {
             url: prefix + "/list",
@@ -207,6 +208,13 @@
                     title: '资源状态',
                     formatter: function (value, item, index) {
                         return $.table.selectDictLabel(datas, item.delegateStatus);
+                    }
+                },
+                {
+                    field: 'calcRule',
+                    title: '笔数计算规则',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(calcRuleDatas, value);
                     }
                 },
                 {

@@ -18,16 +18,25 @@
                             <label>出账账户地址：</label>
                             <input type="text" name="accountAddress"/>
                         </li>
-                        <li>
+                      <!--  <li>
                             <label>交易单位：</label>
                             <select name="exchangeUnit" th:with="type=${@dict.getType('sys_monitor_type')}">
                                 <option value="">所有</option>
                                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
-                        </li>
+                        </li>-->
                         <li>
+                            <label>状态：</label>
+                            <select name="status" th:with="type=${@dict.getType('sys_tenant_status')}">
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                <option value="">所有</option>
+                            </select>
+                        </li>
+                        <li class="select-time">
                             <label>创建时间：</label>
-                            <input type="text" class="time-input" placeholder="请选择创建时间" name="fcd"/>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginFcd]"/>
+                            <span>-</span>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endFcd]"/>
                         </li>
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -61,11 +70,13 @@
 <script th:inline="javascript">
     var editFlag = [[${@permission.hasPermi('account:tenant:edit')}]];
     var removeFlag = [[${@permission.hasPermi('account:tenant:remove')}]];
-    var transferCountDatas = [[${@dict.getType('sys_transfer_number')}]];
+
     var exchangeUnitDatas = [[${@dict.getType('sys_monitor_type')}]];
     var isPaidDatas = [[${@dict.getType('sys_is_paid')}]];
     var periodDatas = [[${@dict.getType('sys_lock_period_day')}]];
     var statusDatas = [[${@dict.getType('sys_tenant_status')}]];
+    var calcRuleDatas = [[${@dict.getType('sys_transaction_count_calc_rule')}]];
+    var energyBusiTypeDatas = [[${@dict.getType('sys_energy_busi_type')}]];
     var prefix = ctx + "trx2Energy/tenant";
 
     $(function() {
@@ -89,19 +100,34 @@
                     field: 'receiverAddress',
                     title: '接收能量地址'
                 },
-         /*       {
+                {
                     field: 'monitorAddress',
-                    title: '监控入账地址'
-                },*/
+                    title: '监控入账地址',
+                    visible: false
+                },
+
+                {
+                    field: 'energyBusiType',
+                    title: '套餐类型',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(energyBusiTypeDatas, value);
+                    }
+                }  ,
                 {
                     field: 'price',
-                    title: '单价'
+                    title: '单价',
+                    formatter: function(value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
+                        return value + ' ' + row['exchangeUnit'];
+                    }
                 },
                 {
                     field: 'transferCount',
                     title: '笔数',
                     formatter: function(value, row, index) {
-                        return $.table.selectDictLabel(transferCountDatas, value);
+                        return value + ' 笔';
                     }
                 },
                 {
@@ -109,11 +135,13 @@
                     title: '交易单位',
                     formatter: function(value, row, index) {
                         return $.table.selectDictLabel(exchangeUnitDatas, value);
-                    }
+                    },
+                    visible: false
                 },
                 {
                     field: 'exchangeAmount',
-                    title: '交易总额'
+                    title: '交易总额',
+                    visible: false
                 },
                 {
                     field: 'isPaid',
@@ -126,6 +154,9 @@
                     field: 'period',
                     title: '租期',
                     formatter: function(value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
                         return $.table.selectDictLabel(periodDatas, value);
                     }
                 },
@@ -142,21 +173,35 @@
                     title: '已经委托天数'
                 },
                 {
+                    field: 'totalCountUsed',
+                    title: '已使用笔数'
+                },
+                {
+                    field: 'calcRule',
+                    title: '计算规则',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(calcRuleDatas, value);
+                    }
+                },
+                {
                     field: 'fcd',
                     title: '创建时间'
                 },
-            /*    {
+                {
                     field: 'fcu',
-                    title: '创建用户'
+                    title: '创建用户',
+                    visible: false
                 },
                 {
                     field: 'lcd',
-                    title: '更新时间'
+                    title: '更新时间',
+                    visible: false
                 },
                 {
                     field: 'lcu',
-                    title: '更新用户'
-                },*/
+                    title: '更新用户',
+                    visible: false
+                },
                 {
                     title: '操作',
                     align: 'center',

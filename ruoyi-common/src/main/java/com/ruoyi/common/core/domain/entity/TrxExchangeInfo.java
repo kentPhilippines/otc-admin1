@@ -89,6 +89,9 @@ public class TrxExchangeInfo extends BaseEntity
     /** 资源委托状态 */
     @Excel(name = "资源委托状态")
     private String delegateStatus;
+    /** 笔数计算规则 */
+    @Excel(name = "笔数计算规则")
+    private String calcRule;
 
     /** 回收资源交易id */
     @Excel(name = "回收资源交易")

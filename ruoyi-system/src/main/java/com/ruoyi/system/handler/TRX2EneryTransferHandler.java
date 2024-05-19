@@ -316,7 +316,7 @@ public class TRX2EneryTransferHandler {
         }
 
 
-        calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, sysEnergyBusiType, amount,"TRX","system",Common.ResourceCode.ENERGY.name());
+        calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, sysEnergyBusiType, amount,"TRX","system",Common.ResourceCode.ENERGY.name(),"energy_used");
         //持久化之后放redis
         redisTemplate.opsForValue().set("transfer_trx_" + txID, txID, 1, TimeUnit.DAYS);
         if (tenantInfo != null) {
@@ -338,6 +338,7 @@ public class TRX2EneryTransferHandler {
      * @param sysEnergyBusiType 业务类型
      * @param amount            转入金额
      * @param currentUser       当前处理人
+     * @param calcRule
      * @throws Exception 异常
      */
     public void calcBalanceAndDelegate(String txID,
@@ -352,7 +353,7 @@ public class TRX2EneryTransferHandler {
                                        Long amount,
                                        String trxAmountUnit,
                                        String currentUser,
-                                       String resourceCode) throws Exception {
+                                       String resourceCode, String calcRule) throws Exception {
 
         String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
         Long balance = null;
@@ -383,6 +384,7 @@ public class TRX2EneryTransferHandler {
                 .resourceCode(resourceCode)
                 .delegateTxId(delegateResourceTxid)
                 .lockPeriod(lockPeriod)
+                .calcRule(calcRule)
                 .delegateStatus("0")
                 .fcd(new Date())
                 .fcu(currentUser)

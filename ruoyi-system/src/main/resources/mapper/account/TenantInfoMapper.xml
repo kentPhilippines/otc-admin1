@@ -8,6 +8,7 @@
         <result property="idTenantInfo"    column="id_tenant_info"    />
         <result property="receiverAddress"    column="receiver_address"    />
         <result property="monitorAddress"    column="monitor_address"    />
+        <result property="energyBusiType"    column="energy_busi_type"    />
         <result property="price"    column="price"    />
         <result property="transferCount"    column="transfer_count"    />
         <result property="exchangeUnit"    column="exchange_unit"    />
@@ -18,6 +19,8 @@
         <result property="userId"    column="user_id"    />
         <result property="status"    column="status"    />
         <result property="delegatedDays"    column="delegated_days"    />
+        <result property="totalCountUsed"    column="total_count_used"    />
+        <result property="calcRule"    column="calc_rule"    />
         <result property="fcd"    column="fcd"    />
         <result property="fcu"    column="fcu"    />
         <result property="lcd"    column="lcd"    />
@@ -25,7 +28,7 @@
     </resultMap>
 
     <sql id="selectTenantInfoVo">
-        select id_tenant_info, receiver_address, monitor_address, price, transfer_count, exchange_unit, tx_id, exchange_amount, is_paid, period,  t.status, delegated_days, fcd, fcu, lcd, lcu from tenant_info t
+        select id_tenant_info, receiver_address, monitor_address, energy_busi_type,price, transfer_count, exchange_unit, tx_id, exchange_amount, is_paid, period, t.user_id, t.status, delegated_days, total_count_used, calc_rule, fcd, fcu, lcd, lcu from tenant_info t
     </sql>
 
     <select id="selectTenantInfoList" parameterType="TenantInfo" resultMap="TenantInfoResult">
@@ -34,14 +37,17 @@
         <where> 1 = 1
             <if test="receiverAddress != null  and receiverAddress != ''"> and receiver_address = #{receiverAddress}</if>
             <if test="monitorAddress != null  and monitorAddress != ''"> and monitor_address = #{monitorAddress}</if>
+            <if test="energyBusiType != null  and energyBusiType != ''"> and energy_busi_type = #{energyBusiType}</if>
             <if test="price != null "> and price = #{price}</if>
             <if test="transferCount != null "> and transfer_count = #{transferCount}</if>
             <if test="exchangeUnit != null  and exchangeUnit != ''"> and exchange_unit = #{exchangeUnit}</if>
             <if test="txId != null  and txId != ''"> and tx_id = #{txId}</if>
             <if test="exchangeAmount != null "> and exchange_amount = #{exchangeAmount}</if>
             <if test="isPaid != null  and isPaid != ''"> and is_paid = #{isPaid}</if>
+            <if test="status != null and status != ''" >and t.status = #{status}</if>
             <if test="period != null "> and period = #{period}</if>
-            <if test="fcd != null "> and fcd = #{fcd}</if>
+            <if test="calcRule != null  and calcRule != ''"> and calc_rule = #{calcRule}</if>
+            <if test="params.beginFcd != null and params.beginFcd != '' and params.endFcd != null and params.endFcd != ''"> and fcd between #{params.beginFcd} and #{params.endFcd}</if>
             <if test="fcu != null  and fcu != ''"> and fcu = #{fcu}</if>
             <if test="lcd != null "> and lcd = #{lcd}</if>
             <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
@@ -55,11 +61,13 @@
         where id_tenant_info = #{idTenantInfo}
     </select>
 
+
     <insert id="insertTenantInfo" parameterType="TenantInfo" useGeneratedKeys="true" keyProperty="idTenantInfo">
         insert into tenant_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="receiverAddress != null and receiverAddress != ''">receiver_address,</if>
             <if test="monitorAddress != null">monitor_address,</if>
+            <if test="energyBusiType != null">energy_busi_type,</if>
             <if test="price != null">price,</if>
             <if test="transferCount != null">transfer_count,</if>
             <if test="exchangeUnit != null">exchange_unit,</if>
@@ -70,6 +78,8 @@
             <if test="userId != null">user_id,</if>
             <if test="status != null">status,</if>
             <if test="delegatedDays != null">delegated_days,</if>
+            <if test="totalCountUsed != null">total_count_used,</if>
+            <if test="calcRule != null">calc_rule,</if>
             <if test="fcd != null">fcd,</if>
             <if test="fcu != null">fcu,</if>
             <if test="lcd != null">lcd,</if>
@@ -78,6 +88,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="receiverAddress != null and receiverAddress != ''">#{receiverAddress},</if>
             <if test="monitorAddress != null">#{monitorAddress},</if>
+            <if test="energyBusiType != null">#{energyBusiType},</if>
             <if test="price != null">#{price},</if>
             <if test="transferCount != null">#{transferCount},</if>
             <if test="exchangeUnit != null">#{exchangeUnit},</if>
@@ -88,6 +99,8 @@
             <if test="userId != null">#{userId},</if>
             <if test="status != null">#{status},</if>
             <if test="delegatedDays != null">#{delegatedDays},</if>
+            <if test="totalCountUsed != null">#{totalCountUsed},</if>
+            <if test="calcRule != null">#{calcRule},</if>
             <if test="fcd != null">#{fcd},</if>
             <if test="fcu != null">#{fcu},</if>
             <if test="lcd != null">#{lcd},</if>
@@ -100,6 +113,7 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="receiverAddress != null and receiverAddress != ''">receiver_address = #{receiverAddress},</if>
             <if test="monitorAddress != null">monitor_address = #{monitorAddress},</if>
+            <if test="energyBusiType != null">energy_busi_type = #{energyBusiType},</if>
             <if test="price != null">price = #{price},</if>
             <if test="transferCount != null">transfer_count = #{transferCount},</if>
             <if test="exchangeUnit != null">exchange_unit = #{exchangeUnit},</if>
@@ -110,6 +124,8 @@
             <if test="userId != null">user_id = #{userId},</if>
             <if test="status != null">status = #{status},</if>
             <if test="delegatedDays != null">delegated_days = #{delegatedDays},</if>
+            <if test="totalCountUsed != null">total_count_used = #{totalCountUsed},</if>
+            <if test="calcRule != null">calc_rule = #{calcRule},</if>
             <if test="fcd != null">fcd = #{fcd},</if>
             <if test="fcu != null">fcu = #{fcu},</if>
             <if test="lcd != null">lcd = #{lcd},</if>

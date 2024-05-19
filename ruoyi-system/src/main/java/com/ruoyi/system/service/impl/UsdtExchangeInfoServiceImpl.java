@@ -95,11 +95,12 @@ public class UsdtExchangeInfoServiceImpl implements IUsdtExchangeInfoService {
         }
 
         String decryptPrivateKey = accountAddressInfoService.getDecryptPrivateKey(accountAddress);
-        String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+//        String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+        String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
 
         String fromAddress = usdtExchangeInfo.getFromAddress();
         usdt2TrxTransferHandler.
-                doTransferUsdtAndStore(oneUsdtToTrxPair, tronApiKey, decryptPrivateKey, accountAddress, fromAddress, trxValue, null, null, usdtAmount);
+                doTransferUsdtAndStore(oneUsdtToTrxPair, apiKey, decryptPrivateKey, accountAddress, fromAddress, trxValue, null, null, usdtAmount);
 
         return 1;
     }

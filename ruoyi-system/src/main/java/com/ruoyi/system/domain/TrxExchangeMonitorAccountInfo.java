@@ -77,4 +77,25 @@ public class TrxExchangeMonitorAccountInfo implements Serializable {
 
 
     private String unDelegateTxId;
+    private Integer countUsed;
+
+
+    private String calcRule;
+
+   /* private String status;
+
+
+    private String isPaid;
+
+
+    private Long delegatedDays;
+    private Long period;
+
+
+    private Integer maxTransferCount;
+
+
+    private Long idTenantInfo;*/
+
+
 }

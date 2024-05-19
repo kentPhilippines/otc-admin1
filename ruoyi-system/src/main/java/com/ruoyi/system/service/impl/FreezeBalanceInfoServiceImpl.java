@@ -75,9 +75,10 @@ public class FreezeBalanceInfoServiceImpl implements IFreezeBalanceInfoService
             String address = freezeBalanceInfo.getAddress();
             String decryptPrivateKey = accountAddressInfoService.getDecryptPrivateKey(address);
 
-            String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+//            String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+            String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
             //发起抵押
-            ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey,tronApiKey);
+            ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey,apiKey);
 
             Long frozenBalance = freezeTrxAmount * 1000000L;
 

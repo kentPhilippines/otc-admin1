@@ -1,9 +1,11 @@
 package com.ruoyi.common.utils;
 
-import java.util.List;
-import org.springframework.stereotype.Component;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.domain.entity.SysDictData;
+import org.springframework.stereotype.Component;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 字典工具类
@@ -67,6 +69,19 @@ public class DictUtils
     public static String getDictValue(String dictType, String dictLabel)
     {
         return getDictValue(dictType, dictLabel, SEPARATOR);
+    }
+
+    public static String getRandomDictValue(String dictType)
+    {
+        Object cacheObj = CacheUtils.get(getCacheName(), getCacheKey(dictType));
+        if (StringUtils.isNotNull(cacheObj))
+        {
+            List<SysDictData> sysDictDataList = StringUtils.cast(cacheObj);
+            Collections.shuffle(sysDictDataList);
+            return sysDictDataList.get(0).getDictValue();
+        }
+
+        return null;
     }
 
     /**

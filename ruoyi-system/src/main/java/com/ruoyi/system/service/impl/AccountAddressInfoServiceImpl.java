@@ -164,9 +164,10 @@ public class AccountAddressInfoServiceImpl implements IAccountAddressInfoService
 
         //解密获得秘钥
         String decryptPrivateKey = Dt.decrypt(encryptPrivateKey, encryptKey);
-        String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+//        String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
+        String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
 
-        ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey,tronApiKey);
+        ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey,apiKey);
 
         String address = addressInfo.getAddress();
         Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(address);

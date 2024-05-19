@@ -6,6 +6,7 @@ import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
 import com.ruoyi.system.handler.UndelegateEnergyHandler;
+import com.ruoyi.system.service.ITenantInfoService;
 import com.ruoyi.system.service.ITrxExchangeInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +25,12 @@ public class UndelegateEnergyTask {
     @Autowired
     private UndelegateEnergyHandler undelegateEnergyHandler;
 
+    @Autowired
+    private ITenantInfoService tenantInfoService;
 
     public void doUndelegateEnergy() {
+
+
 
         String dictValue = DictUtils.getDictValue("sys_delegate_status", "已委托");
 

@@ -32,7 +32,9 @@ public class TrxExchange extends BaseEntity
 
     private Long price;
 
+    private String energyBusiType;
 
+    private String calcRule;
 
 
 
