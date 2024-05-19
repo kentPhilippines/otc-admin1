@@ -193,8 +193,8 @@ public class Usdt2TrxTransferHandler {
                 .setUsdtTxId(transactionId)
                 .setUsdtAmount(transferValue)
                 .setTrxAmount(trxValue)
-                .setExchangeRate(oneUsdtToTrxPair.getFirst())
-                .setOrginalExchangeRate(oneUsdtToTrxPair.getSecond())
+                .setExchangeRate(oneUsdtToTrxPair == null ? null : oneUsdtToTrxPair.getFirst())
+                .setOrginalExchangeRate(oneUsdtToTrxPair == null ? null :oneUsdtToTrxPair.getSecond())
                 .setTrxTxId(txId)
                 .setFcu("system")
                 .setLcu("system");

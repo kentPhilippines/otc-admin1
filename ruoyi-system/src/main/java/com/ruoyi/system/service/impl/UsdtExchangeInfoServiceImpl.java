@@ -70,20 +70,27 @@ public class UsdtExchangeInfoServiceImpl implements IUsdtExchangeInfoService {
      */
     @Override
     public int insertUsdtExchangeInfo(UsdtExchangeInfo usdtExchangeInfo) throws Exception {
-        BigDecimal oneUsdtToTrx;
-        String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
+
+        BigDecimal usdtAmount = usdtExchangeInfo.getUsdtAmount();
+        BigDecimal trxAmount = usdtExchangeInfo.getTrxAmount();
+        Preconditions.checkState(usdtAmount != null ^ trxAmount != null, "转入USDT和转出TR数量不能同时录入,也不能同时为空");
         Pair<BigDecimal, BigDecimal> oneUsdtToTrxPair = null;
-        if (UserConstants.YES.equals(systronApiSwitch)) {
+        BigDecimal trxValue = null;
+        if (usdtAmount != null) {
+            String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
+
+            if (UserConstants.YES.equals(systronApiSwitch)) {
 //            oneUsdtToTrx = usdt2TrxTransferHandler.getOneUsdtToTrx().getFirst();
-            oneUsdtToTrxPair = usdt2TrxTransferHandler.getOneUsdtToTrx();
+                oneUsdtToTrxPair = usdt2TrxTransferHandler.getOneUsdtToTrx();
+            } else {
+                oneUsdtToTrxPair = Pair.of(BigDecimal.TEN, BigDecimal.TEN);
+            }
+            trxValue = usdtAmount.multiply(oneUsdtToTrxPair.getFirst());
         } else {
-            oneUsdtToTrxPair=Pair.of(BigDecimal.TEN,BigDecimal.TEN);
+            trxValue = trxAmount;
         }
 
 
-        BigDecimal usdtAmount = usdtExchangeInfo.getUsdtAmount();
-
-        BigDecimal trxValue = usdtAmount.multiply(oneUsdtToTrxPair.getFirst());
         String accountAddress = usdtExchangeInfo.getAccountAddress();
         if (StringUtils.isEmpty(accountAddress)) {
             AccountAddressInfo accountAddressInfoExample = new AccountAddressInfo();

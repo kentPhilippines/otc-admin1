@@ -107,11 +107,23 @@
                 },
                 {
                     field: 'usdtAmount',
-                    title: '转入金额'
+                    title: '转入金额',
+                    formatter: function (value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
+                        return value + ' USDT' ;
+                    }
                 },
                 {
                     field: 'trxAmount',
-                    title: '转出金额'
+                    title: '转出金额',
+                    formatter: function (value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
+                        return value + ' TRX' ;
+                    }
                 },
                 {
                     field: 'exchangeRate',
@@ -119,7 +131,8 @@
                 },
                 {
                     field: 'trxTxId',
-                    title: 'TRX订单'
+                    title: 'TRX订单',
+                    visible: false
                 },
                 {
                     field: 'orginalExchangeRate',
@@ -136,7 +149,8 @@
                 },
                 {
                     field: 'lcd',
-                    title: '更新时间'
+                    title: '更新时间',
+                    visible: false
                 },
                 {
                     field: 'lcu',

@@ -26,7 +26,7 @@
             <label class="col-sm-3 control-label">套餐类型：</label>
             <div class="col-sm-8">
                 <select name="energyBusiType" class="form-control m-b" th:with="type=${@dict.getType('sys_energy_busi_type')}">
-                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    <option th:each="dict : ${type}" th:unless="${dict.dictValue == '1' || dict.dictValue == '2'}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                 </select>
             </div>
         </div>
