@@ -1219,31 +1219,14 @@ public class ExcelUtil<T>
      */
     public static String convertByExp(String propertyValue, String converterExp, String separator)
     {
-        StringBuilder propertyString = new StringBuilder();
         String[] convertSource = converterExp.split(",");
-        for (String item : convertSource)
-        {
+        for (String item : convertSource) {
             String[] itemArray = item.split("=");
-            if (StringUtils.containsAny(propertyValue, separator))
-            {
-                for (String value : propertyValue.split(separator))
-                {
-                    if (itemArray[0].equals(value))
-                    {
-                        propertyString.append(itemArray[1] + separator);
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                if (itemArray[0].equals(propertyValue))
-                {
-                    return itemArray[1];
-                }
+            if (itemArray[0].equals(propertyValue)) {
+                return itemArray[1];
             }
         }
-        return StringUtils.stripEnd(propertyString.toString(), separator);
+        return propertyValue;
     }
 
     /**
