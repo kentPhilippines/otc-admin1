@@ -30,7 +30,7 @@ server:
       max: 800
       # Tomcat启动初始化的线程数，默认值10
       min-spare: 100
- 
+
 # 日志配置
 logging:
   level:
@@ -140,3 +140,11 @@ xss:
 swagger:
   # 是否开启swagger
   enabled: true
+
+
+# ftp配置
+ftp:
+  server: ftp.example.com
+  port: 21
+  user: ftpusername
+  password: ftppassword
