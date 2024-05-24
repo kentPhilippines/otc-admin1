@@ -71,7 +71,13 @@
                   },
                   {
                       field: 'address',
-                      title: '地址'
+                      title: '地址',
+                      formatter: function (value, row, index) {
+                          if (value == null) {
+                              return value;
+                          }
+                          return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                      }
                   }, {
                           field: 'busiType',
                           title: '业务类型',

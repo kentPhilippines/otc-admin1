@@ -3,6 +3,7 @@ package com.ruoyi.system.service;
 
 import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
 import com.ruoyi.system.domain.MonitorAddressAccount;
+import com.ruoyi.system.domain.vo.MonitorAddressInfoVO;
 
 import java.util.List;
 
@@ -24,11 +25,11 @@ public interface IMonitorAddressInfoService
 
     /**
      * 查询监听账户入账列表
-     * 
+     *
      * @param monitorAddressInfo 监听账户入账
      * @return 监听账户入账集合
      */
-    public List<MonitorAddressInfo> selectMonitorAddressInfoList(MonitorAddressInfo monitorAddressInfo);
+    public List<MonitorAddressInfoVO> selectMonitorAddressInfoList(MonitorAddressInfo monitorAddressInfo);
 
     /**
      * 新增监听账户入账

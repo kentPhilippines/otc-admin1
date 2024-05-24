@@ -101,8 +101,22 @@
                     },
                 {
                     field: 'monitorAddress',
-                    title: '监听地址'
-                }, {
+                    title: '监听地址',
+                    formatter: function (value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                    }
+                },
+                    {
+                        field: 'trxBalance',
+                        title: 'TRX余额'
+                    },
+                    {
+                        field: 'usdtBalance',
+                        title: 'USDT余额'
+                    }, {
                         field: 'busiType',
                         title: '业务类型',
                         formatter: function(value, row, index) {
@@ -111,7 +125,13 @@
                     },
                 {
                     field: 'accountAddress',
-                    title: '出账地址'
+                    title: '出账地址',
+                    formatter: function (value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                    }
                 },
 
                     {

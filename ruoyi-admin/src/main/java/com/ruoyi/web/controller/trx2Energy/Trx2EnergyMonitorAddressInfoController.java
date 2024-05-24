@@ -8,6 +8,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.system.domain.vo.MonitorAddressInfoVO;
 import com.ruoyi.system.service.IAccountAddressInfoService;
 import com.ruoyi.system.service.IMonitorAddressInfoService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -52,7 +53,7 @@ public class Trx2EnergyMonitorAddressInfoController extends BaseController
     {
         startPage();
         monitorAddressInfo.setBusiType(DictUtils.getDictValue("sys_busi_type", "TRX兑能量"));
-        List<MonitorAddressInfo> list = monitorAddressInfoService.selectMonitorAddressInfoList(monitorAddressInfo);
+        List<MonitorAddressInfoVO> list = monitorAddressInfoService.selectMonitorAddressInfoList(monitorAddressInfo);
         return getDataTable(list);
     }
 
@@ -66,8 +67,8 @@ public class Trx2EnergyMonitorAddressInfoController extends BaseController
     public AjaxResult export(MonitorAddressInfo monitorAddressInfo)
     {
         monitorAddressInfo.setBusiType(DictUtils.getDictValue("sys_busi_type", "TRX兑能量"));
-        List<MonitorAddressInfo> list = monitorAddressInfoService.selectMonitorAddressInfoList(monitorAddressInfo);
-        ExcelUtil<MonitorAddressInfo> util = new ExcelUtil<MonitorAddressInfo>(MonitorAddressInfo.class);
+        List<MonitorAddressInfoVO> list = monitorAddressInfoService.selectMonitorAddressInfoList(monitorAddressInfo);
+        ExcelUtil<MonitorAddressInfoVO> util = new ExcelUtil<MonitorAddressInfoVO>(MonitorAddressInfoVO.class);
         return util.exportExcel(list, "监听账户入账数据");
     }
 
