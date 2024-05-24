@@ -7,21 +7,36 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "ftp")
 public class FTPConfig {
 
-    private String server;
-    private int port;
-    private String user;
-    private String password;
+    /**
+     * 服务地址
+     */
+    private static String serverUrl;
 
-    // Getters and Setters
-    public String getServer() {
-        return server;
+    /**
+     * 端口
+     */
+    private static int port;
+
+    /**
+     * 用户名
+     */
+    private static String userName;
+
+    /**
+     * 密码
+     */
+    private static String password;
+
+
+    public static String getServerUrl() {
+        return serverUrl;
     }
 
-    public void setServer(String server) {
-        this.server = server;
+    public void setServerUrl(String serverUrl) {
+        this.serverUrl = serverUrl;
     }
 
-    public int getPort() {
+    public static int getPort() {
         return port;
     }
 
@@ -29,15 +44,15 @@ public class FTPConfig {
         this.port = port;
     }
 
-    public String getUser() {
-        return user;
+    public static String getUserName() {
+        return userName;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getPassword() {
+    public static String getPassword() {
         return password;
     }
 

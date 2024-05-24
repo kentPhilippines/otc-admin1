@@ -10,14 +10,12 @@ import java.io.InputStream;
 
 public class FTPUtils {
 
+
     public void uploadFile(String remotePath, MultipartFile file) throws IOException {
-        FTPClient ftpClient = new FTPClient();
-        FTPConfig ftpConfig = new FTPConfig();
+
+        FTPClient ftpClient = this.getConnection();
+
         try {
-            ftpClient.connect(ftpConfig.getServer(), ftpConfig.getPort());
-            ftpClient.login(ftpConfig.getUser(), ftpConfig.getPassword());
-            ftpClient.enterLocalPassiveMode();
-            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 
             try (InputStream inputStream = file.getInputStream()) {
                 boolean done = ftpClient.storeFile(remotePath, inputStream);
@@ -27,11 +25,29 @@ public class FTPUtils {
                     throw new IOException("Failed to upload file " + file.getOriginalFilename());
                 }
             }
+
         } finally {
             if (ftpClient.isConnected()) {
                 ftpClient.logout();
                 ftpClient.disconnect();
             }
         }
+    }
+
+
+    /**
+     * 建立连接
+     */
+    private FTPClient getConnection() throws IOException {
+
+        FTPClient ftpClient = new FTPClient();
+
+        ftpClient.connect(FTPConfig.getServerUrl(), FTPConfig.getPort());
+        ftpClient.login(FTPConfig.getUserName(), FTPConfig.getPassword());
+        ftpClient.enterLocalPassiveMode();
+        ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+
+        return ftpClient;
+
     }
 }
