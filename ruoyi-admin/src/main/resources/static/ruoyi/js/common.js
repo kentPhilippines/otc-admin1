@@ -407,12 +407,18 @@ function endOfTime(date) {
 /** 重置日期/年月日 */
 function resetDate() {
 	if ($.common.isNotEmpty(startLayDate) && $.common.isNotEmpty(endLayDate)) {
-	    endLayDate.config.min.year = '';
-	    endLayDate.config.min.month = '';
-	    endLayDate.config.min.date = '';
-	    startLayDate.config.max.year = '2099';
-	    startLayDate.config.max.month = '12';
-	    startLayDate.config.max.date = '31';
+	    
+        if($.common.isNotEmpty(endLayDate.config.min)) {
+			endLayDate.config.min.year = '';
+	    	endLayDate.config.min.month = '';
+	    	endLayDate.config.min.date = '';
+		}
+		
+		if($.common.isNotEmpty(startLayDate.config.max)) {
+			startLayDate.config.max.year = '2099';
+	    	startLayDate.config.max.month = '12';
+	    	startLayDate.config.max.date = '31';
+		}
 	}
 }
 
