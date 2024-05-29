@@ -1,5 +1,6 @@
 package com.ruoyi.framework.aspectj;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -250,6 +251,6 @@ public class LogAspect
             }
         }
         return o instanceof MultipartFile || o instanceof HttpServletRequest || o instanceof HttpServletResponse
-                || o instanceof BindingResult;
+                || o instanceof BindingResult || !(o instanceof Serializable);
     }
 }
