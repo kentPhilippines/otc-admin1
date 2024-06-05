@@ -17,6 +17,7 @@ import com.ruoyi.system.dto.TronGridResponse;
 import com.ruoyi.system.mapper.TenantInfoMapper;
 import com.ruoyi.system.mapper.TrxExchangeInfoMapper;
 import com.ruoyi.system.service.IErrorLogService;
+import com.ruoyi.system.service.ISysConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RLock;
@@ -49,6 +50,8 @@ public class UndelegateEnergyHandler {
     @Autowired
     private ITronApi tronApi;
 
+    @Autowired
+    private ISysConfigService configService;
 
     @Autowired
     private IErrorLogService errorLogService;
@@ -64,9 +67,17 @@ public class UndelegateEnergyHandler {
 
 
         if (betweenHours < lockPeriod) {
-
-
-
+            String sysEnergyUndelegateWhitelistString = configService.selectConfigByKey("sys.energy.undelegate.whitelist");
+           if (StringUtils.isNotEmpty(sysEnergyUndelegateWhitelistString) && sysEnergyUndelegateWhitelistString.contains(trxExchangeMonitorAccountInfo.getFromAddress())){
+               String sysEnergyUndelegatePeriod = configService.selectConfigByKey("sys.energy.undelegate.period");
+               if (StringUtils.isNotEmpty(sysEnergyUndelegatePeriod)){
+                   long betweenMinutes = DateUtil.between(fcd, now, DateUnit.MINUTE);
+                   Long betweenMinutesLong = new Long(sysEnergyUndelegatePeriod);
+                   if (betweenMinutes < betweenMinutesLong){
+                       return;
+                   }
+               }
+           }
             //定时任务判断对方转账笔数
 //            String apiKey = trxExchangeMonitorAccountInfo.getApiKey();
 //
