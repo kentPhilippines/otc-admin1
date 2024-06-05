@@ -202,6 +202,9 @@ public class Usdt2TrxTransferHandler {
 
         usdtExchangeInfoMapper.insertUsdtExchangeInfo(usdtExchangeInfo);
 
+        if (oneUsdtToTrxPair == null){
+            return;
+        }
         doSendTgNotice(oneUsdtToTrxPair.getFirst(), from, trxValue, transferValue, txId);
     }
 

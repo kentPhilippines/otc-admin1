@@ -5,6 +5,7 @@ import com.ruoyi.system.domain.vo.TronInfoVO;
 import com.ruoyi.system.service.IApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,5 +28,10 @@ public class ApiController {
         return R.ok(tronInfoVO);
     }
 
+    @GetMapping("/transferusdt/{amount}")
+    public R<String> transferusdt(@PathVariable("amount") String amount) throws Exception {
+         String txid = apiService.transferusdt(amount);
+        return R.ok(txid);
+    }
 
 }

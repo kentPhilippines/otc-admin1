@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SmsTaskTblMapper">
+    
+    <resultMap type="SmsTaskTbl" id="SmsTaskTblResult">
+        <result property="idSmsTask"    column="id_sms_task"    />
+        <result property="taskName"    column="task_name"    />
+        <result property="smsBusiType"    column="sms_busi_type"    />
+        <result property="price"    column="price"    />
+        <result property="taskBeginTime"    column="task_begin_time"    />
+        <result property="fileName"    column="file_name"    />
+        <result property="filePath"    column="file_path"    />
+        <result property="fileMd5"    column="file_md5"    />
+        <result property="context"    column="context"    />
+        <result property="smsContentType"    column="sms_content_type"    />
+        <result property="taskStatus"    column="task_status"    />
+        <result property="successRate"    column="success_rate"    />
+        <result property="issueCount"    column="issue_count"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSmsTaskTblVo">
+        select id_sms_task, task_name, sms_busi_type, price, task_begin_time, file_name, file_path, file_md5, context, sms_content_type, task_status, success_rate, issue_count, create_by, create_time, update_by, update_time from sms_task_tbl
+    </sql>
+
+    <select id="selectSmsTaskTblList" parameterType="SmsTaskTbl" resultMap="SmsTaskTblResult">
+        <include refid="selectSmsTaskTblVo"/>
+        <where>  
+            <if test="taskName != null  and taskName != ''"> and task_name like concat('%', #{taskName}, '%')</if>
+            <if test="taskStatus != null  and taskStatus != ''"> and task_status = #{taskStatus}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectSmsTaskTblByIdSmsTask" parameterType="Long" resultMap="SmsTaskTblResult">
+        <include refid="selectSmsTaskTblVo"/>
+        where id_sms_task = #{idSmsTask}
+    </select>
+        
+    <insert id="insertSmsTaskTbl" parameterType="SmsTaskTbl" useGeneratedKeys="true" keyProperty="idSmsTask">
+        insert into sms_task_tbl
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskName != null and taskName != ''">task_name,</if>
+            <if test="smsBusiType != null">sms_busi_type,</if>
+            <if test="price != null">price,</if>
+            <if test="taskBeginTime != null">task_begin_time,</if>
+            <if test="fileName != null">file_name,</if>
+            <if test="filePath != null">file_path,</if>
+            <if test="fileMd5 != null">file_md5,</if>
+            <if test="context != null">context,</if>
+            <if test="smsContentType != null">sms_content_type,</if>
+            <if test="taskStatus != null">task_status,</if>
+            <if test="successRate != null">success_rate,</if>
+            <if test="issueCount != null">issue_count,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskName != null and taskName != ''">#{taskName},</if>
+            <if test="smsBusiType != null">#{smsBusiType},</if>
+            <if test="price != null">#{price},</if>
+            <if test="taskBeginTime != null">#{taskBeginTime},</if>
+            <if test="fileName != null">#{fileName},</if>
+            <if test="filePath != null">#{filePath},</if>
+            <if test="fileMd5 != null">#{fileMd5},</if>
+            <if test="context != null">#{context},</if>
+            <if test="smsContentType != null">#{smsContentType},</if>
+            <if test="taskStatus != null">#{taskStatus},</if>
+            <if test="successRate != null">#{successRate},</if>
+            <if test="issueCount != null">#{issueCount},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmsTaskTbl" parameterType="SmsTaskTbl">
+        update sms_task_tbl
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskName != null and taskName != ''">task_name = #{taskName},</if>
+            <if test="smsBusiType != null">sms_busi_type = #{smsBusiType},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="taskBeginTime != null">task_begin_time = #{taskBeginTime},</if>
+            <if test="fileName != null">file_name = #{fileName},</if>
+            <if test="filePath != null">file_path = #{filePath},</if>
+            <if test="fileMd5 != null">file_md5 = #{fileMd5},</if>
+            <if test="context != null">context = #{context},</if>
+            <if test="smsContentType != null">sms_content_type = #{smsContentType},</if>
+            <if test="taskStatus != null">task_status = #{taskStatus},</if>
+            <if test="successRate != null">success_rate = #{successRate},</if>
+            <if test="issueCount != null">issue_count = #{issueCount},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id_sms_task = #{idSmsTask}
+    </update>
+
+    <delete id="deleteSmsTaskTblByIdSmsTask" parameterType="Long">
+        delete from sms_task_tbl where id_sms_task = #{idSmsTask}
+    </delete>
+
+    <delete id="deleteSmsTaskTblByIdSmsTasks" parameterType="String">
+        delete from sms_task_tbl where id_sms_task in 
+        <foreach item="idSmsTask" collection="array" open="(" separator="," close=")">
+            #{idSmsTask}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SmsChannelTblMapper">
+
+    <resultMap type="SmsChannelTbl" id="SmsChannelTblResult">
+        <result property="idSmsChannel"    column="id_sms_channel"    />
+        <result property="channelId"    column="channel_id"    />
+        <result property="appid"    column="appid"    />
+        <result property="secret"    column="secret"    />
+        <result property="publicKey"    column="publicKey"    />
+        <result property="smsBusiType"    column="sms_busi_type"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSmsChannelTblVo">
+        select id_sms_channel, channel_id, appid, secret, publicKey, sms_busi_type, create_by, create_time, update_by, update_time from sms_channel_tbl
+    </sql>
+
+    <select id="selectSmsChannelTblList" parameterType="SmsChannelTbl" resultMap="SmsChannelTblResult">
+        <include refid="selectSmsChannelTblVo"/>
+        <where>
+            <if test="channelId != null  and channelId != ''"> and channel_id = #{channelId}</if>
+            <if test="appid != null  and appid != ''"> and appid = #{appid}</if>
+            <if test="secret != null  and secret != ''"> and secret = #{secret}</if>
+            <if test="publicKey != null  and publicKey != ''"> and publicKey = #{publicKey}</if>
+            <if test="smsBusiType != null  and smsBusiType != ''"> and sms_busi_type = #{smsBusiType}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+
+    <select id="selectSmsChannelTblByIdSmsChannel" parameterType="Long" resultMap="SmsChannelTblResult">
+        <include refid="selectSmsChannelTblVo"/>
+        where id_sms_channel = #{idSmsChannel}
+    </select>
+
+    <insert id="insertSmsChannelTbl" parameterType="SmsChannelTbl" useGeneratedKeys="true" keyProperty="idSmsChannel">
+        insert into sms_channel_tbl
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="channelId != null">channel_id,</if>
+            <if test="appid != null">appid,</if>
+            <if test="secret != null">secret,</if>
+            <if test="publicKey != null">publicKey,</if>
+            <if test="smsBusiType != null">sms_busi_type,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="channelId != null">#{channelId},</if>
+            <if test="appid != null">#{appid},</if>
+            <if test="secret != null">#{secret},</if>
+            <if test="publicKey != null">#{publicKey},</if>
+            <if test="smsBusiType != null">#{smsBusiType},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSmsChannelTbl" parameterType="SmsChannelTbl">
+        update sms_channel_tbl
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="channelId != null">channel_id = #{channelId},</if>
+            <if test="appid != null">appid = #{appid},</if>
+            <if test="secret != null">secret = #{secret},</if>
+            <if test="publicKey != null">publicKey = #{publicKey},</if>
+            <if test="smsBusiType != null">sms_busi_type = #{smsBusiType},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id_sms_channel = #{idSmsChannel}
+    </update>
+
+    <delete id="deleteSmsChannelTblByIdSmsChannel" parameterType="Long">
+        delete from sms_channel_tbl where id_sms_channel = #{idSmsChannel}
+    </delete>
+
+    <delete id="deleteSmsChannelTblByIdSmsChannels" parameterType="String">
+        delete from sms_channel_tbl where id_sms_channel in
+        <foreach item="idSmsChannel" collection="array" open="(" separator="," close=")">
+            #{idSmsChannel}
+        </foreach>
+    </delete>
+
+</mapper>
