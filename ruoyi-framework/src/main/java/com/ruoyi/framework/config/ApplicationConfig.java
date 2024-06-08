@@ -1,8 +1,12 @@
 package com.ruoyi.framework.config;
 
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+
+import com.ruoyi.framework.handler.OperLogEnhanceHandler;
 
 /**
  * 程序注解配置
@@ -16,5 +20,11 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @MapperScan("com.ruoyi.**.mapper")
 public class ApplicationConfig
 {
+	
+	@Bean
+	@ConditionalOnMissingBean
+	public OperLogEnhanceHandler operLogEnhanceHandler() {
+		return new OperLogEnhanceHandler() {};
+	}
 
 }
