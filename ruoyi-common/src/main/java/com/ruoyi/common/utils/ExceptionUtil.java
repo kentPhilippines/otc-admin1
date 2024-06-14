@@ -11,6 +11,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  */
 public class ExceptionUtil
 {
+
+    private ExceptionUtil() {}
+
     /**
      * 获取exception的详细错误信息。
      */
@@ -24,16 +27,10 @@ public class ExceptionUtil
     public static String getRootErrorMessage(Exception e)
     {
         Throwable root = ExceptionUtils.getRootCause(e);
-        root = (root == null ? e : root);
-        if (root == null)
+        if (null == root)
         {
-            return "";
+            return StringUtils.EMPTY;
         }
-        String msg = root.getMessage();
-        if (msg == null)
-        {
-            return "null";
-        }
-        return StringUtils.defaultString(msg);
+        return StringUtils.defaultString(root.getMessage(), "null");
     }
 }
