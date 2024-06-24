@@ -7,10 +7,11 @@
     <resultMap type="SmsChannelTbl" id="SmsChannelTblResult">
         <result property="idSmsChannel"    column="id_sms_channel"    />
         <result property="channelId"    column="channel_id"    />
-        <result property="appid"    column="appid"    />
+        <result property="appId"    column="app_id"    />
         <result property="secret"    column="secret"    />
         <result property="publicKey"    column="publicKey"    />
         <result property="smsBusiType"    column="sms_busi_type"    />
+        <result property="isValid"    column="is_valid"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
@@ -18,17 +19,18 @@
     </resultMap>
 
     <sql id="selectSmsChannelTblVo">
-        select id_sms_channel, channel_id, appid, secret, publicKey, sms_busi_type, create_by, create_time, update_by, update_time from sms_channel_tbl
+        select id_sms_channel, channel_id, app_id, secret, publicKey, sms_busi_type, is_valid, create_by, create_time, update_by, update_time from sms_channel_tbl
     </sql>
 
     <select id="selectSmsChannelTblList" parameterType="SmsChannelTbl" resultMap="SmsChannelTblResult">
         <include refid="selectSmsChannelTblVo"/>
         <where>
             <if test="channelId != null  and channelId != ''"> and channel_id = #{channelId}</if>
-            <if test="appid != null  and appid != ''"> and appid = #{appid}</if>
+            <if test="appId != null  and appId != ''"> and app_id = #{appId}</if>
             <if test="secret != null  and secret != ''"> and secret = #{secret}</if>
             <if test="publicKey != null  and publicKey != ''"> and publicKey = #{publicKey}</if>
-            <if test="smsBusiType != null  and smsBusiType != ''"> and sms_busi_type = #{smsBusiType}</if>
+            <if test="smsBusiType != null  and smsBusiType != ''"> and sms_busi_type like concat('%', #{smsBusiType}, '%')</if>
+            <if test="isValid != null  and isValid != ''"> and is_valid = #{isValid}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
         </where>
     </select>
@@ -42,10 +44,11 @@
         insert into sms_channel_tbl
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="channelId != null">channel_id,</if>
-            <if test="appid != null">appid,</if>
+            <if test="appId != null">app_id,</if>
             <if test="secret != null">secret,</if>
             <if test="publicKey != null">publicKey,</if>
             <if test="smsBusiType != null">sms_busi_type,</if>
+            <if test="isValid != null">is_valid,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
@@ -53,10 +56,11 @@
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="channelId != null">#{channelId},</if>
-            <if test="appid != null">#{appid},</if>
+            <if test="appId != null">#{appId},</if>
             <if test="secret != null">#{secret},</if>
             <if test="publicKey != null">#{publicKey},</if>
             <if test="smsBusiType != null">#{smsBusiType},</if>
+            <if test="isValid != null">#{isValid},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
@@ -68,10 +72,11 @@
         update sms_channel_tbl
         <trim prefix="SET" suffixOverrides=",">
             <if test="channelId != null">channel_id = #{channelId},</if>
-            <if test="appid != null">appid = #{appid},</if>
+            <if test="appId != null">app_id = #{appId},</if>
             <if test="secret != null">secret = #{secret},</if>
             <if test="publicKey != null">publicKey = #{publicKey},</if>
             <if test="smsBusiType != null">sms_busi_type = #{smsBusiType},</if>
+            <if test="isValid != null">is_valid = #{isValid},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>

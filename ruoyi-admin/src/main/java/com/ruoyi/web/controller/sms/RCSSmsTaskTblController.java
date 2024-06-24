@@ -18,21 +18,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * WS短信任务配置Controller
+ * RCS短信任务配置Controller
  * 
  * @author dorion
  * @date 2024-06-01
  */
 @Controller
-@RequestMapping("/sms/task")
-public class SmsTaskTblController extends BaseController
+@RequestMapping("/sms/task/rcs")
+public class RCSSmsTaskTblController extends BaseController
 {
-    private String prefix = "sms/task";
+    private String prefix = "sms/task/rcs";
 
     @Autowired
     private ISmsTaskTblService smsTaskTblService;
 
-    @RequiresPermissions("sms:task:view")
+    @RequiresPermissions("sms:task:rcs:view")
     @GetMapping()
     public String task()
     {
@@ -40,9 +40,9 @@ public class SmsTaskTblController extends BaseController
     }
 
     /**
-     * 查询WS短信任务配置列表
+     * 查询RCS短信任务配置列表
      */
-    @RequiresPermissions("sms:task:list")
+    @RequiresPermissions("sms:task:rcs:list")
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(SmsTaskTbl smsTaskTbl)
@@ -53,21 +53,21 @@ public class SmsTaskTblController extends BaseController
     }
 
     /**
-     * 导出WS短信任务配置列表
+     * 导出RCS短信任务配置列表
      */
-    @RequiresPermissions("sms:task:export")
-    @Log(title = "WS短信任务配置", businessType = BusinessType.EXPORT)
+    @RequiresPermissions("sms:task:rcs:export")
+    @Log(title = "RCS短信任务配置", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
     public AjaxResult export(SmsTaskTbl smsTaskTbl)
     {
         List<SmsTaskTbl> list = smsTaskTblService.selectSmsTaskTblList(smsTaskTbl);
         ExcelUtil<SmsTaskTbl> util = new ExcelUtil<SmsTaskTbl>(SmsTaskTbl.class);
-        return util.exportExcel(list, "WS短信任务配置数据");
+        return util.exportExcel(list, "RCS短信任务配置数据");
     }
 
     /**
-     * 新增WS短信任务配置
+     * 新增RCS短信任务配置
      */
     @GetMapping("/add")
     public String add()
@@ -76,10 +76,10 @@ public class SmsTaskTblController extends BaseController
     }
 
     /**
-     * 新增保存WS短信任务配置
+     * 新增保存RCS短信任务配置
      */
-    @RequiresPermissions("sms:task:add")
-    @Log(title = "WS短信任务配置", businessType = BusinessType.INSERT)
+    @RequiresPermissions("sms:task:rcs:add")
+    @Log(title = "RCS短信任务配置", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(SmsTaskTbl smsTaskTbl)
@@ -88,9 +88,9 @@ public class SmsTaskTblController extends BaseController
     }
 
     /**
-     * 修改WS短信任务配置
+     * 修改RCS短信任务配置
      */
-    @RequiresPermissions("sms:task:edit")
+    @RequiresPermissions("sms:task:rcs:edit")
     @GetMapping("/edit/{idSmsTask}")
     public String edit(@PathVariable("idSmsTask") Long idSmsTask, ModelMap mmap)
     {
@@ -100,10 +100,10 @@ public class SmsTaskTblController extends BaseController
     }
 
     /**
-     * 修改保存WS短信任务配置
+     * 修改保存RCS短信任务配置
      */
-    @RequiresPermissions("sms:task:edit")
-    @Log(title = "WS短信任务配置", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("sms:task:rcs:edit")
+    @Log(title = "RCS短信任务配置", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
     public AjaxResult editSave(SmsTaskTbl smsTaskTbl)
@@ -112,10 +112,10 @@ public class SmsTaskTblController extends BaseController
     }
 
     /**
-     * 删除WS短信任务配置
+     * 删除RCS短信任务配置
      */
-    @RequiresPermissions("sms:task:remove")
-    @Log(title = "WS短信任务配置", businessType = BusinessType.DELETE)
+    @RequiresPermissions("sms:task:rcs:remove")
+    @Log(title = "RCS短信任务配置", businessType = BusinessType.DELETE)
     @PostMapping( "/remove")
     @ResponseBody
     public AjaxResult remove(String ids)

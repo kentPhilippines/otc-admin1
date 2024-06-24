@@ -1,9 +1,12 @@
 package com.ruoyi.web.controller.common;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.config.ServerConfig;
+import com.ruoyi.common.constant.Constants;
+import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +17,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import com.ruoyi.common.config.RuoYiConfig;
-import com.ruoyi.common.config.ServerConfig;
-import com.ruoyi.common.constant.Constants;
-import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.common.utils.file.FileUploadUtils;
-import com.ruoyi.common.utils.file.FileUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 
 /**
  * 通用请求处理
@@ -85,16 +92,49 @@ public class CommonController
             String fileName = FileUploadUtils.upload(filePath, file);
             String url = serverConfig.getUrl() + fileName;
             AjaxResult ajax = AjaxResult.success();
+
             ajax.put("url", url);
             ajax.put("fileName", fileName);
             ajax.put("newFileName", FileUtils.getName(fileName));
             ajax.put("originalFilename", file.getOriginalFilename());
+
+            try (InputStream inputStream = file.getInputStream();
+                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    byteArrayOutputStream.write(buffer, 0, bytesRead);
+                    md.update(buffer, 0, bytesRead);
+                }
+
+                byte[] fileBytes = byteArrayOutputStream.toByteArray();
+                byte[] digest = md.digest();
+                String md5 = bytesToHex(digest);
+                String base64 = Base64.getEncoder().encodeToString(fileBytes);
+                ajax.put("fileMd5", md5);
+                ajax.put("context", base64);
+            } catch (IOException | NoSuchAlgorithmException e) {
+                throw new RuntimeException("Failed to process file", e);
+            }
             return ajax;
         }
         catch (Exception e)
         {
             return AjaxResult.error(e.getMessage());
         }
+    }
+
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     /**

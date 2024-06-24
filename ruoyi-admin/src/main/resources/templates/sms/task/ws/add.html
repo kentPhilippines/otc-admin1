@@ -37,6 +37,8 @@
                     </div>
                     <input type="hidden" name="fileName" id="fileName">
                     <input type="hidden" name="filePath" id="filePath">
+                    <input type="hidden" name="fileMd5" id="fileMd5">
+                    <input type="hidden" name="context" id="context">
                 </div>
             </div>
             <div class="form-group">    
@@ -72,7 +74,7 @@
     <th:block th:include="include :: datetimepicker-js" />
     <th:block th:include="include :: bootstrap-fileinput-js" />
     <script th:inline="javascript">
-        var prefix = ctx + "sms/task"
+        var prefix = ctx + "sms/task/ws"
         $("#form-task-add").validate({
             focusCleanup: true
         });
@@ -99,6 +101,8 @@
                 var rsp = data.response;
                 $("#filePath").val(rsp.url);
                 $("#fileName").val(rsp.originalFilename);
+                $("#fileMd5").val(rsp.fileMd5);
+                $("#context").val(rsp.context);
                 // log.info("return url：" + rsp.url)
                 // log.info("reutrn fileName：" + rsp.fileName)
                 // log.info("reutrn newFileName：" + rsp.newFileName)
@@ -107,14 +111,20 @@
                 $("input[name='" + event.currentTarget.id + "']").val('')
                 $("#filePath").val('');
                 $("#fileName").val('');
+                $("#fileMd5").val('');
+                $("#context").val('');
             }).on('filecleared', function (event, id, index) {
                 $("input[name='" + event.currentTarget.id + "']").val('')
                 $("#filePath").val('');
                 $("#fileName").val('');
+                $("#fileMd5").val('');
+                $("#context").val('');
             }).on('filedeleted', function (event, vKey, jqXHR, extraData) {
                 $("input[name='" + event.currentTarget.id + "']").val('')
                 $("#filePath").val('');
                 $("#fileName").val('');
+                $("#fileMd5").val('');
+                $("#context").val('');
             })
         });
     </script>

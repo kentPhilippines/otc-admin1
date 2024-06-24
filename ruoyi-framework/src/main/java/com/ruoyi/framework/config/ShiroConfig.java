@@ -303,6 +303,7 @@ public class ShiroConfig
         // 注册相关
         filterChainDefinitionMap.put("/register", "anon,captchaValidate");
         filterChainDefinitionMap.put("/api/**", "anon");
+        filterChainDefinitionMap.put("/common/download", "anon");
         // 系统权限列表
         // filterChainDefinitionMap.putAll(SpringUtils.getBean(IMenuService.class).selectPermsAll());
 

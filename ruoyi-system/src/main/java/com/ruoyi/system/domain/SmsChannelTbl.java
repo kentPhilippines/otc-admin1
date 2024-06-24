@@ -9,7 +9,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * 短信渠道管理对象 sms_channel_tbl
  *
  * @author dorion
- * @date 2024-05-28
+ * @date 2024-06-09
  */
 public class SmsChannelTbl extends BaseEntity
 {
@@ -24,7 +24,7 @@ public class SmsChannelTbl extends BaseEntity
 
     /** appid */
     @Excel(name = "appid")
-    private String appid;
+    private String appId;
 
     /** 口令 */
     @Excel(name = "口令")
@@ -37,6 +37,10 @@ public class SmsChannelTbl extends BaseEntity
     /** 短信支持类型 */
     @Excel(name = "短信支持类型")
     private String smsBusiType;
+
+    /** 是否有效 */
+    @Excel(name = "是否有效")
+    private String isValid;
 
     public void setIdSmsChannel(Long idSmsChannel)
     {
@@ -56,14 +60,14 @@ public class SmsChannelTbl extends BaseEntity
     {
         return channelId;
     }
-    public void setAppid(String appid)
+    public void setAppId(String appId)
     {
-        this.appid = appid;
+        this.appId = appId;
     }
 
-    public String getAppid()
+    public String getAppId()
     {
-        return appid;
+        return appId;
     }
     public void setSecret(String secret)
     {
@@ -92,16 +96,26 @@ public class SmsChannelTbl extends BaseEntity
     {
         return smsBusiType;
     }
+    public void setIsValid(String isValid)
+    {
+        this.isValid = isValid;
+    }
+
+    public String getIsValid()
+    {
+        return isValid;
+    }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
                 .append("idSmsChannel", getIdSmsChannel())
                 .append("channelId", getChannelId())
-                .append("appid", getAppid())
+                .append("appId", getAppId())
                 .append("secret", getSecret())
                 .append("publicKey", getPublicKey())
                 .append("smsBusiType", getSmsBusiType())
+                .append("isValid", getIsValid())
                 .append("createBy", getCreateBy())
                 .append("createTime", getCreateTime())
                 .append("updateBy", getUpdateBy())
