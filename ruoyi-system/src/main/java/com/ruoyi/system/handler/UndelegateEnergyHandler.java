@@ -66,7 +66,7 @@ public class UndelegateEnergyHandler {
         String fromAddress = trxExchangeMonitorAccountInfo.getFromAddress();
 
 
-        if (betweenHours < lockPeriod) {
+        if (betweenHours < lockPeriod || betweenHours == 999L) {
             String sysEnergyUndelegateWhitelistString = configService.selectConfigByKey("sys.energy.undelegate.whitelist");
            if (StringUtils.isNotEmpty(sysEnergyUndelegateWhitelistString) && sysEnergyUndelegateWhitelistString.contains(trxExchangeMonitorAccountInfo.getFromAddress())){
                String sysEnergyUndelegatePeriod = configService.selectConfigByKey("sys.energy.undelegate.period");
@@ -162,7 +162,6 @@ public class UndelegateEnergyHandler {
         String accountAddress = trxExchangeMonitorAccountInfo.getAccountAddress();
         RLock lock = redissonClient.getLock("lock_undelegate_" + trxExchangeMonitorAccountInfo.getDelegateTxId());
         try {
-//            String decryptPrivateKey = accountAddressInfoService.getDecryptPrivateKey(accountAddress);
             String encryptPrivateKey = trxExchangeMonitorAccountInfo.getEncryptPrivateKey();
             String encryptKey = trxExchangeMonitorAccountInfo.getEncryptKey();
 
@@ -181,8 +180,6 @@ public class UndelegateEnergyHandler {
                 return;
             }
 
-
-//            String tronApiKey = DictUtils.getDictValue("sys_tron_api_key", "synp@outlook");
             String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
             ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, apiKey);
 
@@ -207,13 +204,6 @@ public class UndelegateEnergyHandler {
             if (tenantInfoList.size() > 0) {
 
                 tenantInfo = tenantInfoList.get(0);
-
-              /*  if (UserConstants.NO.equals(tenantInfo.getIsPaid())) {
-                    return;
-                }*/
-
-
-
                 Long totalCountUsed = tenantInfo.getTotalCountUsed();
                 long newTotalCountUsed  = totalCountUsed + countUsed;
                 tenantInfo.setTotalCountUsed(newTotalCountUsed);
@@ -226,7 +216,7 @@ public class UndelegateEnergyHandler {
                             accountAddress,
                             2,
                             tenantInfo.getReceiverAddress(),
-                            24,
+                            999,
                             null,
                             tenantInfo.getPrice(),
                             tenantInfo.getEnergyBusiType(),
@@ -259,51 +249,6 @@ public class UndelegateEnergyHandler {
                 tenantInfoMapper.updateTenantInfo(tenantInfo);
             }
 
-            //查询是否是按天支付的租户,是的话需要回收完再次赠送
-//
-//            Integer totalCountUsed = trxExchangeMonitorAccountInfo.getTotalCountUsed();
-//
-//            if (totalCountUsed == null) {
-//                //不是天数或者套餐不需要再继续处理
-//                return;
-//            }
-//            if (UserConstants.NO.equals(trxExchangeMonitorAccountInfo.getIsPaid())) {
-//                return;
-//            }
-//
-//
-////            if (delegatedDays == period) {
-////                //委托天数已用完不再处理,更改状态为已满期
-////                String expire = DictUtils.getDictValue("sys_tenant_status", "已满期");
-////                tenantInfo.setStatus(expire);
-////                tenantInfoMapper.updateTenantInfo(tenantInfo);
-////            }
-//            Integer maxTransferCount = trxExchangeMonitorAccountInfo.getMaxTransferCount();
-//            TenantInfo tenantInfo = new TenantInfo();
-//            tenantInfo.setIdTenantInfo(trxExchangeMonitorAccountInfo.getIdTenantInfo());
-//            tenantInfo.setTotalCountUsed(trxExchangeMonitorAccountInfo.getTotalCountUsed().longValue());
-//            if (totalCountUsed < maxTransferCount) {
-//                //回收完再次赠送
-//
-//            } else {
-//                Long period = trxExchangeMonitorAccountInfo.getPeriod();
-//                Long delegatedDays = trxExchangeMonitorAccountInfo.getDelegatedDays();
-//                String sysEnergyBusiType = DictUtils.getDictValue("sys_energy_busi_type", "天数套餐");
-//                String trxExchangeInfoBusiType = trxExchangeMonitorAccountInfo.getEnergyBusiType();
-//                if (trxExchangeInfoBusiType.equals(sysEnergyBusiType) ) {
-//                   if ( delegatedDays == period){
-//                       //委托天数已用完不再处理,更改状态为已满期
-//                       String expire = DictUtils.getDictValue("sys_tenant_status", "已满期");
-//                       tenantInfo.setStatus(expire);
-//                    }
-//                }else{
-//                    //笔数套餐超过次数直接设置为耗尽
-//                    String expire = DictUtils.getDictValue("sys_tenant_status", "已满期");
-//                    tenantInfo.setStatus(expire);
-//                }
-//            }
-//
-//            tenantInfoMapper.updateTenantInfo(tenantInfo);
 
         } catch (Exception e) {
             log.error("回收能量业务处理异常{}", trxExchangeMonitorAccountInfo.getIdTrxExchangeInfo(), e);
@@ -335,7 +280,7 @@ public class UndelegateEnergyHandler {
      * @param
      * @throws IllegalException
      */
-    private void doUndelegateEnergy(TrxExchangeMonitorAccountInfo trxExchangeMonitorAccountInfo, ApiWrapper apiWrapper) throws IllegalException {
+    public void doUndelegateEnergy(TrxExchangeMonitorAccountInfo trxExchangeMonitorAccountInfo, ApiWrapper apiWrapper) throws IllegalException {
         String accountAddress = trxExchangeMonitorAccountInfo.getAccountAddress();
         String fromAddress = trxExchangeMonitorAccountInfo.getFromAddress();
 

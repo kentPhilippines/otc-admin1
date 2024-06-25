@@ -176,9 +176,9 @@ public class TenantInfoServiceImpl implements ITenantInfoService {
         for (String id : idArray) {
             TenantInfo tenantInfo = tenantInfoMapper.selectTenantInfoByIdTenantInfo(Long.valueOf(id));
 
-            Long totalCountUsed = tenantInfo.getTotalCountUsed();
-
-            Preconditions.checkState(totalCountUsed == 0, "该接收能量地址已在任务中,请勿重复发起");
+//            Long totalCountUsed = tenantInfo.getTotalCountUsed();
+//
+//            Preconditions.checkState(totalCountUsed == 0, "该接收能量地址已在任务中,请勿重复发起");
 
             String status = DictUtils.getDictValue("sys_tenant_status", "生效中");
             Preconditions.checkState(status.equals(tenantInfo.getStatus()), "该租户不是生效中状态,不能发起委托任务");
@@ -239,7 +239,7 @@ public class TenantInfoServiceImpl implements ITenantInfoService {
         trxExchange.setMonitorAddress(monitorAddress);
 
 //        long between = DateUtil.between(DateUtil.date(), DateUtil.endOfDay(DateUtil.date()), DateUnit.HOUR);
-        trxExchange.setLockNum(24L);
+        trxExchange.setLockNum(999L);
 
         trxExchange.setEnergyBusiType(tenantInfo.getEnergyBusiType());
         trxExchange.setResourceCode(Common.ResourceCode.ENERGY.name());
