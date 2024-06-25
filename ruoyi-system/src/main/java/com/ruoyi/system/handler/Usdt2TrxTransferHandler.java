@@ -202,7 +202,9 @@ public class Usdt2TrxTransferHandler {
 
         usdtExchangeInfoMapper.insertUsdtExchangeInfo(usdtExchangeInfo);
 
-        doSendTgNotice(oneUsdtToTrxPair.getFirst(), from, trxValue, transferValue, txId);
+        if (oneUsdtToTrxPair != null){
+            doSendTgNotice(oneUsdtToTrxPair.getFirst(), from, trxValue, transferValue, txId);
+        }
     }
 
     private void doSendTgNotice(BigDecimal oneUsdtToTrx, String from, BigDecimal trxValue, BigDecimal transferValue, String txId) throws TelegramApiException {
