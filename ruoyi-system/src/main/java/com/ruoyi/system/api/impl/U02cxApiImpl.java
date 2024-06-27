@@ -35,7 +35,7 @@ public class U02cxApiImpl implements IU02cxApi {
     }
 
     @Override
-    public String addTask(String requestBody, String token, String appId) throws IOException {
+    public Long addTask(String requestBody, String token, String appId) throws IOException {
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
@@ -44,28 +44,17 @@ public class U02cxApiImpl implements IU02cxApi {
         httpHeaders.add("appId",appId);
         httpHeaders.add("token",token);
 
-//        ResponseEntity<AddTaskResponse> responseEntity = RestTemplateUtils.post("http://cot5b.u02cx.com:20086/whatsApi/api/task/addTask", httpHeaders, requestBody, AddTaskResponse.class);
-        ResponseEntity<String> responseEntity = RestTemplateUtils.post("http://cot5b.u02cx.com:20086/whatsApi/api/task/addTask", httpHeaders, requestBody, String.class);
+        ResponseEntity<AddTaskResponse> responseEntity = RestTemplateUtils.post("http://cot5b.u02cx.com:20086/whatsApi/api/task/addTask", httpHeaders, requestBody, AddTaskResponse.class);
         Preconditions.checkState(responseEntity.getStatusCode().is2xxSuccessful(), "addTask failed");
 
-//        AddTaskResponse addTaskResponse = responseEntity.getBody();
-        String response = responseEntity.getBody();
+        AddTaskResponse addTaskResponse = responseEntity.getBody();
         Preconditions.checkNotNull(addTaskResponse, "addTaskResponse is null");
 
         int status = addTaskResponse.getStatus();
         Preconditions.checkState(0 == status, "addTask failed:" + ApiConstants.returnCodeMap.get(status)+",msg:"+addTaskResponse.getMsg());
 
-//        CloseableHttpClient httpclient = HttpClients.createDefault();
-//        HttpPost httpPost = new HttpPost("http://cot5b.u02cx.com:20086/whatsApi/api/task/addTask");
-//        httpPost.setHeader("Content-Type", "application/json");
-//        httpPost.setHeader("appId", appId);
-//        httpPost.setHeader("token", token);
-//        httpPost.setEntity(new StringEntity(requestBody, "utf8"));
-//        CloseableHttpResponse reportResponse = httpclient.execute(httpPost);
-//        String body = EntityUtils.toString(reportResponse.getEntity(), "utf8");
-//
-//        AddTaskResponse addTaskResponse = JSONUtil.toBean(body, AddTaskResponse.class);
 
-        return addTaskResponse.getTaskId().toString();
+
+        return addTaskResponse.getTaskId();
     }
 }

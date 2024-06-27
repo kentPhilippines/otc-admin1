@@ -136,6 +136,8 @@ public class EnergyTenantTransferHandler {
 
     }
 
+
+
     private static TrxExchangeInfo buildTrxExchangeInfo(TenantInfo tenantInfo, String eneryBusiTypeByDay) {
         String delegateStatus = DictUtils.getDictValue("sys_delegate_status", "已委托");
         //查看有没有没回收的能量,有的话先回收
@@ -144,7 +146,7 @@ public class EnergyTenantTransferHandler {
                 .fromAddress(tenantInfo.getReceiverAddress())
                 .delegateStatus(delegateStatus)
                 .energyBusiType(eneryBusiTypeByDay)
-                .fcd(DateUtil.offsetDay(new Date(), -2))
+//                .fcd(DateUtil.offsetDay(new Date(), -2))
                 .build();
         return trxExchangeInfo;
     }

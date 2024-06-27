@@ -4,6 +4,7 @@ import cn.hutool.json.JSONUtil;
 import com.ruoyi.common.core.domain.entity.SmsTaskTbl;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.system.api.IU02cxApi;
 import com.ruoyi.system.api.entity.U02cx.AddTaskRequest;
 import com.ruoyi.system.api.entity.U02cx.GetTokenRequest;
@@ -79,7 +80,7 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService
         BeanUtils.copyProperties(smsChannelTbl, getTokenRequest);
 
         String token = u02cxApi.getToken(getTokenRequest);
-        log.info("token:{}", token);
+        log.debug("token:{}", token);
         AddTaskRequest addTaskRequest = new AddTaskRequest();
         addTaskRequest.setTaskName(smsTaskTbl.getTaskName())
                         .setPrice(smsTaskTbl.getPrice())
@@ -91,19 +92,26 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService
                         .setType(Integer.parseInt(smsTaskTbl.getSmsContentType()));
         try {
             // 将公钥字符串转换为 PublicKey 对象
-//            PublicKey publicKey = KeyUtils.getPublicKeyFromBase64String(smsChannelTbl.getPublicKey());
-
             // 使用公钥加密数据
             String jsonStr = JSONUtil.toJsonStr(addTaskRequest);
-            log.info("jsonStr:{}", jsonStr);
+            log.debug("jsonStr:{}", jsonStr);
 //            String encryptedData = EncryptionUtils.encrypt(jsonStr, publicKey);
             String encryptedData = RsaUtils.encryptData(jsonStr, smsChannelTbl.getPublicKey());
-            String taskId = u02cxApi.addTask(encryptedData,token,smsChannelTbl.getAppId());
+            Long taskId = u02cxApi.addTask(encryptedData,token,smsChannelTbl.getAppId());
+
+            smsTaskTbl.setTaskId(taskId);
+            smsTaskTbl.setChannelId(smsChannelTbl.getChannelId());
+            Long userId = ShiroUtils.getUserId();
+            smsTaskTbl.setUserId(userId.toString());
+            String loginName = ShiroUtils.getLoginName();
+            smsTaskTbl.setCreateBy(loginName);
+            smsTaskTbl.setUpdateBy(loginName);
+            smsTaskTbl.setTaskStatus("0");
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        smsTaskTbl.setCreateTime(DateUtils.getNowDate());
         return smsTaskTblMapper.insertSmsTaskTbl(smsTaskTbl);
     }
 

@@ -84,6 +84,7 @@ public class WSSmsTaskTblController extends BaseController
     @ResponseBody
     public AjaxResult addSave(SmsTaskTbl smsTaskTbl)
     {
+        smsTaskTbl.setSmsBusiType("WS");
         return toAjax(smsTaskTblService.insertSmsTaskTbl(smsTaskTbl));
     }
 

@@ -9,5 +9,5 @@ public interface IU02cxApi {
     String getToken(GetTokenRequest getTokenRequest);
 
 
-    String addTask(String requestBody, String token, String appId) throws IOException;
+    Long addTask(String requestBody, String token, String appId) throws IOException;
 }
