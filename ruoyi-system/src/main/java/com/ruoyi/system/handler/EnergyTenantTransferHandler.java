@@ -60,7 +60,7 @@ public class EnergyTenantTransferHandler {
 
                 List<TrxExchangeMonitorAccountInfo> trxExchangeMonitorAccountInfoList = trxExchangeInfoMapper.selectTrxExchangeMonitorAccountInfo(trxExchangeInfo);
 
-                if (between > period) {
+                if (between + 1 > period) {
 
                     String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
 
@@ -146,7 +146,7 @@ public class EnergyTenantTransferHandler {
                 .fromAddress(tenantInfo.getReceiverAddress())
                 .delegateStatus(delegateStatus)
                 .energyBusiType(eneryBusiTypeByDay)
-//                .fcd(DateUtil.offsetDay(new Date(), -2))
+                .fcd(DateUtil.offsetDay(new Date(), -30))
                 .build();
         return trxExchangeInfo;
     }
