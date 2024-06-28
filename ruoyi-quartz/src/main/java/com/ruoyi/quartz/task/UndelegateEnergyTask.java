@@ -36,7 +36,7 @@ public class UndelegateEnergyTask {
 
         TrxExchangeInfo trxExchangeInfoExample = TrxExchangeInfo.builder()
                                                         .delegateStatus(dictValue)
-                                                        .fcd(DateUtil.offsetDay(new Date(),-2))
+                                                        .fcd(DateUtil.offsetDay(new Date(),-30))
                                                         .build();
 
         List<TrxExchangeMonitorAccountInfo> trxExchangeMonitorAccountInfoList = trxExchangeInfoService.selectTrxExchangeMonitorAccountInfo(trxExchangeInfoExample);
