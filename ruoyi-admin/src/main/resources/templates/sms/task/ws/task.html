@@ -37,17 +37,23 @@
             </div>
 
             <div class="btn-group-sm" id="toolbar" role="group">
-                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="sms:task:add">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="sms:task:ws:add">
                     <i class="fa fa-plus"></i> 添加
                 </a>
-                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="sms:task:edit">
-                    <i class="fa fa-edit"></i> 修改
+                <a class="btn btn-primary multiple disabled" onclick="$.operate.editStatus()" shiro:hasPermission="sms:task:ws:edit">
+                    <i class="fa fa-edit"></i> 批量修改
                 </a>
-                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="sms:task:remove">
+       <!--         <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="sms:task:ws:remove">
                     <i class="fa fa-remove"></i> 删除
-                </a>
-                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="sms:task:export">
+                </a>-->
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="sms:task:ws:export">
                     <i class="fa fa-download"></i> 导出
+                </a>
+                <a class="btn btn-warning single disabled" onclick="$.table.exportExcelTaskDetail()" shiro:hasPermission="sms:task:ws:export">
+                    <i class="fa fa-edit"></i> 下载任务明细
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.table.completeTask()" shiro:hasPermission="sms:task:ws:export">
+                    <i class="fa fa-edit"></i> 强制完成
                 </a>
             </div>
             <div class="col-sm-12 select-table table-striped">
@@ -57,8 +63,8 @@
     </div>
     <th:block th:include="include :: footer" />
     <script th:inline="javascript">
-        var editFlag = [[${@permission.hasPermi('sms:task:edit')}]];
-        var removeFlag = [[${@permission.hasPermi('sms:task:remove')}]];
+        var editFlag = [[${@permission.hasPermi('sms:task:ws:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('sms:task:ws:remove')}]];
         var smsBusiTypeDatas = [[${@dict.getType('sys_sms_busi_type')}]];
         var smsContentTypeDatas = [[${@dict.getType('sys_sms_content_type')}]];
         var taskStatusDatas = [[${@dict.getType('sys_sms_task_status')}]];
@@ -69,8 +75,11 @@
                 url: prefix + "/list",
                 createUrl: prefix + "/add",
                 updateUrl: prefix + "/edit/{id}",
+                updateStatusUrl: prefix + "/update/{ids}",
                 removeUrl: prefix + "/remove",
                 exportUrl: prefix + "/export",
+                exportTaskDetailUrl: prefix + "/exportTaskDetail/{id}",
+                completeTaskUrl: prefix + "/completeTask",
                 modalName: "WS短信任务配置",
                 columns: [{
                     checkbox: true
@@ -84,12 +93,25 @@
                     field: 'taskName',
                     title: '任务名称'
                 },
+                    {
+                        field: 'totalCount',
+                        title: '总量'
+                    },{
+                        field: 'successCount',
+                        title: '成功个数'
+
+                    },{
+                        field: 'preSummary',
+                        title: '预估金额'
+
+                    },
                 {
                     field: 'smsBusiType',
                     title: '短信类型',
                     formatter: function(value, row, index) {
                        return $.table.selectDictLabel(smsBusiTypeDatas, value);
-                    }
+                    },
+                    visible: false
                 },
                 {
                     field: 'price',
@@ -99,6 +121,10 @@
                     field: 'taskBeginTime',
                     title: '任务开始时间'
                 },
+                    {
+                        field: 'completeTime',
+                        title: '任务完成时间'
+                    },
                 {
                     field: 'fileName',
                     title: '物料名称',
@@ -114,7 +140,8 @@
                     title: '内容类型',
                     formatter: function(value, row, index) {
                        return $.table.selectDictLabel(smsContentTypeDatas, value);
-                    }
+                    },
+                    visible: false
                 },
                 {
                     field: 'taskStatus',
@@ -125,15 +152,18 @@
                 },
                 {
                     field: 'successRate',
-                    title: '成功数'
+                    title: '成功率',
+                    visible: false
                 },
+
                 {
                     field: 'issueCount',
                     title: '物料总数'
                 },
                 {
                     field: 'createBy',
-                    title: '创建者'
+                    title: '创建者',
+                    visible: false
                 },
                 {
                     field: 'createTime',

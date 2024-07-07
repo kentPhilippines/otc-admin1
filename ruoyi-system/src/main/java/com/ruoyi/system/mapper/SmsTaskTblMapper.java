@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import com.ruoyi.common.core.domain.entity.SmsTaskTbl;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -60,4 +61,10 @@ public interface SmsTaskTblMapper
      * @return 结果
      */
     public int deleteSmsTaskTblByIdSmsTasks(String[] idSmsTasks);
+
+    List<SmsTaskTbl> selectSmsTaskTblListNotComplete();
+
+    void updateSmsTaskTblByTaskId(SmsTaskTbl smsTaskTbl);
+
+    List<SmsTaskTbl> selectSmsTaskTbl(@Param("idsList") List<String> idsList);
 }

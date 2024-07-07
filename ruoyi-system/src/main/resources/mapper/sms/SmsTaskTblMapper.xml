@@ -4,6 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.SmsTaskTblMapper">
 
+
     <resultMap type="SmsTaskTbl" id="SmsTaskTblResult">
         <result property="idSmsTask"    column="id_sms_task"    />
         <result property="taskName"    column="task_name"    />
@@ -11,7 +12,9 @@
         <result property="taskId"    column="task_id"    />
         <result property="channelId"    column="channel_id"    />
         <result property="price"    column="price"    />
+        <result property="preSummary"    column="pre_summary"    />
         <result property="taskBeginTime"    column="task_begin_time"    />
+        <result property="completeTime"    column="complete_time"    />
         <result property="fileName"    column="file_name"    />
         <result property="filePath"    column="file_path"    />
         <result property="fileMd5"    column="file_md5"    />
@@ -19,6 +22,8 @@
         <result property="smsContentType"    column="sms_content_type"    />
         <result property="taskStatus"    column="task_status"    />
         <result property="successRate"    column="success_rate"    />
+        <result property="successCount"    column="success_count"    />
+        <result property="totalCount"    column="total_count"    />
         <result property="issueCount"    column="issue_count"    />
         <result property="userId"    column="user_id"    />
         <result property="createBy"    column="create_by"    />
@@ -28,24 +33,27 @@
     </resultMap>
 
     <sql id="selectSmsTaskTblVo">
-        select id_sms_task, task_name, sms_busi_type, task_id, channel_id, price, task_begin_time, file_name, file_path, file_md5, context, sms_content_type, task_status, success_rate, issue_count, user_id, create_by, create_time, update_by, update_time from sms_task_tbl
+        select id_sms_task, task_name, sms_busi_type, task_id, channel_id, price, pre_summary, task_begin_time, complete_time, file_name, file_path, file_md5, context, sms_content_type, task_status, success_rate, success_count, total_count, issue_count, s.user_id, s.create_by, s.create_time, s.update_by, s.update_time from sms_task_tbl s
     </sql>
 
     <select id="selectSmsTaskTblList" parameterType="SmsTaskTbl" resultMap="SmsTaskTblResult">
         <include refid="selectSmsTaskTblVo"/>
-        <where>
+        left join sys_user  u on s.user_id = u.user_id
+        <where> 1=1
             <if test="taskName != null  and taskName != ''"> and task_name like concat('%', #{taskName}, '%')</if>
             <if test="smsBusiType != null  and smsBusiType != ''"> and sms_busi_type = #{smsBusiType}</if>
             <if test="taskStatus != null  and taskStatus != ''"> and task_status = #{taskStatus}</if>
             <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
         </where>
+        ${params.dataScope}
     </select>
 
     <select id="selectSmsTaskTblByIdSmsTask" parameterType="Long" resultMap="SmsTaskTblResult">
         <include refid="selectSmsTaskTblVo"/>
         where id_sms_task = #{idSmsTask}
     </select>
+
 
     <insert id="insertSmsTaskTbl" parameterType="SmsTaskTbl" useGeneratedKeys="true" keyProperty="idSmsTask">
         insert into sms_task_tbl
@@ -55,7 +63,9 @@
             <if test="taskId != null">task_id,</if>
             <if test="channelId != null">channel_id,</if>
             <if test="price != null">price,</if>
+            <if test="preSummary != null">pre_summary,</if>
             <if test="taskBeginTime != null">task_begin_time,</if>
+            <if test="completeTime != null">complete_time,</if>
             <if test="fileName != null">file_name,</if>
             <if test="filePath != null">file_path,</if>
             <if test="fileMd5 != null">file_md5,</if>
@@ -63,6 +73,8 @@
             <if test="smsContentType != null">sms_content_type,</if>
             <if test="taskStatus != null">task_status,</if>
             <if test="successRate != null">success_rate,</if>
+            <if test="successCount != null">success_count,</if>
+            <if test="totalCount != null">total_count,</if>
             <if test="issueCount != null">issue_count,</if>
             <if test="userId != null">user_id,</if>
             <if test="createBy != null">create_by,</if>
@@ -76,7 +88,9 @@
             <if test="taskId != null">#{taskId},</if>
             <if test="channelId != null">#{channelId},</if>
             <if test="price != null">#{price},</if>
+            <if test="preSummary != null">#{preSummary},</if>
             <if test="taskBeginTime != null">#{taskBeginTime},</if>
+            <if test="completeTime != null">#{completeTime},</if>
             <if test="fileName != null">#{fileName},</if>
             <if test="filePath != null">#{filePath},</if>
             <if test="fileMd5 != null">#{fileMd5},</if>
@@ -84,6 +98,8 @@
             <if test="smsContentType != null">#{smsContentType},</if>
             <if test="taskStatus != null">#{taskStatus},</if>
             <if test="successRate != null">#{successRate},</if>
+            <if test="successCount != null">#{successCount},</if>
+            <if test="totalCount != null">#{totalCount},</if>
             <if test="issueCount != null">#{issueCount},</if>
             <if test="userId != null">#{userId},</if>
             <if test="createBy != null">#{createBy},</if>
@@ -101,7 +117,9 @@
             <if test="taskId != null">task_id = #{taskId},</if>
             <if test="channelId != null">channel_id = #{channelId},</if>
             <if test="price != null">price = #{price},</if>
+            <if test="preSummary != null">pre_summary = #{preSummary},</if>
             <if test="taskBeginTime != null">task_begin_time = #{taskBeginTime},</if>
+            <if test="completeTime != null">complete_time = #{completeTime},</if>
             <if test="fileName != null">file_name = #{fileName},</if>
             <if test="filePath != null">file_path = #{filePath},</if>
             <if test="fileMd5 != null">file_md5 = #{fileMd5},</if>
@@ -109,6 +127,8 @@
             <if test="smsContentType != null">sms_content_type = #{smsContentType},</if>
             <if test="taskStatus != null">task_status = #{taskStatus},</if>
             <if test="successRate != null">success_rate = #{successRate},</if>
+            <if test="successCount != null">success_count = #{successCount},</if>
+            <if test="totalCount != null">total_count = #{totalCount},</if>
             <if test="issueCount != null">issue_count = #{issueCount},</if>
             <if test="userId != null">user_id = #{userId},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
@@ -130,4 +150,45 @@
         </foreach>
     </delete>
 
+    <select id="selectSmsTaskTblListNotComplete" resultMap="SmsTaskTblResult">
+        <include refid="selectSmsTaskTblVo"/>
+        where complete_time is null
+    </select>
+
+    <update id="updateSmsTaskTblByTaskId">
+        update sms_task_tbl
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskName != null and taskName != ''">task_name = #{taskName},</if>
+            <if test="smsBusiType != null">sms_busi_type = #{smsBusiType},</if>
+            <if test="channelId != null">channel_id = #{channelId},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="preSummary != null">pre_summary = #{preSummary},</if>
+            <if test="taskBeginTime != null">task_begin_time = #{taskBeginTime},</if>
+            <if test="completeTime != null">complete_time = #{completeTime},</if>
+            <if test="fileName != null">file_name = #{fileName},</if>
+            <if test="filePath != null">file_path = #{filePath},</if>
+            <if test="fileMd5 != null">file_md5 = #{fileMd5},</if>
+            <if test="context != null">context = #{context},</if>
+            <if test="smsContentType != null">sms_content_type = #{smsContentType},</if>
+            <if test="taskStatus != null">task_status = #{taskStatus},</if>
+            <if test="successRate != null">success_rate = #{successRate},</if>
+            <if test="successCount != null">success_count = #{successCount},</if>
+            <if test="totalCount != null">total_count = #{totalCount},</if>
+            <if test="issueCount != null">issue_count = #{issueCount},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where task_id = #{taskId}
+    </update>
+
+    <select id="selectSmsTaskTbl"  resultMap="SmsTaskTblResult">
+        <include refid="selectSmsTaskTblVo"/>
+        WHERE id_sms_task IN
+        <foreach item="id" collection="idsList" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

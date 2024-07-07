@@ -13,7 +13,7 @@ import java.util.Date;
  * WS短信任务配置对象 sms_task_tbl
  *
  * @author dorion
- * @date 2024-06-27
+ * @date 2024-07-04
  */
 public class SmsTaskTbl extends BaseEntity
 {
@@ -42,10 +42,19 @@ public class SmsTaskTbl extends BaseEntity
     @Excel(name = "单价")
     private BigDecimal price;
 
+    /** 预估金额 */
+    @Excel(name = "预估金额")
+    private BigDecimal preSummary;
+
     /** 任务开始时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "任务开始时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "任务开始时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date taskBeginTime;
+
+    /** 任务完成时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "任务完成时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    private Date completeTime;
 
     /** 物料名称 */
     @Excel(name = "物料名称")
@@ -71,9 +80,17 @@ public class SmsTaskTbl extends BaseEntity
     @Excel(name = "任务状态")
     private String taskStatus;
 
+    /** 成功率 */
+    @Excel(name = "成功率")
+    private String successRate;
+
     /** 成功数 */
     @Excel(name = "成功数")
-    private String successRate;
+    private Long successCount;
+
+    /** 总数 */
+    @Excel(name = "总数")
+    private Long totalCount;
 
     /** 物料总数 */
     @Excel(name = "物料总数")
@@ -137,6 +154,15 @@ public class SmsTaskTbl extends BaseEntity
     {
         return price;
     }
+    public void setPreSummary(BigDecimal preSummary)
+    {
+        this.preSummary = preSummary;
+    }
+
+    public BigDecimal getPreSummary()
+    {
+        return preSummary;
+    }
     public void setTaskBeginTime(Date taskBeginTime)
     {
         this.taskBeginTime = taskBeginTime;
@@ -145,6 +171,15 @@ public class SmsTaskTbl extends BaseEntity
     public Date getTaskBeginTime()
     {
         return taskBeginTime;
+    }
+    public void setCompleteTime(Date completeTime)
+    {
+        this.completeTime = completeTime;
+    }
+
+    public Date getCompleteTime()
+    {
+        return completeTime;
     }
     public void setFileName(String fileName)
     {
@@ -209,6 +244,24 @@ public class SmsTaskTbl extends BaseEntity
     {
         return successRate;
     }
+    public void setSuccessCount(Long successCount)
+    {
+        this.successCount = successCount;
+    }
+
+    public Long getSuccessCount()
+    {
+        return successCount;
+    }
+    public void setTotalCount(Long totalCount)
+    {
+        this.totalCount = totalCount;
+    }
+
+    public Long getTotalCount()
+    {
+        return totalCount;
+    }
     public void setIssueCount(Long issueCount)
     {
         this.issueCount = issueCount;
@@ -237,7 +290,9 @@ public class SmsTaskTbl extends BaseEntity
                 .append("taskId", getTaskId())
                 .append("channelId", getChannelId())
                 .append("price", getPrice())
+                .append("preSummary", getPreSummary())
                 .append("taskBeginTime", getTaskBeginTime())
+                .append("completeTime", getCompleteTime())
                 .append("fileName", getFileName())
                 .append("filePath", getFilePath())
                 .append("fileMd5", getFileMd5())
@@ -245,6 +300,8 @@ public class SmsTaskTbl extends BaseEntity
                 .append("smsContentType", getSmsContentType())
                 .append("taskStatus", getTaskStatus())
                 .append("successRate", getSuccessRate())
+                .append("successCount", getSuccessCount())
+                .append("totalCount", getTotalCount())
                 .append("issueCount", getIssueCount())
                 .append("userId", getUserId())
                 .append("createBy", getCreateBy())

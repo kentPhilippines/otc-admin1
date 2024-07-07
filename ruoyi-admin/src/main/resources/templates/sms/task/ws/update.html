@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增WS短信任务配置')" />
+    <th:block th:include="include :: datetimepicker-css" />
+
+    <th:block th:include="include :: bootstrap-fileinput-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-task-add">
+        <div class="form-group">
+            <label class="col-sm-3 control-label is-required">修改种类：</label>
+            <div class="col-sm-8" th:with="type=${@dict.getType('sys_sms_edit_type')}">
+                <select id="editSmsType" name="editSmsType" class="form-control select2-multiple" multiple required>
+                    <option th:each="dict : ${type}" th:value="${dict.dictValue}" th:text="${dict.dictLabel}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label is-required">任务开始时间：</label>
+            <div class="col-sm-8">
+                <div class="input-group date">
+                    <input name="taskBeginTime" class="form-control" placeholder="yyyy-MM-dd HH:mm:ss" type="text" >
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">任务状态：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict : ${@dict.getType('sys_sms_task_status')}">
+                    <input type="radio" th:id="${'taskStatus_' + dict.dictCode}" name="taskStatus" th:value="${dict.dictValue}" th:checked="${dict.default}">
+                    <label th:for="${'taskStatus_' + dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="ids" th:value="${ids}">
+
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: bootstrap-fileinput-js" />
+<th:block th:include="include :: select2-js" />
+<script th:inline="javascript">
+    var prefix = ctx + "sms/task/ws"
+    $("#form-task-add").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/update", $('#form-task-add').serialize());
+        }
+    }
+
+    $("input[name='taskBeginTime']").datetimepicker({
+        format: "yyyy-mm-dd hh:ii:ss",
+        // minView: "second",
+        autoclose: true
+    });
+
+
+    $(function() {
+        $('#editSmsType').select2({
+            placeholder: "请选择种类",
+            allowClear: true
+        });
+    })
+
+
+</script>
+</body>
+</html>

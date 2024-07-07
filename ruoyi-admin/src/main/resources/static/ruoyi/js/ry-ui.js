@@ -392,6 +392,33 @@ var table = {
                         $.modal.closeLoading();
                     });
                 });
+            }, exportExcelTaskDetail: function(formId) {
+
+                table.set();
+                var rows = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                var url = table.options.exportTaskDetailUrl.replace("{id}", rows.join());
+                $.modal.loading("正在导出数据，请稍候...");
+                window.location.href = url;
+                $.modal.closeLoading();
+
+            },completeTask: function(formId) {
+
+                table.set();
+                var rows = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                $.modal.confirm("确认强制完成选中的" + rows.length + "条数据吗?", function() {
+                    var url = table.options.completeTaskUrl;
+                    var data = { "ids": rows.join() };
+                    $.operate.submit(url, "post", "json", data);
+                });
+
             },
             // 下载模板
             importTemplate: function() {
@@ -1197,6 +1224,20 @@ var table = {
                 } else {
                     $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id));
                 }
+            },
+            editStatus: function(id) {
+                table.set();
+                var rows = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                let rowIds = rows.join();
+                $.modal.open("添加" + table.options.modalName, $.operate.editStatusUrl(rowIds));
+            },
+            editStatusUrl: function(ids) {
+                var url = $.common.isEmpty(ids) ? table.options.updateStatusUrl.replace("{ids}", "") : table.options.updateStatusUrl.replace("{ids}", ids);
+                return url;
             },
             // 修改信息，以tab页展现
             editTab: function(id) {
