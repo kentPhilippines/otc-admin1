@@ -4,8 +4,8 @@ import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.domain.entity.SysDictData;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 字典工具类
@@ -77,8 +77,10 @@ public class DictUtils
         if (StringUtils.isNotNull(cacheObj))
         {
             List<SysDictData> sysDictDataList = StringUtils.cast(cacheObj);
-            Collections.shuffle(sysDictDataList);
-            return sysDictDataList.get(0).getDictValue();
+            Random random = new Random();
+            int i = random.nextInt(sysDictDataList.size());
+//            Collections.shuffle(sysDictDataList);
+            return sysDictDataList.get(i).getDictValue();
         }
 
         return null;

@@ -7,6 +7,7 @@ import cn.hutool.json.JSONUtil;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.entity.ErrorLog;
 import com.ruoyi.common.core.domain.entity.TenantInfo;
+import com.ruoyi.common.core.domain.entity.TrxExchangeFail;
 import com.ruoyi.common.core.domain.entity.TrxExchangeInfo;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ForwardCounter;
@@ -22,6 +23,7 @@ import com.ruoyi.system.dto.Data;
 import com.ruoyi.system.dto.TronGridResponse;
 import com.ruoyi.system.dto.Value;
 import com.ruoyi.system.mapper.TenantInfoMapper;
+import com.ruoyi.system.mapper.TrxExchangeFailMapper;
 import com.ruoyi.system.mapper.TrxExchangeInfoMapper;
 import com.ruoyi.system.service.IErrorLogService;
 import com.ruoyi.system.service.ISysConfigService;
@@ -75,6 +77,8 @@ public class TRX2EneryTransferHandler {
     @Autowired
     private IErrorLogService errorLogService;
 
+    @Autowired
+    private TrxExchangeFailMapper trxExchangeFailMapper;
 
     public void doMonitorTrxTransferByMonitorAddressInfo(MonitorAddressAccount monitorAddressAccount) {
 
@@ -146,9 +150,10 @@ public class TRX2EneryTransferHandler {
                         .errorMsg(exceptionString.length() > 2000 ? exceptionString.substring(0, 2000) : exceptionString)
                         .fcu("system")
                         .lcu("system").build();
-
                 errorLogService.insertErrorLog(errorLog);
-//                throw new RuntimeException("doDelegateResource业务处理异常", e);
+
+
+
             } finally {
                 if (lock.isLocked()) {
                     if (lock.isHeldByCurrentThread()) {
@@ -366,7 +371,30 @@ public class TRX2EneryTransferHandler {
 
             /*  lock_period: 锁定周期，以区块时间（3s）为单位，表示锁定多少个区块的时间，当lock为true时，该字段有效。如果代理锁定期为1天，则lock_period为：28800*/
 
-            delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, ownerAddress, resourceCode);
+            try {
+                delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, ownerAddress, resourceCode);
+            } catch (Exception e) {
+                Object cacheidTrxExchangeFail = redisTemplate.opsForValue().get("transfer_trx_fail_" + txID);
+                if (cacheidTrxExchangeFail == null){
+                    TrxExchangeFail trxExchangeFail = new TrxExchangeFail();
+                    trxExchangeFail.setFromAddress(ownerAddress);
+                    trxExchangeFail.setToAddress(toAddress);
+                    trxExchangeFail.setAccountAddress(accountAddress);
+                    trxExchangeFail.setPrice(price);
+                    trxExchangeFail.setTrxTxId(txID);
+                    trxExchangeFail.setTranferCount(transferCount);
+                    trxExchangeFail.setEnergyBusiType(sysEnergyBusiType);
+                    trxExchangeFail.setTrxAmount(amount);
+                    trxExchangeFail.setTrxAmountUnit(trxAmountUnit);
+                    trxExchangeFail.setResourceCode(resourceCode);
+                    trxExchangeFail.setLockPeriod(lockPeriod);
+                    trxExchangeFail.setDelegateStatus("2");
+                    trxExchangeFail.setCalcRule(calcRule);
+                   trxExchangeFailMapper.insertTrxExchangeFail(trxExchangeFail);
+                    redisTemplate.opsForValue().set("transfer_trx_fail_" + txID, trxExchangeFail.getIdTrxExchangeFail(), 1, TimeUnit.HOURS);
+                }
+                throw new RuntimeException(e);
+            }
 
         }
         String fromAddress = AddressUtil.hexToBase58(ownerAddress);
@@ -392,6 +420,16 @@ public class TRX2EneryTransferHandler {
                 .lcu(currentUser)
                 .build();
         trxExchangeInfoMapper.insertTrxExchangeInfo(trxExchangeInfo);
+
+        Object cacheidTrxExchangeFail = redisTemplate.opsForValue().get("transfer_trx_fail_" + txID);
+        if (cacheidTrxExchangeFail != null){
+
+            TrxExchangeFail trxExchangeFail = new TrxExchangeFail();
+            trxExchangeFail.setIdTrxExchangeFail(Long.valueOf(cacheidTrxExchangeFail.toString()));
+            trxExchangeFail.setDelegateStatus("1");
+            trxExchangeFailMapper.updateTrxExchangeFail(trxExchangeFail);
+            redisTemplate.delete("transfer_trx_fail_" + txID);
+        }
 
         String sysenTrxTransferNotice = configService.selectConfigByKey("sys.energy.transaction.notice");
         String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
@@ -443,11 +481,13 @@ public class TRX2EneryTransferHandler {
     }
 
     private String getDelegateResourceTxid(ApiWrapper apiWrapper, String accountAddress, long balance, String ownerAddress, String resourceCode) throws IllegalException {
+
         Response.TransactionExtention transactionExtention = apiWrapper.delegateResourceV2(accountAddress, balance * 1000000, Common.ResourceCode.valueOf(resourceCode).getNumber(), ownerAddress, false, 0);
 
         Chain.Transaction transaction = apiWrapper.signTransaction(transactionExtention);
 
         String delegateResourceTxid = apiWrapper.broadcastTransaction(transaction);
+
         return delegateResourceTxid;
     }
 

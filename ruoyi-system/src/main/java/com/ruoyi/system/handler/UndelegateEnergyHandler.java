@@ -246,6 +246,7 @@ public class UndelegateEnergyHandler {
 
 
                 tenantInfo.setLcu("system");
+                tenantInfo.setLcd(new Date());
                 tenantInfoMapper.updateTenantInfo(tenantInfo);
             }
 
@@ -261,7 +262,6 @@ public class UndelegateEnergyHandler {
                     .fcu("system")
                     .lcu("system").build();
             errorLogService.insertErrorLog(errorLog);
-//            throw new RuntimeException("回收能量业务处理异常", e);
         } finally {
             if (lock.isLocked()) {
                 if (lock.isHeldByCurrentThread()) {

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.TrxExchangeFailMapper">
+    
+    <resultMap type="TrxExchangeFail" id="TrxExchangeFailResult">
+        <result property="idTrxExchangeFail"    column="id_trx_exchange_fail"    />
+        <result property="fromAddress"    column="from_address"    />
+        <result property="toAddress"    column="to_address"    />
+        <result property="accountAddress"    column="account_address"    />
+        <result property="price"    column="price"    />
+        <result property="trxTxId"    column="trx_tx_id"    />
+        <result property="tranferCount"    column="tranfer_count"    />
+        <result property="energyBusiType"    column="energy_busi_type"    />
+        <result property="trxAmount"    column="trx_amount"    />
+        <result property="trxAmountUnit"    column="trx_amount_unit"    />
+        <result property="resourceCode"    column="resource_code"    />
+        <result property="lockPeriod"    column="lock_period"    />
+        <result property="delegateStatus"    column="delegate_status"    />
+        <result property="calcRule"    column="calc_rule"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectTrxExchangeFailVo">
+        select id_trx_exchange_fail, from_address, to_address, account_address, price, trx_tx_id, tranfer_count, energy_busi_type, trx_amount, trx_amount_unit,  resource_code, lock_period, delegate_status, calc_rule, create_by, create_time, update_by, update_time from trx_exchange_fail
+    </sql>
+
+    <select id="selectTrxExchangeFailList" parameterType="TrxExchangeFail" resultMap="TrxExchangeFailResult">
+        <include refid="selectTrxExchangeFailVo"/>
+        <where>  
+            <if test="fromAddress != null  and fromAddress != ''"> and from_address = #{fromAddress}</if>
+            <if test="trxTxId != null  and trxTxId != ''"> and trx_tx_id = #{trxTxId}</if>
+            <if test="delegateStatus != null  and delegateStatus != ''"> and delegate_status = #{delegateStatus}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectTrxExchangeFailByIdTrxExchangeFail" parameterType="Long" resultMap="TrxExchangeFailResult">
+        <include refid="selectTrxExchangeFailVo"/>
+        where id_trx_exchange_fail = #{idTrxExchangeFail}
+    </select>
+        
+    <insert id="insertTrxExchangeFail" parameterType="TrxExchangeFail" useGeneratedKeys="true" keyProperty="idTrxExchangeFail">
+        insert into trx_exchange_fail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fromAddress != null">from_address,</if>
+            <if test="toAddress != null">to_address,</if>
+            <if test="accountAddress != null">account_address,</if>
+            <if test="price != null">price,</if>
+            <if test="trxTxId != null">trx_tx_id,</if>
+            <if test="tranferCount != null">tranfer_count,</if>
+            <if test="energyBusiType != null">energy_busi_type,</if>
+            <if test="trxAmount != null">trx_amount,</if>
+            <if test="trxAmountUnit != null">trx_amount_unit,</if>
+            <if test="resourceCode != null">resource_code,</if>
+            <if test="lockPeriod != null">lock_period,</if>
+            <if test="delegateStatus != null">delegate_status,</if>
+            <if test="calcRule != null">calc_rule,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fromAddress != null">#{fromAddress},</if>
+            <if test="toAddress != null">#{toAddress},</if>
+            <if test="accountAddress != null">#{accountAddress},</if>
+            <if test="price != null">#{price},</if>
+            <if test="trxTxId != null">#{trxTxId},</if>
+            <if test="tranferCount != null">#{tranferCount},</if>
+            <if test="energyBusiType != null">#{energyBusiType},</if>
+            <if test="trxAmount != null">#{trxAmount},</if>
+            <if test="trxAmountUnit != null">#{trxAmountUnit},</if>
+            <if test="resourceCode != null">#{resourceCode},</if>
+            <if test="lockPeriod != null">#{lockPeriod},</if>
+            <if test="delegateStatus != null">#{delegateStatus},</if>
+            <if test="calcRule != null">#{calcRule},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTrxExchangeFail" parameterType="TrxExchangeFail">
+        update trx_exchange_fail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fromAddress != null">from_address = #{fromAddress},</if>
+            <if test="toAddress != null">to_address = #{toAddress},</if>
+            <if test="accountAddress != null">account_address = #{accountAddress},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="trxTxId != null">trx_tx_id = #{trxTxId},</if>
+            <if test="tranferCount != null">tranfer_count = #{tranferCount},</if>
+            <if test="energyBusiType != null">energy_busi_type = #{energyBusiType},</if>
+            <if test="trxAmount != null">trx_amount = #{trxAmount},</if>
+            <if test="trxAmountUnit != null">trx_amount_unit = #{trxAmountUnit},</if>
+            <if test="resourceCode != null">resource_code = #{resourceCode},</if>
+            <if test="lockPeriod != null">lock_period = #{lockPeriod},</if>
+            <if test="delegateStatus != null">delegate_status = #{delegateStatus},</if>
+            <if test="calcRule != null">calc_rule = #{calcRule},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id_trx_exchange_fail = #{idTrxExchangeFail}
+    </update>
+
+    <delete id="deleteTrxExchangeFailByIdTrxExchangeFail" parameterType="Long">
+        delete from trx_exchange_fail where id_trx_exchange_fail = #{idTrxExchangeFail}
+    </delete>
+
+    <delete id="deleteTrxExchangeFailByIdTrxExchangeFails" parameterType="String">
+        delete from trx_exchange_fail where id_trx_exchange_fail in 
+        <foreach item="idTrxExchangeFail" collection="array" open="(" separator="," close=")">
+            #{idTrxExchangeFail}
+        </foreach>
+    </delete>
+
+    <select id="selectTrxExchangeFailListByIdList" resultMap="TrxExchangeFailResult">
+        <include refid="selectTrxExchangeFailVo"/>
+        WHERE id_trx_exchange_fail IN
+        <foreach item="id" collection="idsList" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>
