@@ -1,5 +1,6 @@
 package com.ruoyi.common.utils.spring;
 
+import com.ruoyi.common.utils.StringUtils;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -8,31 +9,93 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
-import com.ruoyi.common.utils.StringUtils;
+
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * spring工具类 方便在非spring管理环境中获取bean
- * 
+ *
+ * 该工具类通过实现BeanFactoryPostProcessor和ApplicationContextAware接口，
+ * 在Spring容器初始化时保存ApplicationContext和BeanFactory的引用，以便在非Spring管理的环境中获取bean
  * @author ruoyi
  */
 @Component
 public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationContextAware
 {
-    /** Spring应用上下文环境 */
-    private static ConfigurableListableBeanFactory beanFactory;
+    /** Spring应用上下文环境*/
 
-    private static ApplicationContext applicationContext;
+    /**
+     * 用于存储ConfigurableListableBeanFactory的AtomicReference
+     */
+    private static final AtomicReference<Optional<ConfigurableListableBeanFactory>> beanFactoryRef = new AtomicReference<>();
 
+    /**
+     * 用于存储ApplicationContext的AtomicReference
+     */
+    private static final AtomicReference<Optional<ApplicationContext>> applicationContextRef = new AtomicReference<>();
+
+    private static final String UNINITIALIZED_EXCEPTION = " is not initialized yet.";
+
+    private SpringUtils(){}
+
+    /**
+     * 在BeanFactory后处理器中设置beanFactory引用
+     *
+     * @param beanFactory ConfigurableListableBeanFactory实例
+     * @throws BeansException 如果beanFactory设置过程中出现异常
+     */
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException
     {
-        SpringUtils.beanFactory = beanFactory;
+        beanFactoryRef.set(Optional.of(beanFactory));
     }
 
+    /**
+     * 设置ApplicationContext引用
+     *
+     * @param applicationContext ApplicationContext实例
+     * @throws BeansException 如果applicationContext设置过程中出现异常
+     */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
     {
-        SpringUtils.applicationContext = applicationContext;
+        applicationContextRef.set(Optional.of(applicationContext));
+    }
+
+    /**
+     * 该方法接受一个参数，并返回一个异常 Supplier
+     *
+     * @param clz    异常所属类
+     * @param suffix 异常信息后缀
+     * @return 返回RuntimeException的Supplier
+     */
+    private static Supplier<RuntimeException> exceptionSupplier(Class<?> clz, String suffix) {
+        return () -> new IllegalStateException(generateErrorMessage(clz, suffix));
+    }
+
+    /**
+     * 该方法接受一个参数，并返回一个异常 Supplier
+     *
+     * @param clz    异常所属类
+     * @param suffix 异常信息后缀
+     * @return 返回拼接好的异常信息 类名+异常信息后缀
+     */
+    private static String generateErrorMessage(Class<?> clz,String suffix) {
+        Function<String, String> errorMessageFunction = errorMessageGenerator(suffix);
+        return errorMessageFunction.apply(clz.getSimpleName());
+    }
+
+    /**
+     * 该方法接受一个参数，返回拼接功能的Function
+     *
+     * @param suffix 异常信息后缀
+     * @return 返回拼接功能的Function
+     */
+    private static Function<String, String> errorMessageGenerator(String suffix) {
+        return parameter -> parameter + suffix;
     }
 
     /**
@@ -46,7 +109,9 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     @SuppressWarnings("unchecked")
     public static <T> T getBean(String name) throws BeansException
     {
-        return (T) beanFactory.getBean(name);
+        return (T) beanFactoryRef.get()
+                   .orElseThrow(exceptionSupplier(ConfigurableListableBeanFactory.class, UNINITIALIZED_EXCEPTION))
+                   .getBean(name);
     }
 
     /**
@@ -59,8 +124,9 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
      */
     public static <T> T getBean(Class<T> clz) throws BeansException
     {
-        T result = (T) beanFactory.getBean(clz);
-        return result;
+        return beanFactoryRef.get()
+                .orElseThrow(exceptionSupplier(ConfigurableListableBeanFactory.class, UNINITIALIZED_EXCEPTION))
+                .getBean(clz);
     }
 
     /**
@@ -71,7 +137,9 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
      */
     public static boolean containsBean(String name)
     {
-        return beanFactory.containsBean(name);
+        return beanFactoryRef.get()
+                .orElseThrow(exceptionSupplier(ConfigurableListableBeanFactory.class,UNINITIALIZED_EXCEPTION))
+                .containsBean(name);
     }
 
     /**
@@ -84,7 +152,9 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
      */
     public static boolean isSingleton(String name) throws NoSuchBeanDefinitionException
     {
-        return beanFactory.isSingleton(name);
+        return beanFactoryRef.get()
+                .orElseThrow(exceptionSupplier(ConfigurableListableBeanFactory.class,UNINITIALIZED_EXCEPTION))
+                .isSingleton(name);
     }
 
     /**
@@ -95,7 +165,9 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
      */
     public static Class<?> getType(String name) throws NoSuchBeanDefinitionException
     {
-        return beanFactory.getType(name);
+        return beanFactoryRef.get()
+                .orElseThrow(exceptionSupplier(ConfigurableListableBeanFactory.class,UNINITIALIZED_EXCEPTION))
+                .getType(name);
     }
 
     /**
@@ -108,12 +180,14 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
      */
     public static String[] getAliases(String name) throws NoSuchBeanDefinitionException
     {
-        return beanFactory.getAliases(name);
+        return beanFactoryRef.get()
+                .orElseThrow(exceptionSupplier(ConfigurableListableBeanFactory.class,UNINITIALIZED_EXCEPTION))
+                .getAliases(name);
     }
 
     /**
      * 获取aop代理对象
-     * 
+     *
      * @param invoker
      * @return
      */
@@ -130,7 +204,11 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
      */
     public static String[] getActiveProfiles()
     {
-        return applicationContext.getEnvironment().getActiveProfiles();
+        return applicationContextRef
+                .get()
+                .orElseThrow(exceptionSupplier(ApplicationContext.class, UNINITIALIZED_EXCEPTION))
+                .getEnvironment()
+                .getActiveProfiles();
     }
 
     /**
@@ -153,7 +231,11 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
      */
     public static String getRequiredProperty(String key)
     {
-        return applicationContext.getEnvironment().getRequiredProperty(key);
+        return  applicationContextRef
+                .get()
+                .orElseThrow(exceptionSupplier(ApplicationContext.class, UNINITIALIZED_EXCEPTION))
+                .getEnvironment()
+                .getRequiredProperty(key);
     }
 
 }
