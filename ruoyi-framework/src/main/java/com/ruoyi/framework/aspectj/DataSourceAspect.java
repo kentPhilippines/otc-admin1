@@ -1,6 +1,7 @@
 package com.ruoyi.framework.aspectj;
 
-import java.util.Objects;
+import com.ruoyi.common.annotation.DataSource;
+import com.ruoyi.common.config.datasource.DynamicDataSourceContextHolder;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -11,9 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import com.ruoyi.common.annotation.DataSource;
-import com.ruoyi.common.config.datasource.DynamicDataSourceContextHolder;
-import com.ruoyi.common.utils.StringUtils;
+
+import java.util.Objects;
 
 /**
  * 多数据源处理
@@ -34,24 +34,27 @@ public class DataSourceAspect
 
     }
 
+    // 增加错误捕捉与日志记录
     @Around("dsPointCut()")
     public Object around(ProceedingJoinPoint point) throws Throwable
     {
         DataSource dataSource = getDataSource(point);
 
-        if (StringUtils.isNotNull(dataSource))
+        if (Objects.nonNull(dataSource))
         {
             DynamicDataSourceContextHolder.setDataSourceType(dataSource.value().name());
         }
-
-        try
-        {
+        try {
             return point.proceed();
-        }
-        finally
-        {
-            // 销毁数据源 在执行方法之后
+        } catch (Throwable throwable) {
+            logger.error("Error during data source switch: {}", throwable.getMessage());
+            throw throwable;
+        } finally {
             DynamicDataSourceContextHolder.clearDataSourceType();
+            if(logger.isInfoEnabled()){
+                logger.info("Cleared data source setting after method execution");
+            }
+
         }
     }
 
