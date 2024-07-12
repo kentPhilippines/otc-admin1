@@ -377,8 +377,8 @@ public class TRX2EneryTransferHandler {
                 Object cacheidTrxExchangeFail = redisTemplate.opsForValue().get("transfer_trx_fail_" + txID);
                 if (cacheidTrxExchangeFail == null){
                     TrxExchangeFail trxExchangeFail = new TrxExchangeFail();
-                    trxExchangeFail.setFromAddress(ownerAddress);
-                    trxExchangeFail.setToAddress(toAddress);
+                    trxExchangeFail.setFromAddress(AddressUtil.hexToBase58(ownerAddress));
+                    trxExchangeFail.setToAddress(AddressUtil.hexToBase58(toAddress));
                     trxExchangeFail.setAccountAddress(accountAddress);
                     trxExchangeFail.setPrice(price);
                     trxExchangeFail.setTrxTxId(txID);
@@ -427,6 +427,7 @@ public class TRX2EneryTransferHandler {
             TrxExchangeFail trxExchangeFail = new TrxExchangeFail();
             trxExchangeFail.setIdTrxExchangeFail(Long.valueOf(cacheidTrxExchangeFail.toString()));
             trxExchangeFail.setDelegateStatus("1");
+            trxExchangeFail.setUpdateTime(new Date());
             trxExchangeFailMapper.updateTrxExchangeFail(trxExchangeFail);
             redisTemplate.delete("transfer_trx_fail_" + txID);
         }
@@ -459,6 +460,8 @@ public class TRX2EneryTransferHandler {
         }
 
     }
+
+
 
 
     private long getBalance(Response.AccountResourceMessage accountResource, long transferCount, String resourceCode) {
