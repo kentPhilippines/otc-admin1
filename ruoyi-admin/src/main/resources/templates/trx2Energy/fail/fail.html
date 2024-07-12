@@ -94,15 +94,22 @@
                 },
                 {
                     field: 'fromAddress',
-                    title: '转出账户'
+                    title: '转出账户',
+                    formatter: function (value, row, index) {
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                    }
                 },
                 {
                     field: 'toAddress',
-                    title: '转入账户'
+                    title: '转入账户',
+                    formatter: function (value, row, index) {
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                    }
                 },
                 {
                     field: 'accountAddress',
-                    title: '实际出账账户'
+                    title: '实际出账账户',
+                    visible: false
                 },
                 {
                     field: 'price',
@@ -110,7 +117,11 @@
                 },
                 {
                     field: 'trxTxId',
-                    title: '订单hash'
+                    title: '订单hash',
+                    formatter: function (value, row, index) {
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                    },
+                    visible: false
                 },
                 {
                     field: 'tranferCount',
@@ -172,7 +183,14 @@
                     formatter: function(value, row, index) {
                        return $.table.selectDictLabel(calcRuleDatas, value);
                     }
-                }/*,
+                } ,  {
+                        field: 'createTime',
+                        title: '创建时间'
+                    },
+                    {
+                        field: 'updateTime',
+                        title: '更新时间'
+                    }/*,
                 {
                     title: '操作',
                     align: 'center',
