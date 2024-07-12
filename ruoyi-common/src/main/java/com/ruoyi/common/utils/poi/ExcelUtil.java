@@ -12,16 +12,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
@@ -1272,6 +1263,9 @@ public class ExcelUtil<T>
      */
     public static String reverseByExp(String propertyValue, String converterExp, String separator)
     {
+        if (StringUtils.isNumeric(propertyValue)) {
+            return propertyValue;
+        }
         StringBuilder propertyString = new StringBuilder();
         String[] convertSource = converterExp.split(",");
         for (String item : convertSource)
