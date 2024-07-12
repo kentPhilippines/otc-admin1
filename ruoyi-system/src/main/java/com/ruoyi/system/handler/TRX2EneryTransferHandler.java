@@ -391,7 +391,7 @@ public class TRX2EneryTransferHandler {
                     trxExchangeFail.setDelegateStatus("2");
                     trxExchangeFail.setCalcRule(calcRule);
                    trxExchangeFailMapper.insertTrxExchangeFail(trxExchangeFail);
-                    redisTemplate.opsForValue().set("transfer_trx_fail_" + txID, trxExchangeFail.getIdTrxExchangeFail(), 1, TimeUnit.HOURS);
+                    redisTemplate.opsForValue().set("transfer_trx_fail_" + txID, trxExchangeFail.getIdTrxExchangeFail(), 7, TimeUnit.DAYS);
                 }
                 throw new RuntimeException(e);
             }
