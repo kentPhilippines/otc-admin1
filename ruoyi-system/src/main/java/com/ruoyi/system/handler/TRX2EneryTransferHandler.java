@@ -152,8 +152,6 @@ public class TRX2EneryTransferHandler {
                         .lcu("system").build();
                 errorLogService.insertErrorLog(errorLog);
 
-
-
             } finally {
                 if (lock.isLocked()) {
                     if (lock.isHeldByCurrentThread()) {
