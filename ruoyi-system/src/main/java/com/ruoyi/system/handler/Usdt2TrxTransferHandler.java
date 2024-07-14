@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.entity.ErrorLog;
 import com.ruoyi.common.core.domain.entity.UsdtExchangeInfo;
+import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ForwardCounter;
 import com.ruoyi.common.utils.LogUtils;
 import com.ruoyi.common.utils.StringUtils;
@@ -21,6 +22,7 @@ import com.ruoyi.system.api.enums.Symbol;
 import com.ruoyi.system.bot.TgLongPollingBot;
 import com.ruoyi.system.bot.utils.SendContent;
 import com.ruoyi.system.domain.MonitorAddressAccount;
+import com.ruoyi.system.domain.TgMessageInfoTask;
 import com.ruoyi.system.dto.Data;
 import com.ruoyi.system.dto.Token_info;
 import com.ruoyi.system.dto.TronGridResponse;
@@ -49,10 +51,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -88,7 +87,8 @@ public class Usdt2TrxTransferHandler {
 
         try {
             String monitorAddress = monitorAddressAccount.getMonitorAddress();
-            String apiKey = monitorAddressAccount.getApiKey();
+          /*  String apiKey = monitorAddressAccount.getApiKey();*/
+            String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
             String sysTransferBetween = configService.selectConfigByKey("sys.transfer.between");
 //
             DateTime min_timestamp = DateUtil.offset(new Date(), DateField.MINUTE, Integer.valueOf(sysTransferBetween));
@@ -156,7 +156,7 @@ public class Usdt2TrxTransferHandler {
                 return;
             }
 
-            doTransferUsdtAndStore(oneUsdtToTrxPair, apiKey, decryptPrivateKey, accountAddress, from, trxValue, dataTo, transactionId, transferValue);
+            doTransferUsdtAndStore(oneUsdtToTrxPair, apiKey, decryptPrivateKey, accountAddress, from, trxValue, dataTo, transactionId, transferValue,monitorAddressAccount);
 
             redisTemplate.opsForValue().set("transfer_USDT_" + transactionId, transactionId, 1, TimeUnit.DAYS);
         } finally {
@@ -168,7 +168,7 @@ public class Usdt2TrxTransferHandler {
         }
     }
 
-    public void doTransferUsdtAndStore(Pair<BigDecimal, BigDecimal> oneUsdtToTrxPair, String apiKey, String decryptPrivateKey, String accountAddress, String from, BigDecimal trxValue, String dataTo, String transactionId, BigDecimal transferValue) throws IllegalException, TelegramApiException {
+    public void doTransferUsdtAndStore(Pair<BigDecimal, BigDecimal> oneUsdtToTrxPair, String apiKey, String decryptPrivateKey, String accountAddress, String from, BigDecimal trxValue, String dataTo, String transactionId, BigDecimal transferValue, MonitorAddressAccount monitorAddressAccount) throws IllegalException, TelegramApiException {
 
         String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
 
@@ -194,7 +194,7 @@ public class Usdt2TrxTransferHandler {
                 .setUsdtAmount(transferValue)
                 .setTrxAmount(trxValue)
                 .setExchangeRate(oneUsdtToTrxPair == null ? null : oneUsdtToTrxPair.getFirst())
-                .setOrginalExchangeRate(oneUsdtToTrxPair == null ? null :oneUsdtToTrxPair.getSecond())
+                .setOrginalExchangeRate(oneUsdtToTrxPair == null ? null : oneUsdtToTrxPair.getSecond())
                 .setTrxTxId(txId)
                 .setFcu("system")
                 .setLcu("system");
@@ -202,15 +202,28 @@ public class Usdt2TrxTransferHandler {
 
         usdtExchangeInfoMapper.insertUsdtExchangeInfo(usdtExchangeInfo);
 
-        if (oneUsdtToTrxPair != null){
-            doSendTgNotice(oneUsdtToTrxPair.getFirst(), from, trxValue, transferValue, txId);
+        if (oneUsdtToTrxPair != null) {
+            doSendTgNotice(oneUsdtToTrxPair.getFirst(), from, trxValue, transferValue, txId,monitorAddressAccount);
         }
     }
 
-    private void doSendTgNotice(BigDecimal oneUsdtToTrx, String from, BigDecimal trxValue, BigDecimal transferValue, String txId) throws TelegramApiException {
-        String sysUsdtTranferNotice = configService.selectConfigByKey("sys.usdt.tranfer.notice");
-        String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
-        if (longPollingBot != null && StringUtils.isNotEmpty(sysUsdtTranferNotice) && StringUtils.isNotEmpty(sysTgGroupChatId)) {
+    private void doSendTgNotice(BigDecimal oneUsdtToTrx, String from, BigDecimal trxValue, BigDecimal transferValue, String txId, MonitorAddressAccount monitorAddressAccount) throws TelegramApiException {
+
+        if (longPollingBot != null ) {
+            String sysUsdtTranferNotice = configService.selectConfigByKey("sys.usdt.tranfer.notice");
+            String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
+            if (monitorAddressAccount != null){
+                String messageInfo = monitorAddressAccount.getMessageInfo();
+                if (StringUtils.isNotEmpty(messageInfo)){
+                    sysUsdtTranferNotice = messageInfo;
+                }
+                String groupChatId = monitorAddressAccount.getGroupChatId();
+                if (StringUtils.isNotEmpty(groupChatId)){
+                    sysTgGroupChatId = groupChatId;
+                }
+            }
+
+
             Map<String, Object> arguments = new HashMap<>();
             arguments.put("usdtAmount", transferValue.setScale(2, BigDecimal.ROUND_HALF_DOWN));
             arguments.put("exchangeRate", oneUsdtToTrx);
@@ -224,7 +237,7 @@ public class Usdt2TrxTransferHandler {
             SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
             longPollingBot.execute(sendMessage);
         } else {
-            log.warn("longPollingBot OR sysUsdtTranferNotice OR sysTgGroupChatId  is null");
+            log.warn("longPollingBot  is null");
         }
     }
 
@@ -296,34 +309,39 @@ public class Usdt2TrxTransferHandler {
     }
 
 
-    public void topicGroupMessage() {
+    public void topicGroupMessage(TgMessageInfoTask tgMessageInfoTask) throws TelegramApiException, NoSuchAlgorithmException, IOException, InvalidKeyException {
 
-
-        String sysUsdtGroupTopic = configService.selectConfigByKey("sys.usdt.group.topic");
-        String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
-
-        log.info("longPollingBot:{},sysUsdtGroupTopic:{},sysTgGroupChatId:{}", longPollingBot, sysUsdtGroupTopic, sysTgGroupChatId);
-
-        if (longPollingBot != null && StringUtils.isNotEmpty(sysUsdtGroupTopic) && StringUtils.isNotEmpty(sysTgGroupChatId)) {
-            log.info("进入这里1");
-            try {
-                BigDecimal oneUsdtToTrx = getOneUsdtToTrx().getFirst();
-                BigDecimal tenUsdtToTrx = oneUsdtToTrx.multiply(BigDecimal.TEN);
-                Map<String, Object> arguments = new HashMap<>();
-                arguments.put("tenUsdtToTrx", tenUsdtToTrx);
-                StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
-                String message = substitutor.replace(sysUsdtGroupTopic);
-                SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.MARKDOWN);
-
-                longPollingBot.execute(sendMessage);
-            } catch (Exception e) {
-
-                log.error("广播消息异常", e);
-            }
-        } else {
-            log.info("进入这里2");
-            log.warn("sysUsdtTranferNotice OR sysTgGroupChatId  is null");
+        if (longPollingBot == null) {
+            return;
         }
+/*        String sysUsdtGroupTopic = configService.selectConfigByKey("sys.usdt.group.topic");
+        String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");*/
+
+        String messageContent = tgMessageInfoTask.getMessageInfo();
+
+        String chatId = tgMessageInfoTask.getChatIds();
+        List<String> chatIdList = Arrays.asList(chatId.split(","));
+
+        log.info("longPollingBot:{},sysUsdtGroupTopic:{},sysTgGroupChatId:{}", longPollingBot, messageContent, chatId);
+
+
+        for (String groupChatId : chatIdList) {
+            sendGroupMessage(messageContent, groupChatId);
+        }
+
+
+    }
+
+    private void sendGroupMessage(String sysUsdtGroupTopic, String sysTgGroupChatId) throws NoSuchAlgorithmException, InvalidKeyException, IOException, TelegramApiException {
+        BigDecimal oneUsdtToTrx = getOneUsdtToTrx().getFirst();
+        BigDecimal tenUsdtToTrx = oneUsdtToTrx.multiply(BigDecimal.TEN);
+        Map<String, Object> arguments = new HashMap<>();
+        arguments.put("tenUsdtToTrx", tenUsdtToTrx);
+        StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
+        String message = substitutor.replace(sysUsdtGroupTopic);
+        SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.MARKDOWN);
+
+        longPollingBot.execute(sendMessage);
     }
 
 

@@ -223,7 +223,7 @@ public class UndelegateEnergyHandler {
                             null,
                             null,
                             "system",
-                            Common.ResourceCode.ENERGY.name(), tenantInfo.getCalcRule());
+                            Common.ResourceCode.ENERGY.name(), tenantInfo.getCalcRule(), null);
 
                 } else {
                     Long period = tenantInfo.getPeriod();

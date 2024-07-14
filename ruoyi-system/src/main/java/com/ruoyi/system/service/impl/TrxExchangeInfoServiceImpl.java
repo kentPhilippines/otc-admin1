@@ -163,7 +163,7 @@ public class TrxExchangeInfoServiceImpl implements ITrxExchangeInfoService {
                 null,
                 null,
                 userName,
-                trxExchange.getResourceCode(), calcRule);
+                trxExchange.getResourceCode(), calcRule, null);
         return 1;
     }
 

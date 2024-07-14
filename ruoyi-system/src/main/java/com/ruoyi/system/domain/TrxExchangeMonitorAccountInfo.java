@@ -63,7 +63,7 @@ public class TrxExchangeMonitorAccountInfo implements Serializable {
     /**
      *
      */
-    private String apiKey;
+/*    private String apiKey;*/
 
     /**
      *

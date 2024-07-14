@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改TG消息任务管理')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-task-edit" th:object="${tgMessageTask}">
+            <input name="idTgMessageTask" th:field="*{idTgMessageTask}" type="hidden">
+            <div class="form-group">
+                <label class="col-sm-3 control-label ">消息模版：</label>
+                <div class="col-sm-8">
+                    <select id="idTgMessageInfo"  name="idTgMessageInfo" class="form-control " >
+                        <option th:each="topicTgmessageInfo:${topicTgmessageInfoList}" th:value="${topicTgmessageInfo.idTgMessageInfo}" th:text="${topicTgmessageInfo.messageAbbrName}" th:field="*{idTgMessageInfo}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">发送群组：</label>
+                <div class="col-sm-8" th:with="type=${@dict.getType('sys_tg_chat_group_info')}">
+                    <select id="chatIds" name="chatIds" class="form-control select2-multiple" multiple required>
+                        <option th:each="dict : ${type}" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" th:selected="*{chatIds}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">执行周期：</label>
+                <div class="col-sm-8">
+                    <input name="interval" th:field="*{intervalTime}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">开始时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="beginTime" th:value="${#dates.format(tgMessageTask.beginTime, 'yyyy-MM-dd HH:mm:ss')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">执行策略：</label>
+                <div class="col-sm-8">
+                    <div class="radio-box" th:each="dict : ${@dict.getType('sys_tg_msg_exe_stragy')}">
+                        <input type="radio" th:id="${'executionStragy_' + dict.dictCode}" name="executionStragy" th:value="${dict.dictValue}" th:field="*{executionStragy}">
+                        <label th:for="${'executionStragy_' + dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">任务状态：</label>
+                <div class="col-sm-8">
+                    <div class="radio-box" th:each="dict : ${@dict.getType('sys_tg_sms_msg_status')}">
+                        <input type="radio" th:id="${'status_' + dict.dictCode}" name="status" th:value="${dict.dictValue}" th:field="*{status}">
+                        <label th:for="${'status_' + dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">备注信息：</label>
+                <div class="col-sm-8">
+                    <textarea name="remark" class="form-control">[[*{remark}]]</textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "tg/task";
+        $("#form-task-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-task-edit').serialize());
+            }
+        }
+
+
+        $("input[name='beginTime']").datetimepicker({
+            format: "yyyy-mm-dd hh:ii:ss",
+            // minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

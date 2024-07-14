@@ -4,7 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.MonitorAddressInfoMapper">
 
-
     <resultMap type="MonitorAddressInfo" id="MonitorAddressInfoResult">
         <result property="idMonitorAddress"    column="id_monitor_address"    />
         <result property="busiType"    column="busi_type"    />
@@ -14,7 +13,8 @@
         <result property="trxPrice"    column="trx_price"    />
         <result property="usdtPrice"    column="usdt_price"    />
         <result property="monitorType"    column="monitor_type"    />
-        <result property="apiKey"    column="api_key"    />
+        <result property="idTgMessageInfo"    column="id_tg_message_info"    />
+        <result property="groupChatId"    column="group_chat_id"    />
         <result property="bindPeriod"    column="bind_period"    />
         <result property="isValid"    column="is_valid"    />
         <result property="comment"    column="comment"    />
@@ -25,7 +25,7 @@
     </resultMap>
 
     <sql id="selectMonitorAddressInfoVo">
-        select id_monitor_address, busi_type, monitor_address_name, monitor_address, account_address, trx_price, usdt_price, monitor_type, api_key, bind_period, is_valid, comment, fcd, fcu, lcd, lcu from monitor_address_info
+        select id_monitor_address, busi_type, monitor_address_name, monitor_address, account_address, trx_price, usdt_price, monitor_type, id_tg_message_info, group_chat_id, bind_period, is_valid, comment, fcd, fcu, lcd, lcu from monitor_address_info
     </sql>
 
     <select id="selectMonitorAddressInfoList" parameterType="MonitorAddressInfo" resultMap="MonitorAddressInfoResult">
@@ -38,7 +38,7 @@
             <if test="trxPrice != null "> and trx_price = #{trxPrice}</if>
             <if test="usdtPrice != null "> and usdt_price = #{usdtPrice}</if>
             <if test="monitorType != null  and monitorType != ''"> and monitor_type = #{monitorType}</if>
-            <if test="apiKey != null  and apiKey != ''"> and api_key = #{apiKey}</if>
+           <!-- <if test="apiKey != null  and apiKey != ''"> and api_key = #{apiKey}</if>-->
             <if test="bindPeriod != null  and bindPeriod != ''"> and bind_period = #{bindPeriod}</if>
             <if test="isValid != null  and isValid != ''"> and is_valid = #{isValid}</if>
             <if test="comment != null  and comment != ''"> and comment = #{comment}</if>
@@ -64,9 +64,11 @@
             <if test="trxPrice != null">trx_price,</if>
             <if test="usdtPrice != null">usdt_price,</if>
             <if test="monitorType != null">monitor_type,</if>
-            <if test="apiKey != null">api_key,</if>
+          <!--  <if test="apiKey != null">api_key,</if>-->
             <if test="bindPeriod != null">bind_period,</if>
             <if test="isValid != null">is_valid,</if>
+            <if test="idTgMessageInfo != null">id_tg_message_info,</if>
+            <if test="groupChatId != null">group_chat_id,</if>
             <if test="comment != null">comment,</if>
             <if test="fcd != null">fcd,</if>
             <if test="fcu != null">fcu,</if>
@@ -81,9 +83,11 @@
             <if test="trxPrice != null">#{trxPrice},</if>
             <if test="usdtPrice != null">#{usdtPrice},</if>
             <if test="monitorType != null">#{monitorType},</if>
-            <if test="apiKey != null">#{apiKey},</if>
+          <!--  <if test="apiKey != null">#{apiKey},</if>-->
             <if test="bindPeriod != null">#{bindPeriod},</if>
             <if test="isValid != null">#{isValid},</if>
+            <if test="idTgMessageInfo != null">#{idTgMessageInfo},</if>
+            <if test="groupChatId != null">#{groupChatId},</if>
             <if test="comment != null">#{comment},</if>
             <if test="fcd != null">#{fcd},</if>
             <if test="fcu != null">#{fcu},</if>
@@ -102,9 +106,11 @@
             <if test="trxPrice != null">trx_price = #{trxPrice},</if>
             <if test="usdtPrice != null">usdt_price = #{usdtPrice},</if>
             <if test="monitorType != null">monitor_type = #{monitorType},</if>
-            <if test="apiKey != null">api_key = #{apiKey},</if>
+     <!--       <if test="apiKey != null">api_key = #{apiKey},</if>-->
             <if test="bindPeriod != null">bind_period = #{bindPeriod},</if>
             <if test="isValid != null">is_valid = #{isValid},</if>
+            <if test="idTgMessageInfo != null">id_tg_message_info = #{idTgMessageInfo},</if>
+            <if test="groupChatId != null">group_chat_id = #{groupChatId},</if>
             <if test="comment != null">comment = #{comment},</if>
             <if test="fcd != null">fcd = #{fcd},</if>
             <if test="fcu != null">fcu = #{fcu},</if>
@@ -113,6 +119,7 @@
         </trim>
         where id_monitor_address = #{idMonitorAddress}
     </update>
+
 
     <delete id="deleteMonitorAddressInfoByIdMonitorAddress" parameterType="Long">
         delete from monitor_address_info where id_monitor_address = #{idMonitorAddress}
@@ -125,22 +132,39 @@
         </foreach>
     </delete>
 
-
-    <select id="selectMonitorAddressAccount" resultType="com.ruoyi.system.domain.MonitorAddressAccount" parameterType="MonitorAddressInfo">
-        select m.monitor_address,
-               m.account_address,
-               m.trx_price,
-               m.usdt_price,
-               a.encrypt_private_key,
-               a.encrypt_key,
-               m.api_key,
-               m.bind_period
-        from monitor_address_info m,
-             account_address_info a
-        where m.account_address = a.address
-          and m.is_valid = a.is_valid
-          and m.busi_type = a.busi_type
-          and m.busi_type = #{busiType}
+    <resultMap id="selectMonitorAddressAccountResultMap" type="com.ruoyi.system.domain.MonitorAddressAccount">
+        <result column="monitor_address" property="monitorAddress"/>
+        <result column="account_address" property="accountAddress"/>
+        <result column="trx_price" property="trxPrice"/>
+        <result column="usdt_price" property="usdtPrice"/>
+        <result column="encrypt_private_key" property="encryptPrivateKey"/>
+        <result column="encrypt_key" property="encryptKey"/>
+        <result column="bind_period" property="bindPeriod"/>
+        <result column="id_tg_message_info" property="idTgMessageInfo"/>
+        <result column="message_info" property="messageInfo"/>
+        <result column="group_chat_id" property="groupChatId"/>
+    </resultMap>
+    <select id="selectMonitorAddressAccount" parameterType="MonitorAddressInfo"
+            resultMap="selectMonitorAddressAccountResultMap">
+        SELECT
+        m.monitor_address,
+        m.account_address,
+        m.trx_price,
+        m.usdt_price,
+        a.encrypt_private_key,
+        a.encrypt_key,
+        m.bind_period,
+        m.id_tg_message_info,
+        t.message_info,
+        m.group_chat_id
+        FROM
+        monitor_address_info m
+        LEFT JOIN account_address_info a ON m.account_address = a.address
+        AND m.is_valid = a.is_valid
+        AND m.busi_type = a.busi_type
+        LEFT JOIN tg_message_info t ON m.id_tg_message_info = t.id_tg_message_info
+        where
+           m.busi_type = #{busiType}
           and m.is_valid = #{isValid}
     </select>
 

@@ -17,13 +17,13 @@
                                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                 </select>
                             </li>
-                            <li>
+                      <!--      <li>
                                 <label>任务状态：</label>
                                 <select name="status" th:with="type=${@dict.getType('sys_tg_sms_msg_status')}">
                                     <option value="">所有</option>
                                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                                 </select>
-                            </li>
+                            </li>-->
                             <li class="select-time">
                                 <label>创建时间：</label>
                                 <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginCreateTime]"/>
@@ -63,9 +63,9 @@
          var editFlag = [[${@permission.hasPermi('tg:msg:edit')}]];
          var removeFlag = [[${@permission.hasPermi('tg:msg:remove')}]];
          var messageTypeDatas = [[${@dict.getType('sys_tg_sms_msg_type')}]];
-         var chatIdDatas = [[${@dict.getType('sys_tg_chat_group_info')}]];
+   /*      var chatIdDatas = [[${@dict.getType('sys_tg_chat_group_info')}]];
          var executionStragyDatas = [[${@dict.getType('sys_tg_msg_exe_stragy')}]];
-         var statusDatas = [[${@dict.getType('sys_tg_sms_msg_status')}]];
+         var statusDatas = [[${@dict.getType('sys_tg_sms_msg_status')}]];*/
          var prefix = ctx + "tg/msg";
 
          $(function() {
@@ -83,10 +83,28 @@
                          field: 'idTgMessageInfo',
                          title: '主键',
                          visible: false
+                     }, {
+                         field: 'messageAbbrName',
+                         title: '消息别名'
                      },
                      {
                          field: 'messageInfo',
-                         title: '消息内容'
+                         title: '消息内容',
+                         formatter: function(value, row, index) {
+                             // 截取前10个字符
+                             let shortMessage = value.length > 10 ? value.substring(0, 10) + '...' : value;
+
+                             return shortMessage;
+                            /* // 添加超链接
+                             // 使用JSON.stringify来转义消息内容
+                             let escapedValue = JSON.stringify(value);
+
+                             // 去掉字符串开头和结尾的引号
+                             escapedValue = escapedValue.slice(1, -1);
+
+                             // 添加超链接，并在点击时调用$.modal.msg()
+                             return `<a href="javascript:void(0)" onclick="$.modal.msg('${escapedValue}')">${shortMessage}</a>`;*/
+                         }
                      },
                      {
                          field: 'messageType',
@@ -96,42 +114,28 @@
                          }
                      },
                      {
-                         field: 'chatId',
-                         title: 'tg会话id',
-                         formatter: function(value, row, index) {
-                             return $.table.selectDictLabels(chatIdDatas, value);
-                         }
+                         field: 'remark',
+                         title: '备注信息'
                      },
                      {
-                         field: 'intervalTime',
-                         title: '执行周期'
-                     },
-                     {
-                         field: 'beginTime',
-                         title: '开始时间'
-                     },
-                     {
-                         field: 'nextRunTime',
-                         title: '下次执行时间',
+                         field: 'createBy',
+                         title: '创建者',
                          visible: false
                      },
                      {
-                         field: 'executionStragy',
-                         title: '执行策略',
-                         formatter: function(value, row, index) {
-                             return $.table.selectDictLabel(executionStragyDatas, value);
-                         }
+                         field: 'createTime',
+                         title: '创建时间',
+                         visible: false
                      },
                      {
-                         field: 'status',
-                         title: '任务状态',
-                         formatter: function(value, row, index) {
-                             return $.table.selectDictLabel(statusDatas, value);
-                         }
+                         field: 'updateBy',
+                         title: '更新者',
+                         visible: false
                      },
                      {
-                         field: 'remark',
-                         title: '备注信息'
+                         field: 'updateTime',
+                         title: '更新时间',
+                         visible: false
                      },
                      {
                          title: '操作',
@@ -146,6 +150,8 @@
              };
              $.table.init(options);
          });
+
+
      </script>
 </body>
 </html>

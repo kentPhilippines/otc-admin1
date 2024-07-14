@@ -76,9 +76,9 @@
         var removeFlag = [[${@permission.hasPermi('usdt2Trx:monitor:remove')}]];
         var prefix = ctx + "usdt2Trx/monitor";
         var datas = [[${@dict.getType('sys_yes_no')}]];
-        var bindPeriodDatas = [[${@dict.getType('sys_lock_period')}]];
-        var apiKeyDatas = [[${@dict.getType('sys_tron_api_key')}]];
         var busiTypeDatas = [[${@dict.getType('sys_busi_type')}]];
+        var groupChatIdDatas = [[${@dict.getType('sys_tg_chat_group_info')}]];
+        var topicTgmessageInfoList = [[${topicTgmessageInfoList}]];
         $(function() {
             var options = {
                 url: prefix + "/list",
@@ -133,14 +133,6 @@
                         return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
                     }
                 },
-
-                    {
-                        field: 'apiKey',
-                        title: 'API_KEY',
-                        formatter: function(value, row, index) {
-                            return $.table.selectDictLabel(apiKeyDatas, value);
-                        }
-                    },
                 {
                     field: 'isValid',
                     title: '是否有效',
@@ -148,6 +140,34 @@
                         return $.table.selectDictLabel(datas, item.isValid);
                     }
                 },{
+                        field: 'idTgMessageInfo',
+                        title: '通知消息模版',
+                        formatter: function(value, row, index) {
+                            if ($.common.isEmpty(topicTgmessageInfoList) || $.common.isEmpty(value)) {
+                                return '';
+                            }
+                            var actions = [];
+                            $.each(topicTgmessageInfoList, function(index, dict) {
+                                if (dict.idTgMessageInfo == ('' + value)) {
+                                    var listClass = $.common.equals("default", dict.listClass) || $.common.isEmpty(dict.listClass) ? "" : "badge badge-" + dict.listClass;
+                                    var cssClass = $.common.isNotEmpty(dict.cssClass) ? dict.cssClass : listClass;
+                                    actions.push($.common.sprintf("<span class='%s'>%s</span>", cssClass, dict.messageAbbrName));
+                                    return false;
+                                }
+                            });
+                            if (actions.length === 0) {
+                                actions.push($.common.sprintf("<span>%s</span>", value))
+                            }
+                            return actions.join('');
+                        }
+                    },
+                    {
+                        field: 'groupChatId',
+                        title: '绑定群组',
+                        formatter: function(value, row, index) {
+                            return $.table.selectDictLabel(groupChatIdDatas, value);
+                        }
+                    },{
                         field: 'comment',
                         title: '备注'
                     },

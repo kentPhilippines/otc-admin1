@@ -159,7 +159,7 @@ public class TrxExchangeFailServiceImpl implements ITrxExchangeFailService
                         trxExchangeFail.getTrxAmount(),
                         trxExchangeFail.getTrxAmountUnit(),
                         ShiroUtils.getLoginName(),
-                        trxExchangeFail.getResourceCode(), trxExchangeFail.getCalcRule());
+                        trxExchangeFail.getResourceCode(), trxExchangeFail.getCalcRule(), null);
 
 
             }catch (Exception e){

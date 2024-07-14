@@ -3,65 +3,33 @@
 <head>
     <th:block th:include="include :: header('新增TG消息管理')" />
     <th:block th:include="include :: datetimepicker-css" />
-    <th:block th:include="include :: select2-css" />
+
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-msg-add">
             <div class="form-group">
-                <label class="col-sm-3 control-label">消息内容：</label>
+                <label class="col-sm-3 control-label">消息别名：</label>
                 <div class="col-sm-8">
-                    <textarea name="messageInfo" class="form-control" style="height: 100px;"></textarea>
+                    <input name="messageAbbrName" class="form-control" type="text">
                 </div>
             </div>
-            <div class="form-group">    
+            <div class="form-group">
                 <label class="col-sm-3 control-label">消息类型：</label>
                 <div class="col-sm-8">
-                    <select name="messageType" class="form-control m-b" th:with="type=${@dict.getType('sys_tg_sms_msg_type')}">
+                    <select name="messageType" class="form-control m-b" th:with="type=${@dict.getType('sys_tg_sms_msg_type')}" required>
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-3 control-label">发送群组：</label>
-                <div class="col-sm-8" th:with="type=${@dict.getType('sys_tg_chat_group_info')}">
-                   <!-- <label th:each="dict : ${type}" class="check-box">
-                        <input name="chatId" type="checkbox" th:value="${dict.dictValue}" th:text="${dict.dictLabel}">
-                    </label>-->
-                    <select id="chatId" name="chatId" class="form-control select2-multiple" multiple required>
-                        <option th:each="dict : ${type}" th:value="${dict.dictValue}" th:text="${dict.dictLabel}"></option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">执行策略：</label>
+                <label class="col-sm-3 control-label">消息内容：</label>
                 <div class="col-sm-8">
-                    <div class="radio-box" th:each="dict : ${@dict.getType('sys_tg_msg_exe_stragy')}">
-                        <input type="radio" th:id="${'executionStragy_' + dict.dictCode}" name="executionStragy" th:value="${dict.dictValue}" th:checked="${dict.default}" >
-                        <label th:for="${'executionStragy_' + dict.dictCode}" th:text="${dict.dictLabel}"></label>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">    
-                <label class="col-sm-3 control-label">执行周期：</label>
-                <div class="col-sm-8">
-                    <span style="color: red">时分秒/H/M/S</span>
-                    <input name="intervalTime" class="form-control" placeholder="1H代表1小时执行一次"  type="text">
-                </div>
-            </div>
-            <div class="form-group">    
-                <label class="col-sm-3 control-label">开始时间：</label>
-                <div class="col-sm-8">
-                    <div class="input-group date">
-                        <input name="beginTime" class="form-control" placeholder="yyyy-MM-dd HH:mm:ss"  type="text">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                    </div>
+                    <textarea name="messageInfo" class="form-control" style="height: 100px;" required></textarea>
                 </div>
             </div>
 
-
-
-            <div class="form-group">
+              <div class="form-group">
                 <label class="col-sm-3 control-label">备注信息：</label>
                 <div class="col-sm-8">
                     <textarea name="remark" class="form-control"></textarea>
@@ -71,7 +39,7 @@
     </div>
     <th:block th:include="include :: footer" />
     <th:block th:include="include :: datetimepicker-js" />
-    <th:block th:include="include :: select2-js" />
+
     <script th:inline="javascript">
         var prefix = ctx + "tg/msg"
         $("#form-msg-add").validate({
@@ -84,11 +52,6 @@
             }
         }
 
-        $("input[name='beginTime']").datetimepicker({
-            format: "yyyy-mm-dd hh:ii:ss",
-            // minView: "month",
-            autoclose: true
-        });
 
 
 

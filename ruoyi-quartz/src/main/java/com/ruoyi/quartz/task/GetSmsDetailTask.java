@@ -1,5 +1,6 @@
 package com.ruoyi.quartz.task;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.ruoyi.common.core.domain.entity.SmsTaskTbl;
 import com.ruoyi.system.handler.GetSmsDetailTaskHandler;
 import com.ruoyi.system.mapper.SmsTaskTblMapper;

@@ -82,6 +82,10 @@ public class MonitorAddressInfoServiceImpl implements IMonitorAddressInfoService
                 });
                 monitorAddressInfoVOList.add(monitorAddressInfoVO);
             });
+
+      /*    MonitorAddressInfoVO monitorAddressInfoVO = new MonitorAddressInfoVO();
+            BeanUtils.copyProperties(monitorAddressInfo1,monitorAddressInfoVO);
+            monitorAddressInfoVOList.add(monitorAddressInfoVO);*/
         });
 
         List<MonitorAddressInfoVO> sortedMonitorAddressInfoVOList = monitorAddressInfoVOList.stream().sorted(Comparator.comparingLong(MonitorAddressInfoVO::getIdMonitorAddress))

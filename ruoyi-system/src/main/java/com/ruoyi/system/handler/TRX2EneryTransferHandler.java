@@ -18,6 +18,7 @@ import com.ruoyi.common.utils.http.RestTemplateUtils;
 import com.ruoyi.system.bot.TgLongPollingBot;
 import com.ruoyi.system.bot.utils.SendContent;
 import com.ruoyi.system.domain.MonitorAddressAccount;
+import com.ruoyi.system.domain.TgMessageInfoTask;
 import com.ruoyi.system.dto.Contract;
 import com.ruoyi.system.dto.Data;
 import com.ruoyi.system.dto.TronGridResponse;
@@ -42,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.tron.trident.core.ApiWrapper;
 import org.tron.trident.core.exceptions.IllegalException;
 import org.tron.trident.proto.Chain;
@@ -49,10 +51,8 @@ import org.tron.trident.proto.Common;
 import org.tron.trident.proto.Response;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -83,7 +83,8 @@ public class TRX2EneryTransferHandler {
     public void doMonitorTrxTransferByMonitorAddressInfo(MonitorAddressAccount monitorAddressAccount) {
 
         String monitorAddress = monitorAddressAccount.getMonitorAddress();
-        String apiKey = monitorAddressAccount.getApiKey();
+/*        String apiKey = monitorAddressAccount.getApiKey();*/
+        String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
 
         ResponseEntity responseEntity = null;
         try {
@@ -293,7 +294,8 @@ public class TRX2EneryTransferHandler {
         String accountAddress = monitorAddressAccount.getAccountAddress();
         String encryptPrivateKey = monitorAddressAccount.getEncryptPrivateKey();
         String encryptKey = monitorAddressAccount.getEncryptKey();
-        String apiKey = monitorAddressAccount.getApiKey();
+     /*   String apiKey = monitorAddressAccount.getApiKey();*/
+        String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
 
         String decryptPrivateKey = Dt.decrypt(encryptPrivateKey, encryptKey);
 
@@ -319,7 +321,7 @@ public class TRX2EneryTransferHandler {
         }
 
 
-        calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, sysEnergyBusiType, amount,"TRX","system",Common.ResourceCode.ENERGY.name(),"energy_used");
+        calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, sysEnergyBusiType, amount,"TRX","system",Common.ResourceCode.ENERGY.name(),"energy_used",monitorAddressAccount);
         //持久化之后放redis
         redisTemplate.opsForValue().set("transfer_trx_" + txID, txID, 1, TimeUnit.DAYS);
         if (tenantInfo != null) {
@@ -330,18 +332,19 @@ public class TRX2EneryTransferHandler {
 
 
     /**
-     * @param txID              转账交易订单号
-     * @param apiWrapper        apiWrapper
-     * @param accountAddress    出账地址
-     * @param transferCount     转账笔数
-     * @param ownerAddress      转入地址
-     * @param lockPeriod        锁定周期
-     * @param toAddress         监听地址
-     * @param price             单价
-     * @param sysEnergyBusiType 业务类型
-     * @param amount            转入金额
-     * @param currentUser       当前处理人
+     * @param txID                  转账交易订单号
+     * @param apiWrapper            apiWrapper
+     * @param accountAddress        出账地址
+     * @param transferCount         转账笔数
+     * @param ownerAddress          转入地址
+     * @param lockPeriod            锁定周期
+     * @param toAddress             监听地址
+     * @param price                 单价
+     * @param sysEnergyBusiType     业务类型
+     * @param amount                转入金额
+     * @param currentUser           当前处理人
      * @param calcRule
+     * @param monitorAddressAccount
      * @throws Exception 异常
      */
     public void calcBalanceAndDelegate(String txID,
@@ -356,7 +359,7 @@ public class TRX2EneryTransferHandler {
                                        Long amount,
                                        String trxAmountUnit,
                                        String currentUser,
-                                       String resourceCode, String calcRule) throws Exception {
+                                       String resourceCode, String calcRule, MonitorAddressAccount monitorAddressAccount) throws Exception {
 
         String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
         Long balance = null;
@@ -424,15 +427,28 @@ public class TRX2EneryTransferHandler {
 
             TrxExchangeFail trxExchangeFail = new TrxExchangeFail();
             trxExchangeFail.setIdTrxExchangeFail(Long.valueOf(cacheidTrxExchangeFail.toString()));
-            trxExchangeFail.setDelegateStatus("1");
+            trxExchangeFail.setDelegateStatus("0");
             trxExchangeFail.setUpdateTime(new Date());
             trxExchangeFailMapper.updateTrxExchangeFail(trxExchangeFail);
             redisTemplate.delete("transfer_trx_fail_" + txID);
         }
 
-        String sysenTrxTransferNotice = configService.selectConfigByKey("sys.energy.transaction.notice");
-        String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
-        if (longPollingBot != null && StringUtils.isNotEmpty(sysenTrxTransferNotice) && StringUtils.isNotEmpty(sysTgGroupChatId)) {
+
+        if (longPollingBot != null) {
+
+            CompletableFuture.runAsync(() -> {
+                String sysenTrxTransferNotice = configService.selectConfigByKey("sys.energy.transaction.notice");
+                String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
+                if (monitorAddressAccount != null){
+                    String messageInfo = monitorAddressAccount.getMessageInfo();
+                    if (StringUtils.isNotEmpty(messageInfo)){
+                        sysenTrxTransferNotice = messageInfo;
+                    }
+                    String groupChatId = monitorAddressAccount.getGroupChatId();
+                    if (StringUtils.isNotEmpty(groupChatId)){
+                        sysTgGroupChatId = groupChatId;
+                    }
+                }
            /*
            * 转账TRX：{trxAmount}
             单价:     {price}
@@ -441,18 +457,25 @@ public class TRX2EneryTransferHandler {
             交易哈希：{txId}
             订单时间：{txTime}
                * */
-            Map<String, Object> arguments = new HashMap<>();
-            arguments.put("trxAmount", amount == null ? "" : amount.toString());
-            arguments.put("price", price == null ? "" : price.toString());
-            arguments.put("transferCount", transferCount);
-            arguments.put("FromAddress", fromAddress.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
-            arguments.put("txId", StringUtils.isEmpty(txID) ? "" : txID.replaceAll("(.{6})(.*)(.{8})", "$1*******************$3"));
-            arguments.put("txTime", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                Map<String, Object> arguments = new HashMap<>();
+                arguments.put("trxAmount", amount == null ? "" : amount.toString());
+                arguments.put("price", price == null ? "" : price.toString());
+                arguments.put("transferCount", transferCount);
+                arguments.put("FromAddress", fromAddress.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
+                arguments.put("txId", StringUtils.isEmpty(txID) ? "" : txID.replaceAll("(.{6})(.*)(.{8})", "$1*******************$3"));
+                arguments.put("txTime", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
 //            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
-            StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
-            String message = substitutor.replace(sysenTrxTransferNotice);
-            SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
-            longPollingBot.execute(sendMessage);
+                StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
+                String message = substitutor.replace(sysenTrxTransferNotice);
+                SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
+                try {
+                    longPollingBot.execute(sendMessage);
+                } catch (TelegramApiException e) {
+                    log.error("longPollingBot execute  is null");
+                }
+            });
+
+
         } else {
             log.warn("longPollingBot OR sysUsdtTranferNotice OR sysTgGroupChatId  is null");
         }
@@ -492,4 +515,17 @@ public class TRX2EneryTransferHandler {
         return delegateResourceTxid;
     }
 
+    public void topicGroupMessage(TgMessageInfoTask tgMessageInfoTask) throws TelegramApiException {
+        if (longPollingBot == null){
+            return;
+        }
+
+        String message = tgMessageInfoTask.getMessageInfo();
+        String chatId = tgMessageInfoTask.getChatIds();
+        List<String> chatIdList = Arrays.asList(chatId.split(","));
+        for (String groupChatId : chatIdList) {
+            SendMessage sendMessage = sendContent.messageText(groupChatId, message, ParseMode.MARKDOWN);
+            longPollingBot.execute(sendMessage);
+        }
+    }
 }

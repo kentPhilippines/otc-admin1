@@ -210,7 +210,7 @@
         t.delegate_tx_id,
         t.un_delegate_tx_id,
         t.fcd,
-        m.api_key,
+     <!--   m.api_key,-->
         a.encrypt_key,
         a.encrypt_private_key
         FROM

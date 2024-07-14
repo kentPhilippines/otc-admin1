@@ -85,9 +85,10 @@
     var removeFlag = [[${@permission.hasPermi('trx2Energy:monitor:remove')}]];
     var prefix = ctx + "trx2Energy/monitor";
     var datas = [[${@dict.getType('sys_yes_no')}]];
-    var apiKeyDatas = [[${@dict.getType('sys_tron_api_key')}]];
     var busiTypeDatas = [[${@dict.getType('sys_busi_type')}]];
     var bindPeriodDatas = [[${@dict.getType('sys_lock_period')}]];
+    var groupChatIdDatas = [[${@dict.getType('sys_tg_chat_group_info')}]];
+    var topicTgmessageInfoList = [[${topicTgmessageInfoList}]];
     $(function () {
         var options = {
             url: prefix + "/list",
@@ -164,13 +165,7 @@
                     },
                 },
 
-                {
-                    field: 'apiKey',
-                    title: 'API_KEY',
-                    formatter: function (value, row, index) {
-                        return $.table.selectDictLabel(apiKeyDatas, value);
-                    }
-                }, {
+              {
                     field: 'bindPeriod',
                     title: '绑定时长',
                     formatter: function (value, row, index) {
@@ -182,6 +177,34 @@
                     title: '是否有效',
                     formatter: function (value, item, index) {
                         return $.table.selectDictLabel(datas, item.isValid);
+                    }
+                },{
+                    field: 'idTgMessageInfo',
+                    title: '通知消息模版',
+                    formatter: function(value, row, index) {
+                        if ($.common.isEmpty(topicTgmessageInfoList) || $.common.isEmpty(value)) {
+                            return '';
+                        }
+                        var actions = [];
+                        $.each(topicTgmessageInfoList, function(index, dict) {
+                            if (dict.idTgMessageInfo == ('' + value)) {
+                                var listClass = $.common.equals("default", dict.listClass) || $.common.isEmpty(dict.listClass) ? "" : "badge badge-" + dict.listClass;
+                                var cssClass = $.common.isNotEmpty(dict.cssClass) ? dict.cssClass : listClass;
+                                actions.push($.common.sprintf("<span class='%s'>%s</span>", cssClass, dict.messageAbbrName));
+                                return false;
+                            }
+                        });
+                        if (actions.length === 0) {
+                            actions.push($.common.sprintf("<span>%s</span>", value))
+                        }
+                        return actions.join('');
+                    }
+                },
+                {
+                    field: 'groupChatId',
+                    title: '绑定群组',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(groupChatIdDatas, value);
                     }
                 }, {
                     field: 'comment',

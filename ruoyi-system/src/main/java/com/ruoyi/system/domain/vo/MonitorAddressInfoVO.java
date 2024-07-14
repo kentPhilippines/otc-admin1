@@ -59,9 +59,7 @@ public class MonitorAddressInfoVO
     @Excel(name = "trx或者usdt")
     private String monitorType;
 
-    /** API_KEY */
-    @Excel(name = "API_KEY")
-    private String apiKey;
+
 
     /** 是否有效 */
     @Excel(name = "是否有效")
@@ -70,6 +68,13 @@ public class MonitorAddressInfoVO
     /** 绑定时长 */
     @Excel(name = "绑定时长")
     private String bindPeriod;
+
+    @Excel(name = "消息模版")
+    private String idTgMessageInfo;
+
+    /** 绑定群组 */
+    @Excel(name = "绑定群组")
+    private String groupChatId;
     /** 备注 */
     @Excel(name = "备注")
     private String comment;

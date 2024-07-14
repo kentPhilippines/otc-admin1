@@ -60,4 +60,6 @@ public interface ITgMessageInfoService
      * @return 结果
      */
     public int deleteTgMessageInfoByIdTgMessageInfo(Long idTgMessageInfo);
+
+    List<TgMessageInfo>  selectTopicTgMessageInfoList();
 }

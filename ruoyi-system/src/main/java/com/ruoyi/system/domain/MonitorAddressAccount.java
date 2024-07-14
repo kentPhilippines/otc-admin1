@@ -37,8 +37,13 @@ public class MonitorAddressAccount  implements Serializable {
      */
     private String encryptKey;
 
-    private String apiKey;
 
     private String bindPeriod;
 
+
+    private String idTgMessageInfo;
+
+    private String groupChatId;
+
+    private String messageInfo;
 }

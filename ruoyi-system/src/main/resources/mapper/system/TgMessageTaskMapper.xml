@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.TgMessageTaskMapper">
+
+    <resultMap type="TgMessageTask" id="TgMessageTaskResult">
+        <result property="idTgMessageTask" column="id_tg_message_task"/>
+        <result property="idTgMessageInfo" column="id_tg_message_info"/>
+        <result property="chatIds" column="chat_ids"/>
+        <result property="intervalTime" column="interval_time"/>
+        <result property="beginTime" column="begin_time"/>
+        <result property="nextRunTime" column="next_run_time"/>
+        <result property="executionStragy" column="execution_stragy"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectTgMessageTaskVo">
+        select id_tg_message_task,
+               id_tg_message_info,
+               chat_ids,
+               interval_time,
+               begin_time,
+               next_run_time,
+               execution_stragy,
+               status,
+               create_by,
+               create_time,
+               update_by,
+               update_time,
+               remark
+        from tg_message_task
+    </sql>
+
+    <select id="selectTgMessageTaskList" parameterType="TgMessageTask" resultMap="TgMessageTaskResult">
+        <include refid="selectTgMessageTaskVo"/>
+        <where>
+            <if test="idTgMessageInfo != null">
+                and id_tg_message_info = #{idTgMessageInfo}
+            </if>
+            <if test="chatIds != null  and chatIds != ''">
+                and chat_ids = #{chatIds}
+            </if>
+            <if test="intervalTime != null  and intervalTime != ''">
+                and interval_time = #{intervalTime}
+            </if>
+            <if test="beginTime != null">
+                and begin_time = #{beginTime}
+            </if>
+            <if test="nextRunTime != null">
+                and next_run_time = #{nextRunTime}
+            </if>
+            <if test="executionStragy != null">
+                and execution_stragy = #{executionStragy}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTgMessageTaskByIdTgMessageTask" parameterType="Long" resultMap="TgMessageTaskResult">
+        <include refid="selectTgMessageTaskVo"/>
+        where id_tg_message_task = #{idTgMessageTask}
+    </select>
+
+    <insert id="insertTgMessageTask" parameterType="TgMessageTask" useGeneratedKeys="true"
+            keyProperty="idTgMessageTask">
+        insert into tg_message_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="idTgMessageInfo != null">
+                id_tg_message_info,
+            </if>
+            <if test="chatIds != null">
+                chat_ids,
+            </if>
+            <if test="intervalTime != null">
+                interval_time,
+            </if>
+            <if test="beginTime != null">
+                begin_time,
+            </if>
+            <if test="nextRunTime != null">
+                next_run_time,
+            </if>
+            <if test="executionStragy != null">
+                execution_stragy,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="createBy != null">
+                create_by,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateBy != null">
+                update_by,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="idTgMessageInfo != null">
+                #{idTgMessageInfo},
+            </if>
+            <if test="chatIds != null">
+                #{chatIds},
+            </if>
+            <if test="intervalTime != null">
+                #{intervalTime},
+            </if>
+            <if test="beginTime != null">
+                #{beginTime},
+            </if>
+            <if test="nextRunTime != null">
+                #{nextRunTime},
+            </if>
+            <if test="executionStragy != null">
+                #{executionStragy},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="createBy != null">
+                #{createBy},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateBy != null">
+                #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="remark != null">
+                #{remark},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateTgMessageTask" parameterType="TgMessageTask">
+        update tg_message_task
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="idTgMessageInfo != null">
+                id_tg_message_info = #{idTgMessageInfo},
+            </if>
+            <if test="chatIds != null">
+                chat_ids = #{chatIds},
+            </if>
+            <if test="intervalTime != null">
+                interval_time = #{intervalTime},
+            </if>
+            <if test="beginTime != null">
+                begin_time = #{beginTime},
+            </if>
+            <if test="nextRunTime != null">
+                next_run_time = #{nextRunTime},
+            </if>
+            <if test="executionStragy != null">
+                execution_stragy = #{executionStragy},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+        </trim>
+        where id_tg_message_task = #{idTgMessageTask}
+    </update>
+
+    <delete id="deleteTgMessageTaskByIdTgMessageTask" parameterType="Long">
+        delete
+        from tg_message_task
+        where id_tg_message_task = #{idTgMessageTask}
+    </delete>
+
+    <delete id="deleteTgMessageTaskByIdTgMessageTasks" parameterType="String">
+        delete
+        from tg_message_task where id_tg_message_task in
+        <foreach item="idTgMessageTask" collection="array" open="(" separator="," close=")">
+            #{idTgMessageTask}
+        </foreach>
+    </delete>
+
+    <resultMap id="selectTgMessageTaskAndInfoListResultMap" type="com.ruoyi.system.domain.TgMessageInfoTask">
+        <result column="id_tg_message_task" property="idTgMessageTask"/>
+        <result column="id_tg_message_info" property="idTgMessageInfo"/>
+        <result column="chat_ids" property="chatIds"/>
+        <result column="interval_time" property="intervalTime"/>
+        <result column="begin_time" property="beginTime"/>
+        <result column="next_run_time" property="nextRunTime"/>
+        <result column="execution_stragy" property="executionStragy"/>
+        <result column="status" property="status"/>
+        <result column="message_info" property="messageInfo"/>
+        <result column="message_type" property="messageType"/>
+    </resultMap>
+
+    <select id="selectTgMessageTaskAndInfoList" resultMap="selectTgMessageTaskAndInfoListResultMap">
+        select tt.id_tg_message_task ,
+               tt.id_tg_message_info,
+               tt.chat_ids,
+               tt.interval_time,
+               tt.begin_time,
+               tt.next_run_time,
+               tt.execution_stragy,
+               tt.status,
+                tmi.message_info,
+                tmi.message_type
+        from tg_message_task tt,
+             tg_message_info tmi
+        where tt.id_tg_message_info = tmi.id_tg_message_info
+          and tt.status = #{status}
+          and (next_run_time &lt;= #{nextRunTime} or (begin_time &lt;= #{nextRunTime} and execution_stragy = 1))
+    </select>
+</mapper>

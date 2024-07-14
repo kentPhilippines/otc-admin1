@@ -60,4 +60,7 @@ public interface TgMessageInfoMapper
      * @return 结果
      */
     public int deleteTgMessageInfoByIdTgMessageInfos(String[] idTgMessageInfos);
+
+    List<TgMessageInfo> selectTopicTgMessageInfoList();
+
 }

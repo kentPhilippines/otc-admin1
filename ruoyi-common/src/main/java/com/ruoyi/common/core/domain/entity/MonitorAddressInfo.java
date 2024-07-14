@@ -53,9 +53,16 @@ public class MonitorAddressInfo extends BaseEntity
     @Excel(name = "trx或者usdt")
     private String monitorType;
 
-    /** API_KEY */
+ /*   *//** API_KEY *//*
     @Excel(name = "API_KEY")
-    private String apiKey;
+    private String apiKey;*/
+    /** 消息模版 */
+    @Excel(name = "消息模版")
+    private String idTgMessageInfo;
+
+    /** 绑定群组 */
+    @Excel(name = "绑定群组")
+    private String groupChatId;
 
     /** 是否有效 */
     @Excel(name = "是否有效")

@@ -4,6 +4,7 @@ import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.MonitorAddressInfo;
+import com.ruoyi.common.core.domain.entity.TgMessageInfo;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.DictUtils;
@@ -11,6 +12,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.system.domain.vo.MonitorAddressInfoVO;
 import com.ruoyi.system.service.IAccountAddressInfoService;
 import com.ruoyi.system.service.IMonitorAddressInfoService;
+import com.ruoyi.system.service.ITgMessageInfoService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,11 +37,16 @@ public class Trx2EnergyMonitorAddressInfoController extends BaseController
     private IMonitorAddressInfoService monitorAddressInfoService;
     @Autowired
     private IAccountAddressInfoService accountAddressInfoService;
+    @Autowired
+    private ITgMessageInfoService tgMessageInfoService;
 
     @RequiresPermissions("trx2Energy:monitor:view")
     @GetMapping()
-    public String monitor()
+    public String monitor(ModelMap mmap)
     {
+        TgMessageInfo tgMessageInfo = new TgMessageInfo();
+        tgMessageInfo.setMessageType(4L);
+        mmap.put("topicTgmessageInfoList", tgMessageInfoService.selectTgMessageInfoList(tgMessageInfo));
         return prefix + "/monitor";
     }
 
@@ -80,6 +87,9 @@ public class Trx2EnergyMonitorAddressInfoController extends BaseController
     {
         String busiType = DictUtils.getDictValue("sys_busi_type", "TRX兑能量");
         mmap.put("accountAddressList", accountAddressInfoService.selectAccountAddressInfoAll(busiType));
+        TgMessageInfo tgMessageInfo = new TgMessageInfo();
+        tgMessageInfo.setMessageType(4L);
+        mmap.put("topicTgmessageInfoList", tgMessageInfoService.selectTgMessageInfoList(tgMessageInfo));
         return prefix + "/add";
     }
 
@@ -106,6 +116,9 @@ public class Trx2EnergyMonitorAddressInfoController extends BaseController
         MonitorAddressInfo monitorAddressInfo = monitorAddressInfoService.selectMonitorAddressInfoByIdMonitorAddress(idMonitorAddress);
         mmap.put("monitorAddressInfo", monitorAddressInfo);
         String busiType = DictUtils.getDictValue("sys_busi_type", "TRX兑能量");
+        TgMessageInfo tgMessageInfo = new TgMessageInfo();
+        tgMessageInfo.setMessageType(4L);
+        mmap.put("topicTgmessageInfoList", tgMessageInfoService.selectTgMessageInfoList(tgMessageInfo));
         mmap.put("accountAddressList", accountAddressInfoService.selectAccountAddressInfoAll(busiType));
         return prefix + "/edit";
     }

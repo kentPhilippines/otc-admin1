@@ -107,7 +107,7 @@ public class UsdtExchangeInfoServiceImpl implements IUsdtExchangeInfoService {
 
         String fromAddress = usdtExchangeInfo.getFromAddress();
         usdt2TrxTransferHandler.
-                doTransferUsdtAndStore(oneUsdtToTrxPair, apiKey, decryptPrivateKey, accountAddress, fromAddress, trxValue, null, null, usdtAmount);
+                doTransferUsdtAndStore(oneUsdtToTrxPair, apiKey, decryptPrivateKey, accountAddress, fromAddress, trxValue, null, null, usdtAmount, null);
 
         return 1;
     }
