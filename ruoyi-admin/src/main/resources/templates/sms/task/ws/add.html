@@ -4,7 +4,7 @@
     <th:block th:include="include :: header('新增WS短信任务配置')" />
     <th:block th:include="include :: datetimepicker-css" />
 
-    <th:block th:include="include :: bootstrap-fileinput-css" />
+    <th:block th:include="include :: jasny-bootstrap-css" />
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -15,15 +15,15 @@
                     <input name="taskName" class="form-control" type="text" required>
                 </div>
             </div>
-            <div class="form-group">    
+       <!--     <div class="form-group">
                 <label class="col-sm-3 control-label">单价：</label>
                 <div class="col-sm-8">
                     <input name="price" class="form-control" type="text">
                 </div>
-            </div>
+            </div>-->
             <div class="form-group">
                 <label class="font-noraml col-sm-3 control-label">物料</label>
-                <div class="col-sm-8">
+       <!--         <div class="col-sm-8">
                     <div class="file-loading" >
                         <input id="singleFile" name="file" type="file">
                     </div>
@@ -31,6 +31,17 @@
                     <input type="hidden" name="filePath" id="filePath">
                     <input type="hidden" name="fileMd5" id="fileMd5">
                     <input type="hidden" name="context" id="context">
+                </div>-->
+               <!-- <div class="col-sm-8">
+                <input id="filePath" name="filePath" class="form-control " type="file">
+                </div>-->
+                <div class="col-sm-8">
+                <div class="fileinput fileinput-new" data-provides="fileinput">
+                    <span class="btn btn-white btn-file"><span class="fileinput-new">选择文件</span><span class="fileinput-exists">重新选择</span><input type="file" name="..."></span>
+                    <span class="fileinput-filename"></span>
+                    <a href="javascript:;" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">&times;</a>
+                </div>
+
                 </div>
             </div>
             <div class="form-group">    
@@ -61,10 +72,18 @@
             </div>
 
         </form>
+        <div class="row">
+            <div class="col-sm-offset-5 col-sm-10">
+                <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
+                <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+            </div>
+        </div>
     </div>
+
     <th:block th:include="include :: footer" />
     <th:block th:include="include :: datetimepicker-js" />
-    <th:block th:include="include :: bootstrap-fileinput-js" />
+ <!--   <th:block th:include="include :: bootstrap-fileinput-js" />-->
+    <th:block th:include="include :: jasny-bootstrap-js" />
     <script th:inline="javascript">
         var prefix = ctx + "sms/task/ws"
         $("#form-task-add").validate({
