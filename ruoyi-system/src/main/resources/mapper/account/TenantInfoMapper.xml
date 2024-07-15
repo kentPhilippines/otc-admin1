@@ -21,6 +21,7 @@
         <result property="delegatedDays"    column="delegated_days"    />
         <result property="totalCountUsed"    column="total_count_used"    />
         <result property="calcRule"    column="calc_rule"    />
+        <result property="remark"    column="remark"    />
         <result property="fcd"    column="fcd"    />
         <result property="fcu"    column="fcu"    />
         <result property="lcd"    column="lcd"    />
@@ -28,7 +29,7 @@
     </resultMap>
 
     <sql id="selectTenantInfoVo">
-        select id_tenant_info, receiver_address, monitor_address, energy_busi_type,price, transfer_count, exchange_unit, tx_id, exchange_amount, is_paid, period, t.user_id, t.status, delegated_days, total_count_used, calc_rule, fcd, fcu, lcd, lcu from tenant_info t
+        select id_tenant_info, receiver_address, monitor_address, energy_busi_type,price, transfer_count, exchange_unit, tx_id, exchange_amount, is_paid, period, t.user_id, t.status, delegated_days, total_count_used, calc_rule, t.remark,fcd, fcu, lcd, lcu from tenant_info t
     </sql>
 
     <select id="selectTenantInfoList" parameterType="TenantInfo" resultMap="TenantInfoResult">
@@ -80,6 +81,7 @@
             <if test="delegatedDays != null">delegated_days,</if>
             <if test="totalCountUsed != null">total_count_used,</if>
             <if test="calcRule != null">calc_rule,</if>
+            <if test="remark != null">remark,</if>
             <if test="fcd != null">fcd,</if>
             <if test="fcu != null">fcu,</if>
             <if test="lcd != null">lcd,</if>
@@ -101,6 +103,7 @@
             <if test="delegatedDays != null">#{delegatedDays},</if>
             <if test="totalCountUsed != null">#{totalCountUsed},</if>
             <if test="calcRule != null">#{calcRule},</if>
+            <if test="remark != null">#{remark},</if>
             <if test="fcd != null">#{fcd},</if>
             <if test="fcu != null">#{fcu},</if>
             <if test="lcd != null">#{lcd},</if>
@@ -126,6 +129,7 @@
             <if test="delegatedDays != null">delegated_days = #{delegatedDays},</if>
             <if test="totalCountUsed != null">total_count_used = #{totalCountUsed},</if>
             <if test="calcRule != null">calc_rule = #{calcRule},</if>
+            <if test="remark != null">remark = #{remark},</if>
             <if test="fcd != null">fcd = #{fcd},</if>
             <if test="fcu != null">fcu = #{fcu},</if>
             <if test="lcd != null">lcd = #{lcd},</if>

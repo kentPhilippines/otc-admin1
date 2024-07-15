@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
@@ -14,6 +15,7 @@ import java.util.Date;
  * @date 2024-04-14
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class TenantInfo extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
