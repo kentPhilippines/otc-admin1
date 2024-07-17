@@ -2,8 +2,6 @@ package com.ruoyi.system.domain.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
-import com.ruoyi.common.annotation.Sensitive;
-import com.ruoyi.common.enums.DesensitizedType;
 import lombok.Data;
 
 import java.util.Date;
@@ -23,12 +21,11 @@ public class TrxExchangeInfoVO {
     /**
      *
      */
-    @Excel(name = "收款账户别名")
+    @Excel(name = "收款账户")
     private String monitorAddressName;
 
     /** 转入账户 */
-    @Excel(name = "转入账户")
-    @Sensitive(desensitizedType = DesensitizedType.WALLET_ADDRESS)
+    @Excel(name = "收款账户地址")
     private String toAddress;
 
    /* @Excel(name = "监听账户别名")
@@ -36,7 +33,6 @@ public class TrxExchangeInfoVO {
 
     /** 实际出账账户 */
     @Excel(name = "实际出账账户")
-    @Sensitive(desensitizedType = DesensitizedType.WALLET_ADDRESS)
     private String accountAddress;
 
     /** 单位 */

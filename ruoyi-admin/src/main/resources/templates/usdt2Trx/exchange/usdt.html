@@ -84,26 +84,32 @@
                     field: 'fromAddress',
                     title: '付款账户',
                     formatter:function(value, row, index) {
-                        return "<a href='https://www.oklink.com/zh-hans/trx/address/"+value+"' target='_blank'>" + value + "</a>";
+                        if (value == null) {
+                            return value;
+                        }
+                        const maskedValue = value.replace(/^(.{6}).*(.{8})$/, '$1***$2');
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/"+value+"' target='_blank'>" + maskedValue + "</a>";
                     }
                 },
                     {
                         field: 'toAddress',
-                        title: '收款账户',
+                        title: '收款账户地址',
                         visible: false
                     },   {
                         field: 'monitorAddressName',
-                        title: '收款账户别名',
+                        title: '收款账户',
                         formatter: function (value, row, index) {
                             if (value == null) {
                                 return value;
                             }
-                            return "<a href='https://www.oklink.com/zh-hans/trx/address/" + row['toAddress'] + "' target='_blank'>" + value + "</a>";
+                            const maskedValue = value.replace(/^(.{6}).*(.{8})$/, '$1***$2');
+                            return "<a href='https://www.oklink.com/zh-hans/trx/address/" + row['toAddress'] + "' target='_blank'>" + maskedValue + "</a>";
                         }
                     },
                 {
                     field: 'usdtTxId',
-                    title: '交易订单'
+                    title: '交易订单',
+                    visible: false
                 },
                 {
                     field: 'usdtAmount',
@@ -112,7 +118,7 @@
                         if (value == null) {
                             return value;
                         }
-                        return value + ' USDT' ;
+                        return value + ' U' ;
                     }
                 },
                 {

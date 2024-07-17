@@ -18,10 +18,7 @@
                             <label>转入账户：</label>
                             <input type="text" name="toAddress"/>
                         </li>
-                        <!--        <li>
-                                    <label>实际出账账户：</label>
-                                    <input type="text" name="accountAddress"/>
-                                </li>-->
+
 
                         <li>
                             <label>TRX订单：</label>
@@ -41,12 +38,7 @@
                                         th:value="${dict.dictValue}"></option>
                             </select>
                         </li>
-                        <!--      <br/> <br/> <br/>-->
-                        <!--
-                                                    <li>
-                                                        <label>回收资源交易：</label>
-                                                        <input type="text" name="unDelegateTxId"/>
-                                                    </li>-->
+
                         <li class="select-time">
                             <label>创建时间：</label>
                             <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginFcd]"/>
@@ -118,16 +110,20 @@
                     field: 'fromAddress',
                     title: '付款账户',
                     formatter: function (value, row, index) {
-                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                        // return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                        const maskedValue = value.replace(/^(.{6}).*(.{8})$/, '$1***$2');
+
+                        // 生成链接
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + maskedValue + "</a>";
                     }
                 },
                 {
                     field: 'toAddress',
-                    title: '收款账户',
+                    title: '收款账户地址',
                     visible: false
                 },   {
                     field: 'monitorAddressName',
-                    title: '收款账户别名',
+                    title: '收款账户',
                     formatter: function (value, row, index) {
                         if (value == null) {
                             return value;
@@ -135,10 +131,6 @@
                         return "<a href='https://www.oklink.com/zh-hans/trx/address/" + row['toAddress'] + "' target='_blank'>" + value + "</a>";
                     }
                 },
-                /*      {
-                          field: 'accountAddress',
-                          title: '实际出账账户'
-                      },*/
                 {
                     field: 'price',
                     title: '单价'
@@ -212,7 +204,7 @@
                 },
                 {
                     field: 'calcRule',
-                    title: '笔数计算规则',
+                    title: '能量规则',
                     formatter: function(value, row, index) {
                         return $.table.selectDictLabel(calcRuleDatas, value);
                     }
@@ -226,19 +218,21 @@
                     field: 'fcd',
                     title: '创建时间'
                 },
-                /* {
+                 {
                      field: 'fcu',
-                     title: '创建用户'
-                 },*/
+                     title: '创建用户',
+                     visible: false
+                 },
                 {
                     field: 'lcd',
                     title: '更新时间',
                     visible: false
                 },
-                /*{
+                {
                     field: 'lcu',
-                    title: '更新用户'
-                },*/
+                    title: '更新用户',
+                    visible: false
+                },
                 {
                     title: '操作',
                     align: 'center',
