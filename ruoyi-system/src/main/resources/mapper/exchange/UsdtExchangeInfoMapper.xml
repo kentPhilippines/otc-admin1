@@ -151,5 +151,6 @@
             <if test="lcd != null "> and u.lcd = #{lcd}</if>
             <if test="lcu != null  and lcu != ''"> and u.lcu = #{lcu}</if>
         </where>
+        order by  u.fcd desc
     </select>
 </mapper>

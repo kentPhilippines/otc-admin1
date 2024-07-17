@@ -46,7 +46,7 @@ public enum DesensitizedType
      */
     CAR_LICENSE(DesensitizedUtil::carLicense),
 
-    WALLET_ADDRESS(s -> s.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
+    WALLET_ADDRESS(s -> s.replaceAll("(.{6})(.*)(.{8})", "$1****$3"));
 
     private final Function<String, String> desensitizer;
 

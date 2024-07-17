@@ -116,16 +116,37 @@
                         if (value == null) {
                             return value;
                         }
-                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                        const maskedValue = value.replace(/^(.{6}).*(.{8})$/, '$1***$2');
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + maskedValue + "</a>";
                     }
                 },
                 {
                     field: 'trxBalance',
-                    title: 'TRX余额'
+                    title: 'TRX余额',
+                    formatter: function (value, row, index) {
+                        // 确保值是一个数字
+                        if (!isNaN(value)) {
+                            // 保留两位小数
+                            return parseFloat(value).toFixed(2);
+                        } else {
+                            // 如果值不是数字，直接返回原值
+                            return value;
+                        }
+                    }
                 },
                 {
                     field: 'usdtBalance',
-                    title: 'USDT余额'
+                    title: 'USDT余额',
+                    formatter: function (value, row, index) {
+                        // 确保值是一个数字
+                        if (!isNaN(value)) {
+                            // 保留两位小数
+                            return parseFloat(value).toFixed(2);
+                        } else {
+                            // 如果值不是数字，直接返回原值
+                            return value;
+                        }
+                    }
                 }, {
                     field: 'busiType',
                     title: '业务类型',
@@ -142,11 +163,12 @@
                             return value;
                         }
                         return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
-                    }
+                    },
+                    visible: false
                 },
                 {
                     field: 'trxPrice',
-                    title: 'TRX兑换单价',
+                    title: 'TRX价格',
                     formatter: function (value, row, index) {
                         if (value == null) {
                             return value;
@@ -156,12 +178,12 @@
                 },
                 {
                     field: 'usdtPrice',
-                    title: 'USDT兑换单价',
+                    title: 'USDT价格',
                     formatter: function (value, row, index) {
                         if (value == null) {
                             return value;
                         }
-                        return value + ' USDT';
+                        return value + ' U';
                     },
                 },
 
@@ -180,7 +202,7 @@
                     }
                 },{
                     field: 'idTgMessageInfo',
-                    title: '通知消息模版',
+                    title: '消息模版',
                     formatter: function(value, row, index) {
                         if ($.common.isEmpty(topicTgmessageInfoList) || $.common.isEmpty(value)) {
                             return '';

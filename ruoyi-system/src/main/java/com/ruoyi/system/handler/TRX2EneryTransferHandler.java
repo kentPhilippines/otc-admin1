@@ -461,17 +461,17 @@ public class TRX2EneryTransferHandler {
                 arguments.put("trxAmount", amount == null ? "" : amount.toString());
                 arguments.put("price", price == null ? "" : price.toString());
                 arguments.put("transferCount", transferCount);
-                arguments.put("FromAddress", fromAddress.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
-                arguments.put("txId", StringUtils.isEmpty(txID) ? "" : txID.replaceAll("(.{6})(.*)(.{8})", "$1*******************$3"));
+                arguments.put("FromAddress", fromAddress.replaceAll("(.{6})(.*)(.{8})", "$1\\*\\*\\*\\*$3"));
+                arguments.put("txId", StringUtils.isEmpty(txID) ? "" : txID.replaceAll("(.{6})(.*)(.{8})", "$1\\*\\*\\*\\*\\*\\*\\*\\*$3"));
                 arguments.put("txTime", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
 //            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
                 StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
                 String message = substitutor.replace(sysenTrxTransferNotice);
-                SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
+                SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.MARKDOWN);
                 try {
                     longPollingBot.execute(sendMessage);
                 } catch (TelegramApiException e) {
-                    log.error("longPollingBot execute  is null");
+                    log.error("longPollingBot execute exception",e);
                 }
             });
 

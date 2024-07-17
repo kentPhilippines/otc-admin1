@@ -52,6 +52,7 @@ import java.math.BigDecimal;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -210,32 +211,37 @@ public class Usdt2TrxTransferHandler {
     private void doSendTgNotice(BigDecimal oneUsdtToTrx, String from, BigDecimal trxValue, BigDecimal transferValue, String txId, MonitorAddressAccount monitorAddressAccount) throws TelegramApiException {
 
         if (longPollingBot != null ) {
-            String sysUsdtTranferNotice = configService.selectConfigByKey("sys.usdt.tranfer.notice");
-            String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
-            if (monitorAddressAccount != null){
-                String messageInfo = monitorAddressAccount.getMessageInfo();
-                if (StringUtils.isNotEmpty(messageInfo)){
-                    sysUsdtTranferNotice = messageInfo;
+            CompletableFuture.runAsync(()->{
+                String sysUsdtTranferNotice = configService.selectConfigByKey("sys.usdt.tranfer.notice");
+                String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
+                if (monitorAddressAccount != null){
+                    String messageInfo = monitorAddressAccount.getMessageInfo();
+                    if (StringUtils.isNotEmpty(messageInfo)){
+                        sysUsdtTranferNotice = messageInfo;
+                    }
+                    String groupChatId = monitorAddressAccount.getGroupChatId();
+                    if (StringUtils.isNotEmpty(groupChatId)){
+                        sysTgGroupChatId = groupChatId;
+                    }
                 }
-                String groupChatId = monitorAddressAccount.getGroupChatId();
-                if (StringUtils.isNotEmpty(groupChatId)){
-                    sysTgGroupChatId = groupChatId;
-                }
-            }
 
 
-            Map<String, Object> arguments = new HashMap<>();
-            arguments.put("usdtAmount", transferValue.setScale(2, BigDecimal.ROUND_HALF_DOWN));
-            arguments.put("exchangeRate", oneUsdtToTrx);
-            arguments.put("trxAmount", trxValue);
-            arguments.put("FromAddress", from.replaceAll("(.{6})(.*)(.{8})", "$1********$3"));
-            arguments.put("txId", txId.replaceAll("(.{6})(.*)(.{8})", "$1*******************$3"));
-            arguments.put("txTime", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
-//            String message = MessageFormat.format(sysUsdtTranferNotice, arguments);
-            StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
-            String message = substitutor.replace(sysUsdtTranferNotice);
-            SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.HTML);
-            longPollingBot.execute(sendMessage);
+                Map<String, Object> arguments = new HashMap<>();
+                arguments.put("usdtAmount", transferValue.setScale(2, BigDecimal.ROUND_HALF_DOWN));
+                arguments.put("exchangeRate", oneUsdtToTrx);
+                arguments.put("trxAmount", trxValue);
+                arguments.put("FromAddress", from.replaceAll("(.{6})(.*)(.{8})", "$1\\*\\*\\*\\*$3"));
+                arguments.put("txId", txId.replaceAll("(.{6})(.*)(.{8})", "$1\\*\\*\\*\\*\\*\\*\\*\\*$3"));
+                arguments.put("txTime", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
+                String message = substitutor.replace(sysUsdtTranferNotice);
+                SendMessage sendMessage = sendContent.messageText(sysTgGroupChatId, message, ParseMode.MARKDOWN);
+                try {
+                    longPollingBot.execute(sendMessage);
+                } catch (TelegramApiException e) {
+                    log.error("longPollingBot execute exception",e);
+                }
+            });
         } else {
             log.warn("longPollingBot  is null");
         }

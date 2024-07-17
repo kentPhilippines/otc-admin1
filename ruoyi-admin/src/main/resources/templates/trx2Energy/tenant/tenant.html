@@ -98,12 +98,13 @@
                 },
                 {
                     field: 'receiverAddress',
-                    title: '接收能量地址',
+                    title: '委托地址',
                     formatter: function (value, row, index) {
                         if (value == null) {
                             return value;
                         }
-                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                        const maskedValue = value.replace(/^(.{6}).*(.{8})$/, '$1***$2');
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + maskedValue + "</a>";
                     }
                 },
                 {
@@ -119,16 +120,7 @@
                         return $.table.selectDictLabel(energyBusiTypeDatas, value);
                     }
                 }  ,
-                {
-                    field: 'price',
-                    title: '单价',
-                    formatter: function(value, row, index) {
-                        if (value == null) {
-                            return value;
-                        }
-                        return value + ' ' + row['exchangeUnit'];
-                    }
-                },
+
                 {
                     field: 'transferCount',
                     title: '笔数',
@@ -176,11 +168,11 @@
                 },
                 {
                     field: 'delegatedDays',
-                    title: '已经委托天数'
+                    title: '委托天数'
                 },
                 {
                     field: 'totalCountUsed',
-                    title: '已使用笔数'
+                    title: '已用笔数'
                 },
                 {
                     field: 'calcRule',
@@ -191,6 +183,15 @@
                 }, {
                     field: 'remark',
                     title: '备注'
+                },{
+                    field: 'price',
+                    title: '单价',
+                    formatter: function(value, row, index) {
+                        if (value == null) {
+                            return value;
+                        }
+                        return value + ' ' + (row['exchangeUnit'] == 'USDT' ? 'U' : 'TRX');
+                    }
                 },
                 {
                     field: 'fcd',
