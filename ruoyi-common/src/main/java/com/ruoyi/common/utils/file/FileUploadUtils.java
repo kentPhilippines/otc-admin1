@@ -1,11 +1,5 @@
 package com.ruoyi.common.utils.file;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Objects;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.web.multipart.MultipartFile;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.exception.file.FileNameLengthLimitExceededException;
@@ -14,6 +8,16 @@ import com.ruoyi.common.exception.file.InvalidExtensionException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.uuid.Seq;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 /**
  * 文件上传工具类
@@ -46,6 +50,9 @@ public class FileUploadUtils
     {
         return defaultBaseDir;
     }
+
+
+
 
     /**
      * 以默认配置进行文件上传
@@ -117,6 +124,32 @@ public class FileUploadUtils
         return getPathFileName(baseDir, fileName);
     }
 
+
+    // 上传文件方法
+    public static final String upload(String baseDir, String fileName, InputStream inputStream, String[] allowedExtension)
+            throws IOException, FileNameLengthLimitExceededException, InvalidExtensionException {
+
+        int fileNameLength = Objects.requireNonNull(fileName).length();
+        if (fileNameLength > DEFAULT_FILE_NAME_LENGTH) {
+            throw new FileNameLengthLimitExceededException(DEFAULT_FILE_NAME_LENGTH);
+        }
+
+        assertAllowed(fileName, allowedExtension);
+
+        fileName = extractFilename(fileName);
+
+        String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
+
+        try (OutputStream outputStream = Files.newOutputStream(Paths.get(absPath))) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        }
+        return getPathFileName(baseDir, fileName);
+    }
+
     /**
      * 编码文件名
      */
@@ -124,6 +157,15 @@ public class FileUploadUtils
     {
         return StringUtils.format("{}/{}_{}.{}", DateUtils.datePath(),
                 FilenameUtils.getBaseName(file.getOriginalFilename()), Seq.getId(Seq.uploadSeqType), getExtension(file));
+    }
+    /**
+     * 编码文件名
+     */
+    public static final String extractFilename( String originalFilename)
+    {
+
+        return StringUtils.format("{}/{}_{}.{}", DateUtils.datePath(),
+                FilenameUtils.getBaseName(originalFilename), Seq.getId(Seq.uploadSeqType),FilenameUtils.getExtension(originalFilename));
     }
 
     public static final File getAbsoluteFile(String uploadDir, String fileName) throws IOException
@@ -145,6 +187,18 @@ public class FileUploadUtils
         int dirLastIndex = RuoYiConfig.getProfile().length() + 1;
         String currentDir = StringUtils.substring(uploadDir, dirLastIndex);
         return Constants.RESOURCE_PREFIX + "/" + currentDir + "/" + fileName;
+    }
+
+    private static void assertAllowed(String fileName, String[] allowedExtension) throws InvalidExtensionException {
+        // 检查文件扩展名是否在允许的扩展名列表中
+        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        for (String ext : allowedExtension) {
+            if (fileExtension.equals(ext.toLowerCase())) {
+                return;
+            }
+        }
+        throw new InvalidExtensionException.InvalidMediaExtensionException(allowedExtension, fileExtension,
+                fileName);
     }
 
     /**

@@ -405,6 +405,28 @@ var table = {
                 window.location.href = url;
                 $.modal.closeLoading();
 
+            },exportSummaryTaskExcel: function(formId) {
+
+                table.set();
+                $.modal.confirm("确定导出所有" + table.options.modalName + "吗？", function() {
+                    var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
+                    var params = $("#" + table.options.id).bootstrapTable('getOptions');
+                    var dataParam = $("#" + currentId).serializeArray();
+                    dataParam.push({ "name": "orderByColumn", "value": params.sortName });
+                    dataParam.push({ "name": "isAsc", "value": params.sortOrder });
+                    $.modal.loading("正在导出数据，请稍候...");
+                    $.post(table.options.exportSummaryTaskUrl, dataParam, function(result) {
+                        if (result.code == web_status.SUCCESS) {
+                            window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                        } else if (result.code == web_status.WARNING) {
+                            $.modal.alertWarning(result.msg)
+                        } else {
+                            $.modal.alertError(result.msg);
+                        }
+                        $.modal.closeLoading();
+                    });
+                });
+
             },completeTask: function(formId) {
 
                 table.set();
@@ -1200,6 +1222,10 @@ var table = {
                 table.set();
                 $.modal.openTab("添加" + table.options.modalName, $.operate.addUrl(id));
             },
+            addBatchTab: function (id) {
+                table.set();
+                $.modal.openTab("添加" + table.options.modalName, $.operate.addBatchUrl(id));
+            },
             // 添加信息 全屏
             addFull: function(id) {
                 table.set();
@@ -1208,6 +1234,10 @@ var table = {
             // 添加访问地址
             addUrl: function(id) {
                 var url = $.common.isEmpty(id) ? table.options.createUrl.replace("{id}", "") : table.options.createUrl.replace("{id}", id);
+                return url;
+            },
+            addBatchUrl: function(id) {
+                var url = $.common.isEmpty(id) ? table.options.createBatchUrl.replace("{id}", "") : table.options.createBatchUrl.replace("{id}", id);
                 return url;
             },
             // 修改信息

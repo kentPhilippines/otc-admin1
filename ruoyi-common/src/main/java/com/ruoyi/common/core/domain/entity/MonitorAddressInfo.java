@@ -75,6 +75,10 @@ public class MonitorAddressInfo extends BaseEntity
     @Excel(name = "备注")
     private String comment;
 
+    /** 二维码收款图片 */
+    @Excel(name = "二维码收款图片")
+    private String imageUrl;
+
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")

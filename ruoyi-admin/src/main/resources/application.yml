@@ -9,7 +9,7 @@ ruoyi:
   # 实例演示开关
   demoEnabled: true
   # 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/ruoyi/uploadPath）
-  profile: D:/ruoyi/uploadPath
+  profile: D:/ruoyi/uploadPathr
   # 获取ip地址开关
   addressEnabled: false
 
@@ -171,3 +171,8 @@ tg:
     name: CnRogerBot
     token: 6559243612:AAFOZU6MFq_pX25w71PH874_lVIM2MIhuSE
   chatid: -1002058165663
+
+
+snowflake:
+  dataCenterId: 1
+  workerId: 1

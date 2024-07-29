@@ -37,7 +37,7 @@
             </div>
 
             <div class="btn-group-sm" id="toolbar" role="group">
-                <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="sms:task:ws:add">
+              <!--  <a class="btn btn-success" onclick="$.operate.addTab()" shiro:hasPermission="sms:task:ws:add">
                     <i class="fa fa-plus"></i> 添加
                 </a>
                 <a class="btn btn-success" onclick="$.operate.addBatchTab()" shiro:hasPermission="sms:task:ws:add">
@@ -45,19 +45,19 @@
                 </a>
                 <a class="btn btn-primary multiple disabled" onclick="$.operate.editStatus()" shiro:hasPermission="sms:task:ws:edit">
                     <i class="fa fa-edit"></i> 批量修改
-                </a>
+                </a>-->
        <!--         <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="sms:task:ws:remove">
                     <i class="fa fa-remove"></i> 删除
                 </a>-->
-                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="sms:task:ws:export">
+                <a class="btn btn-warning" onclick="$.table.exportSummaryTaskExcel()" shiro:hasPermission="sms:task:ws:export">
                     <i class="fa fa-download"></i> 导出
                 </a>
-               <!-- <a class="btn btn-warning single disabled" onclick="$.table.exportExcelTaskDetail()" shiro:hasPermission="sms:task:ws:export">
+                <a class="btn btn-warning single disabled" onclick="$.table.exportExcelTaskDetail()" shiro:hasPermission="sms:task:ws:export">
                     <i class="fa fa-edit"></i> 下载任务明细
-                </a>-->
-                <a class="btn btn-danger multiple disabled" onclick="$.table.completeTask()" shiro:hasPermission="sms:task:ws:export">
-                    <i class="fa fa-edit"></i> 强制完成
                 </a>
+            <!--    <a class="btn btn-danger multiple disabled" onclick="$.table.completeTask()" shiro:hasPermission="sms:task:ws:export">
+                    <i class="fa fa-edit"></i> 强制完成
+                </a>-->
             </div>
             <div class="col-sm-12 select-table table-striped">
                 <table id="bootstrap-table"></table>
@@ -71,6 +71,7 @@
         var smsBusiTypeDatas = [[${@dict.getType('sys_sms_busi_type')}]];
         var smsContentTypeDatas = [[${@dict.getType('sys_sms_content_type')}]];
         var taskStatusDatas = [[${@dict.getType('sys_sms_task_status')}]];
+        var taskSettleStatusDatas = [[${@dict.getType('sys_sms_task_settle_status')}]];
         var prefix = ctx + "sms/task/ws";
 
         $(function() {
@@ -83,6 +84,7 @@
                 removeUrl: prefix + "/remove",
                 exportUrl: prefix + "/export",
                 exportTaskDetailUrl: prefix + "/exportTaskDetail/{id}",
+                exportSummaryTaskUrl: prefix + "/exportSummaryTaskUrl",
                 completeTaskUrl: prefix + "/completeTask",
                 modalName: "WS短信任务配置",
                 columns: [{
@@ -96,17 +98,16 @@
                 {
                     field: 'taskName',
                     title: '任务名称'
-                },
+                }, {
+                        field: 'country',
+                        title: '所属国家'
+                    },
                     {
                         field: 'totalCount',
                         title: '总量'
-                    },/*,{
+                    },{
                         field: 'successCount',
                         title: '成功个数'
-
-                    },*/{
-                        field: 'preSummary',
-                        title: '预估金额'
 
                     },/*,
                 {
@@ -152,6 +153,12 @@
                     title: '任务状态',
                     formatter: function(value, row, index) {
                        return $.table.selectDictLabel(taskStatusDatas, value);
+                    }
+                }, {
+                    field: 'settleStatus',
+                    title: '结算状态',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(taskSettleStatusDatas, value);
                     }
                 },
                 /*{

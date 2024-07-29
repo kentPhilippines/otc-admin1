@@ -38,6 +38,10 @@ public class SmsTaskTbl extends BaseEntity
     @Excel(name = "渠道id")
     private String channelId;
 
+    /** 所属国家 */
+    @Excel(name = "所属国家")
+    private String country;
+
     /** 单价 */
     @Excel(name = "单价")
     private BigDecimal price;
@@ -45,6 +49,9 @@ public class SmsTaskTbl extends BaseEntity
     /** 预估金额 */
     @Excel(name = "预估金额")
     private BigDecimal preSummary;
+    /** 实扣 */
+    @Excel(name = "实扣")
+    private BigDecimal actSummary;
 
     /** 任务开始时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -99,6 +106,46 @@ public class SmsTaskTbl extends BaseEntity
     /** 用户id */
     @Excel(name = "用户id")
     private String userId;
+
+    /** 结算状态 */
+    @Excel(name = "结算状态")
+    private String settleStatus;
+
+
+    private String phoneNumber;
+
+
+    public BigDecimal getActSummary() {
+        return actSummary;
+    }
+
+    public void setActSummary(BigDecimal actSummary) {
+        this.actSummary = actSummary;
+    }
+
+    public String getSettleStatus() {
+        return settleStatus;
+    }
+
+    public void setSettleStatus(String settleStatus) {
+        this.settleStatus = settleStatus;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
     public void setIdSmsTask(Long idSmsTask)
     {

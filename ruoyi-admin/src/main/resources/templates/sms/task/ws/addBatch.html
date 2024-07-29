@@ -8,36 +8,56 @@
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
-        <form class="form-horizontal m" id="form-task-addBatch" enctype="multipart/form-data">
+        <form class="form-horizontal m" id="form-task-add" enctype="multipart/form-data">
             <div class="form-group">    
                 <label class="col-sm-3 control-label is-required">任务名称：</label>
-                <div class="col-sm-8">
+                <div class="col-sm-6">
                     <input name="taskName" class="form-control" type="text" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="font-noraml col-sm-3 control-label">物料</label>
-
-                <div class="col-sm-8">
-                    <div class="fileinput fileinput-new" data-provides="fileinput">
-                        <span class="btn btn-white btn-file"><span class="fileinput-new">选择文件</span><span class="fileinput-exists">重新选择</span><input type="file" id="file" name="file" ></span>
-                        <span class="fileinput-filename"></span>
-                        <a href="javascript:;" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">&times;</a>
-                    </div>
+                <label class="col-sm-3 control-label is-required">占位符：</label>
+                <div class="col-sm-6">
+                    <textarea name="placeHolder" class="form-control" type="text" required ></textarea>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-sm-3 control-label">文本内容：</label>
-                <div class="col-sm-8">
+                <label class="font-noraml col-sm-3 control-label is-required">物料</label>
+
+                <div class="col-sm-6">
+                <div class="fileinput fileinput-new" data-provides="fileinput">
+                    <span class="btn btn-white btn-file"><span class="fileinput-new">选择文件</span><span class="fileinput-exists">重新选择</span><input type="file" id="file" name="file" ></span>
+                    <span class="fileinput-filename"></span>
+                    <a href="javascript:;" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">&times;</a>
+                </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">物料切割数量：</label>
+                <div class="col-sm-6">
+                    <input name="splitNumber" class="form-control" type="number" required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">文本内容：</label>
+                <div class="col-sm-6">
                     <textarea name="context" class="form-control" style="height: 100px"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">占位填充符：</label>
+                <div class="col-sm-6">
+                    <textarea name="placeHolderFill" class="form-control" style="height: 100px" required></textarea>
                 </div>
             </div>
 
             <div class="form-group">    
                 <label class="col-sm-3 control-label is-required">任务开始时间：</label>
-                <div class="col-sm-8">
+                <div class="col-sm-6">
                     <div class="input-group date">
                         <input name="taskBeginTime" class="form-control" placeholder="yyyy-MM-dd HH:mm:ss" type="text" required>
                         <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
@@ -46,7 +66,7 @@
             </div>
             <div class="form-group">    
                 <label class="col-sm-3 control-label">内容类型：</label>
-                <div class="col-sm-8">
+                <div class="col-sm-6">
                     <select name="smsContentType" class="form-control m-b" th:with="type=${@dict.getType('sys_sms_content_type')}">
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                     </select>
@@ -54,7 +74,7 @@
             </div>
             <div class="form-group">
                 <label class="col-sm-3 control-label">任务状态：</label>
-                <div class="col-sm-8">
+                <div class="col-sm-6">
                     <div class="radio-box" th:each="dict : ${@dict.getType('sys_sms_task_status')}">
                         <input type="radio" th:id="${'taskStatus_' + dict.dictCode}" name="taskStatus" th:value="${dict.dictValue}" th:checked="${dict.default}">
                         <label th:for="${'taskStatus_' + dict.dictCode}" th:text="${dict.dictLabel}"></label>
@@ -95,10 +115,10 @@
             }
             // formData.append('fileName', $("input[name='fileName']").val());
             // formData.append('file', $('#filePath')[0].files[0]);
-            const form = document.getElementById('form-task-addBatch');
+            const form = document.getElementById('form-task-add');
             const formData = new FormData(form);
             $.ajax({
-                url: prefix + "/add",
+                url: prefix + "/addBatch",
                 type: 'post',
                 cache: false,
                 data: formData,

@@ -1,6 +1,7 @@
 package com.ruoyi.system.handler;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import com.ruoyi.common.core.domain.entity.ErrorLog;
@@ -54,13 +55,14 @@ public class EnergyTenantTransferHandler {
             if (tenantInfo.getEnergyBusiType().equals(eneryBusiTypeByDay)) {
 
                 Long period = tenantInfo.getPeriod();
-                long between = DateUtil.between(tenantInfo.getFcd(), new Date(), DateUnit.DAY);
+                Long delegatedDays = tenantInfo.getDelegatedDays();
+//                long between = DateUtil.between(tenantInfo.getFcd(), new Date(), DateUnit.DAY);
 
                 TrxExchangeInfo trxExchangeInfo = buildTrxExchangeInfo(tenantInfo, eneryBusiTypeByDay);
 
                 List<TrxExchangeMonitorAccountInfo> trxExchangeMonitorAccountInfoList = trxExchangeInfoMapper.selectTrxExchangeMonitorAccountInfo(trxExchangeInfo);
 
-                if (between + 1 > period) {
+                if (delegatedDays + 1 > period) {
 
                     String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
 
@@ -73,7 +75,7 @@ public class EnergyTenantTransferHandler {
                     }
 
                     //满期不继续处理
-                    tenantInfo.setDelegatedDays(between);
+//                    tenantInfo.setDelegatedDays(delegatedDays);
                     String delegateStatus = DictUtils.getDictValue("sys_delegate_status", "已满期");
                     tenantInfo.setStatus(delegateStatus);
                     tenantInfo.setLcu("system");
@@ -134,6 +136,13 @@ public class EnergyTenantTransferHandler {
             throw new RuntimeException(e);
         }
 
+    }
+
+
+    public static void main(String[] args) {
+        DateTime parse = DateUtil.parse("2024-06-20 01:59:31", "yyyy-MM-dd HH:mm:ss");
+        long between = DateUtil.between(parse, new Date(), DateUnit.DAY);
+        System.out.println(between);
     }
 
 

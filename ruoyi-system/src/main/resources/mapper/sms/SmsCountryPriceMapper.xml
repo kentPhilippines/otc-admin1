@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SmsCountryPriceMapper">
+
+    <resultMap type="SmsCountryPrice" id="SmsCountryPriceResult">
+        <result property="idSmsCountryPrice"    column="id_sms_country_price"    />
+        <result property="countryId"    column="country_id"    />
+        <result property="areaCode"    column="area_code"    />
+        <result property="price"    column="price"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectSmsCountryPriceVo">
+        select id_sms_country_price, country_id, area_code, price, create_by, create_time, update_by, update_time, remark from sms_country_price
+    </sql>
+
+    <select id="selectSmsCountryPriceList" parameterType="SmsCountryPrice" resultMap="SmsCountryPriceResult">
+        <include refid="selectSmsCountryPriceVo"/>
+        <where>  
+            <if test="countryId != null "> and country_id = #{countryId}</if>
+            <if test="areaCode != null  and areaCode != ''"> and area_code = #{areaCode}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectSmsCountryPriceByIdSmsCountryPrice" parameterType="Long" resultMap="SmsCountryPriceResult">
+        <include refid="selectSmsCountryPriceVo"/>
+        where id_sms_country_price = #{idSmsCountryPrice}
+    </select>
+        
+    <insert id="insertSmsCountryPrice" parameterType="SmsCountryPrice">
+        insert into sms_country_price
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="idSmsCountryPrice != null">id_sms_country_price,</if>
+            <if test="countryId != null">country_id,</if>
+            <if test="areaCode != null">area_code,</if>
+            <if test="price != null">price,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="idSmsCountryPrice != null">#{idSmsCountryPrice},</if>
+            <if test="countryId != null">#{countryId},</if>
+            <if test="areaCode != null">#{areaCode},</if>
+            <if test="price != null">#{price},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmsCountryPrice" parameterType="SmsCountryPrice">
+        update sms_country_price
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="countryId != null">country_id = #{countryId},</if>
+            <if test="areaCode != null">area_code = #{areaCode},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id_sms_country_price = #{idSmsCountryPrice}
+    </update>
+
+    <delete id="deleteSmsCountryPriceByIdSmsCountryPrice" parameterType="Long">
+        delete from sms_country_price where id_sms_country_price = #{idSmsCountryPrice}
+    </delete>
+
+    <delete id="deleteSmsCountryPriceByIdSmsCountryPrices" parameterType="String">
+        delete from sms_country_price where id_sms_country_price in 
+        <foreach item="idSmsCountryPrice" collection="array" open="(" separator="," close=")">
+            #{idSmsCountryPrice}
+        </foreach>
+    </delete>
+
+    <resultMap id="selectAllCountriesResultMap" type="com.ruoyi.common.core.domain.entity.CountryTbl">
+        <result column="country_id" property="countryId"/>
+        <result column="english_name" property="englishName"/>
+        <result column="chinese_name" property="chineseName"/>
+        <result column="two_digit_abbr" property="twoDigitAbbr"/>
+        <result column="three_digit_abbr" property="threeDigitAbbr"/>
+        <result column="area_code" property="areaCode"/>
+    </resultMap>
+
+    <select id="selectAllCountries" resultMap="selectAllCountriesResultMap">
+        select country_id, english_name, chinese_name, two_digit_abbr, three_digit_abbr, area_code
+        from country_tbl
+    </select>
+
+    <select id="selectCountryById" resultMap="selectAllCountriesResultMap">
+        select country_id, english_name, chinese_name, two_digit_abbr, three_digit_abbr, area_code
+        from country_tbl
+        where country_id = #{countryId}
+    </select>
+</mapper>

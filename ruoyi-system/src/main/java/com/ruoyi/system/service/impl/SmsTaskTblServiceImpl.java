@@ -1,9 +1,15 @@
 package com.ruoyi.system.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
+import com.google.common.base.Preconditions;
 import com.ruoyi.common.annotation.DataScope;
+import com.ruoyi.common.core.domain.entity.CountryTbl;
+import com.ruoyi.common.core.domain.entity.SmsCountryPrice;
 import com.ruoyi.common.core.domain.entity.SmsTaskTbl;
+import com.ruoyi.common.core.domain.entity.UserPoint;
 import com.ruoyi.common.core.domain.vo.BatchUpdateSmsVO;
+import com.ruoyi.common.core.domain.vo.SmsTaskTblVO;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.ShiroUtils;
@@ -12,7 +18,9 @@ import com.ruoyi.system.api.entity.U02cx.*;
 import com.ruoyi.system.domain.SmsChannelTbl;
 import com.ruoyi.system.handler.GetSmsDetailTaskHandler;
 import com.ruoyi.system.mapper.SmsChannelTblMapper;
+import com.ruoyi.system.mapper.SmsCountryPriceMapper;
 import com.ruoyi.system.mapper.SmsTaskTblMapper;
+import com.ruoyi.system.mapper.UserPointMapper;
 import com.ruoyi.system.service.ISmsTaskTblService;
 import com.ruoyi.system.util.RsaUtils;
 import org.slf4j.Logger;
@@ -21,7 +29,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +55,12 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
 
     @Autowired
     private GetSmsDetailTaskHandler smsDetailTaskHandler;
+
+    @Autowired
+    private SmsCountryPriceMapper smsCountryPriceMapper;
+
+    @Autowired
+    private UserPointMapper userPointMapper;
 
     /**
      * 查询WS短信任务配置
@@ -77,7 +93,52 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
      */
     @Override
     public int insertSmsTaskTbl(SmsTaskTbl smsTaskTbl) {
-        log.info("insertSmsTaskTbl:{}", smsTaskTbl.toString());
+
+        String taskName = smsTaskTbl.getTaskName();
+        Preconditions.checkState(taskName.matches("^[a-zA-Z0-9_]+$"), "任务名称只能是数字,字母和下划线");
+
+        String phoneNumber = smsTaskTbl.getPhoneNumber();
+
+        List<SmsCountryPrice> smsCountryPrices = getSmsCountryPrices(phoneNumber);
+
+        SmsCountryPrice smsCountryPrice = smsCountryPrices.get(0);
+        BigDecimal price = smsCountryPrice.getPrice();
+        CountryTbl countryTbl = smsCountryPriceMapper.selectCountryById(smsCountryPrice.getCountryId());
+        String chineseName = countryTbl.getChineseName();
+
+        UserPoint userPoint = getUserPoint();
+
+        int i = doAddSmsTaskTblRequest(smsTaskTbl, price, chineseName,userPoint);
+        return i;
+    }
+
+    private UserPoint getUserPoint() {
+        Long userId = ShiroUtils.getUserId();
+        UserPoint userPointParam = new UserPoint();
+        userPointParam.setUserId(userId);
+        List<UserPoint> userPoints = userPointMapper.selectUserPointList(userPointParam);
+        Preconditions.checkState(CollectionUtil.isNotEmpty(userPoints), "未有积分,请先进行充值");
+
+        UserPoint userPoint = userPoints.get(0);
+        return userPoint;
+    }
+
+    private int doAddSmsTaskTblRequest(SmsTaskTbl smsTaskTbl, BigDecimal price, String chineseName,UserPoint userPoint) {
+        String taskName = smsTaskTbl.getTaskName();
+        smsTaskTbl.setPrice(price);
+        smsTaskTbl.setCountry(chineseName);
+        BigDecimal preSummary = price.multiply(new BigDecimal(smsTaskTbl.getTotalCount()));
+        smsTaskTbl.setPreSummary(preSummary);
+
+        Long userId = ShiroUtils.getUserId();
+
+
+        BigDecimal pointBalanceOld = userPoint.getPointBalance();
+        Preconditions.checkState(pointBalanceOld.compareTo(preSummary) >= 0, "积分不足本次消耗,请先进行充值");
+
+        BigDecimal pointBalance = pointBalanceOld.subtract(preSummary);
+        userPoint.setPointBalance(pointBalance);
+
         SmsChannelTbl smsChannelTbl = smsChannelTblMapper.selectSmsChannelTblByIdSmsChannel(1L);
 
         GetTokenRequest getTokenRequest = new GetTokenRequest();
@@ -86,13 +147,13 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
         String token = u02cxApi.getToken(getTokenRequest);
         log.debug("token:{}", token);
         AddTaskRequest addTaskRequest = new AddTaskRequest();
-        addTaskRequest.setTaskName(smsTaskTbl.getTaskName())
+        addTaskRequest.setTaskName(taskName)
                 .setPrice(smsTaskTbl.getPrice())
                 .setTaskBeginTime(DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss", smsTaskTbl.getTaskBeginTime()))
                 .setFileName(smsTaskTbl.getFileName())
                 .setFilePath(smsTaskTbl.getFilePath())
                 .setFileMd5(smsTaskTbl.getFileMd5())
-                .setContext(smsTaskTbl.getContext())
+                .setContext( Base64.getEncoder().encodeToString(smsTaskTbl.getContext().getBytes()))
                 .setType(Integer.parseInt(smsTaskTbl.getSmsContentType()));
         try {
             // 将公钥字符串转换为 PublicKey 对象
@@ -110,7 +171,7 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
 
             smsTaskTbl.setTaskId(taskId);
             smsTaskTbl.setChannelId(smsChannelTbl.getChannelId());
-            Long userId = ShiroUtils.getUserId();
+
             smsTaskTbl.setUserId(userId.toString());
             String loginName = ShiroUtils.getLoginName();
             smsTaskTbl.setCreateBy(loginName);
@@ -121,6 +182,7 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
         }
 
         int i = smsTaskTblMapper.insertSmsTaskTbl(smsTaskTbl);
+        userPointMapper.updateUserPoint(userPoint);
 
         String taskStatus = smsTaskTbl.getTaskStatus();
         if ("1".equals(taskStatus)) {
@@ -138,6 +200,19 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
             u02cxApi.updateTaskStatus(baseRequestBO);
         }
         return i;
+    }
+
+    private List<SmsCountryPrice> getSmsCountryPrices(String phoneNumber) {
+        Preconditions.checkState(phoneNumber.length() > 2, "首行号码位数不够");
+        String areaCode = phoneNumber.substring(0, 2);
+        SmsCountryPrice smsCountryPriceParam = new SmsCountryPrice();
+        smsCountryPriceParam.setAreaCode(areaCode);
+        List<SmsCountryPrice> smsCountryPrices = smsCountryPriceMapper.selectSmsCountryPriceList(smsCountryPriceParam);
+        if (CollectionUtil.isEmpty(smsCountryPrices)) {
+            smsCountryPriceParam.setAreaCode("99999");
+            smsCountryPrices = smsCountryPriceMapper.selectSmsCountryPriceList(smsCountryPriceParam);
+        }
+        return smsCountryPrices;
     }
 
 
@@ -189,22 +264,22 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
         String token = u02cxApi.getToken(getTokenRequest);
 
         List<String> idsList = Arrays.asList(ids.split(","));
-        List<SmsTaskTbl> smsTaskTblList =  smsTaskTblMapper.selectSmsTaskTbl(idsList);
+        List<SmsTaskTbl> smsTaskTblList = smsTaskTblMapper.selectSmsTaskTbl(idsList);
 
         List<String> editSmsTypeList = Arrays.asList(editSmsTypes.split(","));
-        if (editSmsTypeList.contains("task_status")){
+        if (editSmsTypeList.contains("task_status")) {
             String taskStatus = batchUpdateSmsVO.getTaskStatus();
 
             String taskStatusName = taskStatus.equals("0") ? "关闭" : "开启";
             smsTaskTblList.stream().filter(smsTaskTbl -> smsTaskTbl.getTaskStatus().equals(taskStatus))
-                   .forEach(smsTaskTbl -> {
-                       throw new RuntimeException(smsTaskTbl.getTaskName()+"状态已经是:[ "+ taskStatusName+" ]，不能修改,请重新选择");
-                   });
+                    .forEach(smsTaskTbl -> {
+                        throw new RuntimeException(smsTaskTbl.getTaskName() + "状态已经是:[ " + taskStatusName + " ]，不能修改,请重新选择");
+                    });
         }
 
 
         for (SmsTaskTbl smsTaskTbl : smsTaskTblList) {
-            if (editSmsTypeList.contains("task_status")){
+            if (editSmsTypeList.contains("task_status")) {
                 UpdateTaskStatusRequest updateTaskStatusRequest = new UpdateTaskStatusRequest();
                 updateTaskStatusRequest.setTaskId(smsTaskTbl.getTaskId())
                         .setTaskStatus(Integer.parseInt(batchUpdateSmsVO.getTaskStatus()));
@@ -220,7 +295,7 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
                 smsTaskTbl.setTaskStatus(batchUpdateSmsVO.getTaskStatus());
             }
 
-            if (editSmsTypeList.contains("begin_time")){
+            if (editSmsTypeList.contains("begin_time")) {
                 UpdateTaskRequest updateTaskRequest = new UpdateTaskRequest();
                 updateTaskRequest.setTaskId(smsTaskTbl.getTaskId())
                         .setTaskBeginTime(DateUtils.parseDateToStr("yyyy-MM-dd HH:mm:ss", batchUpdateSmsVO.getTaskBeginTime()));
@@ -238,9 +313,6 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
 
             smsTaskTblMapper.updateSmsTaskTbl(smsTaskTbl);
         }
-
-
-
 
 
 //        for (String id : idArray) {
@@ -295,8 +367,8 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
 
         GetReportRequest getReportRequest = new GetReportRequest();
         getReportRequest.setTaskId(smsTaskTbl.getTaskId())
-                        .setToken(token)
-                                .setAppId(smsChannelTbl.getAppId());
+                .setToken(token)
+                .setAppId(smsChannelTbl.getAppId());
         byte[] report = u02cxApi.getReport(getReportRequest);
         return report;
     }
@@ -305,7 +377,7 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
     public int complete(String ids) {
 
         List<String> idsList = Arrays.asList(ids.split(","));
-       List<SmsTaskTbl> smsTaskTblList =  smsTaskTblMapper.selectSmsTaskTbl(idsList);
+        List<SmsTaskTbl> smsTaskTblList = smsTaskTblMapper.selectSmsTaskTbl(idsList);
 
         SmsChannelTbl smsChannelTbl = smsChannelTblMapper.selectSmsChannelTblByIdSmsChannel(1L);
 
@@ -317,12 +389,32 @@ public class SmsTaskTblServiceImpl implements ISmsTaskTblService {
 
         BatchTaskIdsRequest batchTaskIdsRequest = new BatchTaskIdsRequest();
         batchTaskIdsRequest.setTaskIds(taskIds)
-                        .setToken(token)
-                                .setAppId(smsChannelTbl.getAppId());
+                .setToken(token)
+                .setAppId(smsChannelTbl.getAppId());
         u02cxApi.completeByBatch(batchTaskIdsRequest);
 
         smsDetailTaskHandler.doGetSmsDetailTask(smsTaskTblList);
 
         return smsTaskTblList.size();
+    }
+
+    @Override
+    public void insertSmsTaskTblBatch(SmsTaskTblVO smsTaskTblVO) {
+        List<SmsCountryPrice> smsCountryPrices = getSmsCountryPrices(smsTaskTblVO.getPhoneNumber());
+
+        SmsCountryPrice smsCountryPrice = smsCountryPrices.get(0);
+        BigDecimal price = smsCountryPrice.getPrice();
+        CountryTbl countryTbl = smsCountryPriceMapper.selectCountryById(smsCountryPrice.getCountryId());
+        String chineseName = countryTbl.getChineseName();
+        List<SmsTaskTbl> smsTaskTblList = smsTaskTblVO.getSmsTaskTblList();
+
+        UserPoint userPoint = getUserPoint();
+        BigDecimal preSummary = price.multiply(new BigDecimal(smsTaskTblVO.getLineCount()));
+        BigDecimal pointBalanceOld = userPoint.getPointBalance();
+        Preconditions.checkState(pointBalanceOld.compareTo(preSummary) >= 0, "积分不足本次消耗,请先进行充值");
+
+        for (SmsTaskTbl smsTaskTbl : smsTaskTblList) {
+            doAddSmsTaskTblRequest(smsTaskTbl, price, chineseName,userPoint);
+        }
     }
 }

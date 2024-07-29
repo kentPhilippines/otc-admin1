@@ -18,6 +18,7 @@
         <result property="bindPeriod"    column="bind_period"    />
         <result property="isValid"    column="is_valid"    />
         <result property="comment"    column="comment"    />
+        <result property="imageUrl"    column="image_url"    />
         <result property="fcd"    column="fcd"    />
         <result property="fcu"    column="fcu"    />
         <result property="lcd"    column="lcd"    />
@@ -25,7 +26,7 @@
     </resultMap>
 
     <sql id="selectMonitorAddressInfoVo">
-        select id_monitor_address, busi_type, monitor_address_name, monitor_address, account_address, trx_price, usdt_price, monitor_type, id_tg_message_info, group_chat_id, bind_period, is_valid, comment, fcd, fcu, lcd, lcu from monitor_address_info
+        select id_monitor_address, busi_type, monitor_address_name, monitor_address, account_address, trx_price, usdt_price, monitor_type, id_tg_message_info, group_chat_id, bind_period, is_valid, comment,image_url, fcd, fcu, lcd, lcu from monitor_address_info
     </sql>
 
     <select id="selectMonitorAddressInfoList" parameterType="MonitorAddressInfo" resultMap="MonitorAddressInfoResult">
@@ -54,6 +55,7 @@
         where id_monitor_address = #{idMonitorAddress}
     </select>
 
+
     <insert id="insertMonitorAddressInfo" parameterType="MonitorAddressInfo" useGeneratedKeys="true" keyProperty="idMonitorAddress">
         insert into monitor_address_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -64,12 +66,12 @@
             <if test="trxPrice != null">trx_price,</if>
             <if test="usdtPrice != null">usdt_price,</if>
             <if test="monitorType != null">monitor_type,</if>
-          <!--  <if test="apiKey != null">api_key,</if>-->
             <if test="bindPeriod != null">bind_period,</if>
             <if test="isValid != null">is_valid,</if>
             <if test="idTgMessageInfo != null">id_tg_message_info,</if>
             <if test="groupChatId != null">group_chat_id,</if>
             <if test="comment != null">comment,</if>
+            <if test="imageUrl != null">image_url,</if>
             <if test="fcd != null">fcd,</if>
             <if test="fcu != null">fcu,</if>
             <if test="lcd != null">lcd,</if>
@@ -83,12 +85,12 @@
             <if test="trxPrice != null">#{trxPrice},</if>
             <if test="usdtPrice != null">#{usdtPrice},</if>
             <if test="monitorType != null">#{monitorType},</if>
-          <!--  <if test="apiKey != null">#{apiKey},</if>-->
             <if test="bindPeriod != null">#{bindPeriod},</if>
             <if test="isValid != null">#{isValid},</if>
             <if test="idTgMessageInfo != null">#{idTgMessageInfo},</if>
             <if test="groupChatId != null">#{groupChatId},</if>
             <if test="comment != null">#{comment},</if>
+            <if test="imageUrl != null">#{imageUrl},</if>
             <if test="fcd != null">#{fcd},</if>
             <if test="fcu != null">#{fcu},</if>
             <if test="lcd != null">#{lcd},</if>
@@ -106,12 +108,12 @@
             <if test="trxPrice != null">trx_price = #{trxPrice},</if>
             <if test="usdtPrice != null">usdt_price = #{usdtPrice},</if>
             <if test="monitorType != null">monitor_type = #{monitorType},</if>
-     <!--       <if test="apiKey != null">api_key = #{apiKey},</if>-->
             <if test="bindPeriod != null">bind_period = #{bindPeriod},</if>
             <if test="isValid != null">is_valid = #{isValid},</if>
             <if test="idTgMessageInfo != null">id_tg_message_info = #{idTgMessageInfo},</if>
             <if test="groupChatId != null">group_chat_id = #{groupChatId},</if>
             <if test="comment != null">comment = #{comment},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
             <if test="fcd != null">fcd = #{fcd},</if>
             <if test="fcu != null">fcu = #{fcu},</if>
             <if test="lcd != null">lcd = #{lcd},</if>

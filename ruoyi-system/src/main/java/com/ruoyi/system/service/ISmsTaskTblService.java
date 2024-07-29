@@ -2,6 +2,7 @@ package com.ruoyi.system.service;
 
 import com.ruoyi.common.core.domain.entity.SmsTaskTbl;
 import com.ruoyi.common.core.domain.vo.BatchUpdateSmsVO;
+import com.ruoyi.common.core.domain.vo.SmsTaskTblVO;
 
 import java.util.List;
 
@@ -67,4 +68,6 @@ public interface ISmsTaskTblService
     byte[] getReport(Long idSmsTask);
 
     int complete(String ids);
+
+    void insertSmsTaskTblBatch(SmsTaskTblVO smsTaskTblVO);
 }

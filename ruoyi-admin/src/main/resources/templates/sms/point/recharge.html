@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增群发充值管理')" />
+    <style>
+        .steps-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 20px;
+        }
+        .step-number {
+            background-color: #1c84c6;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+        .step-label {
+            font-size: 18px;
+        }
+        .step-line {
+            width: 300px;
+            height: 2px;
+            background-color: #1c84c6;
+        }
+
+        .step-2 .step-number {
+            background-color: #d3d3d3; /* 灰色 */
+        }
+        .step-2 .step-label {
+            color: #d3d3d3; /* 灰色 */
+        }
+    </style>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <div class="steps-container">
+        <!-- 步骤1：创建充值订单 -->
+        <div class="step step-1">
+            <div class="step-number">1</div>
+            <div class="step-label">创建充值订单</div>
+        </div>
+        <div class="step-line"></div>
+        <!-- 步骤2：充值订单信息 -->
+        <div class="step step-2">
+            <div class="step-number">2</div>
+            <div class="step-label">充值订单信息</div>
+        </div>
+    </div>
+    <br>
+    <form class="form-horizontal m" id="form-point-add">
+        <div class="form-group">
+            <label class="col-sm-3 col-sm-offset-4 control-label">
+                <span style="font-size: 16px;"><b>💰1 USDT兑换 <span style="color: red ;font-size: 20px" th:text="${@config.getKey('sys.sms.exchange.rate')}">7.2</span>  积分：</b></span>
+            </label>
+        </div>
+  <!--      <div class="form-group">
+            <label class="col-sm-3 col-sm-offset-3 control-label">
+                <span style="font-size: 16px">创建充值订单后继续充值。</span>
+            </label>
+        </div>-->
+        <br>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">充值金额：</label>
+            <div class="col-sm-6">
+                <input name="amount" type="number" class="form-control">
+            </div>
+            <div class="col-sm-1" style="padding-top: 7px"><span style="font-size: 16px"><b>USDT</b></span></div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-offset-5 col-sm-10">
+                <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var prefix = ctx + "sms/point"
+    $("#form-point-add").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.ajax({
+                type: 'POST',
+                url: prefix + "/rechargeOrder",
+                data: $('#form-point-add').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = response.newPageUrl; // 跳转到新的页面
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors here
+                    console.error('Error:', status, error);
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>
