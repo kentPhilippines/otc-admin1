@@ -218,8 +218,7 @@
         INNER JOIN account_address_info a ON t.account_address = a.address
         LEFT JOIN monitor_address_info m ON t.to_address = m.monitor_address
         WHERE
-        t.fcd &gt;= #{fcd}
-        AND t.delegate_status = #{delegateStatus}
+         t.delegate_status = #{delegateStatus}
         and a.busi_type = 'trx2Energy'
         <if test="fromAddress != null  and fromAddress != ''"> and t.from_address = #{fromAddress}</if>
     </select>

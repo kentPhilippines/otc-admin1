@@ -29,8 +29,8 @@ public class FreezeBalanceInfo extends BaseEntity
     @Excel(name = "抵押金额trx")
     private Long freezeTrxAmount;
 
-    /** 交换资源类型id */
-    @Excel(name = "交换资源")
+    /** 充值类型类型id */
+    @Excel(name = "充值类型")
     private String exchangeResourceType;
 
     /** 交易id */

@@ -20,7 +20,7 @@
                                 <input type="text" name="txId"/>
                             </li>
                             <li>
-                                <label>交换资源：</label>
+                                <label>充值类型：</label>
                                 <select class="form-control" name="exchangeResourceType" th:with="type=${@dict.getType('sys_trx_exchange')}">
                                     <option value="">所有</option>
                                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
@@ -87,18 +87,19 @@
                 },
                 {
                     field: 'freezeTrxAmount',
-                    title: '抵押金额TRX'
+                    title: '充值金额'
                 },
                 {
                     field: 'exchangeResourceType',
-                    title: '交换资源',
+                    title: '充值类型',
                     formatter: function(value, item, index) {
                         return $.table.selectDictLabel(datas, item.exchangeResourceType);
                     }
                 },
                 {
                     field: 'txId',
-                    title: '交易id'
+                    title: '交易id',
+                    visible: false
                 },
                     {
                         field: 'fcd',
@@ -118,18 +119,18 @@
                         field: 'lcu',
                         title: '更新用户',
                         visible: false
-                    },
+                    }/*,
 
                     {
                     title: '操作',
                     align: 'center',
                     formatter: function(value, row, index) {
                         var actions = [];
-                        /*actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.idFreezeBalanceInfo + '\')"><i class="fa fa-edit"></i>编辑</a> ');*/
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.idFreezeBalanceInfo + '\')"><i class="fa fa-edit"></i>编辑</a> ');
                         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.idFreezeBalanceInfo + '\')"><i class="fa fa-remove"></i>删除</a>');
                         return actions.join('');
                     }
-                }]
+                }*/]
             };
             $.table.init(options);
         });
