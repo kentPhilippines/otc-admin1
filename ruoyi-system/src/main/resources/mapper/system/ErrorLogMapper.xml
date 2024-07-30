@@ -34,6 +34,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="lcd != null "> and lcd = #{lcd}</if>
             <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
         </where>
+        order by fcd desc
     </select>
     
     <select id="selectErrorLogByIdErrorLog" parameterType="Long" resultMap="ErrorLogResult">

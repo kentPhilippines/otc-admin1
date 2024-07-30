@@ -104,10 +104,30 @@
                           title: '能量资源',
                       },{
                           field: 'totalFrozen',
-                          title: '抵押资产TRX',
+                          title: '在押资产',
+                          formatter: function (value, row, index) {
+                              // 确保值是一个数字
+                              if (!isNaN(value)) {
+                                  // 保留两位小数
+                                  return parseFloat(value).toFixed(2);
+                              } else {
+                                  // 如果值不是数字，直接返回原值
+                                  return value;
+                              }
+                          }
                       },{
                           field: 'trxBalance',
-                          title: 'TRX余额',
+                          title: '账户余额',
+                          formatter: function (value, row, index) {
+                              // 确保值是一个数字
+                              if (!isNaN(value)) {
+                                  // 保留两位小数
+                                  return parseFloat(value).toFixed(2);
+                              } else {
+                                  // 如果值不是数字，直接返回原值
+                                  return value;
+                              }
+                          }
                       },
                       {
                           field: 'fcd',

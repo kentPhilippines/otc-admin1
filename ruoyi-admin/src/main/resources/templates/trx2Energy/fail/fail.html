@@ -96,7 +96,8 @@
                     field: 'fromAddress',
                     title: '转出账户',
                     formatter: function (value, row, index) {
-                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + value + "</a>";
+                        const maskedValue = value.replace(/^(.{6}).*(.{8})$/, '$1***$2');
+                        return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + maskedValue + "</a>";
                     }
                 },
                 {
@@ -179,7 +180,7 @@
                 },
                 {
                     field: 'calcRule',
-                    title: '笔数计算规则',
+                    title: '能量规则',
                     formatter: function(value, row, index) {
                        return $.table.selectDictLabel(calcRuleDatas, value);
                     }

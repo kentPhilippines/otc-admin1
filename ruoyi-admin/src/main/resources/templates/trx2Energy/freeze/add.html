@@ -23,7 +23,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-3 control-label">交换资源：</label>
+                <label class="col-sm-3 control-label">充值类型：</label>
                 <div class="col-sm-8">
                     <select class="form-control" name="exchangeResourceType" th:with="type=${@dict.getType('sys_trx_exchange')}">
                         <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>

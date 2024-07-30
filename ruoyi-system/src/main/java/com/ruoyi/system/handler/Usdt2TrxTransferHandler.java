@@ -230,8 +230,8 @@ public class Usdt2TrxTransferHandler {
                 arguments.put("usdtAmount", transferValue.setScale(2, BigDecimal.ROUND_HALF_DOWN));
                 arguments.put("exchangeRate", oneUsdtToTrx);
                 arguments.put("trxAmount", trxValue);
-                arguments.put("FromAddress", from.replaceAll("(.{6})(.*)(.{8})", "$1\\*\\*\\*\\*$3"));
-                arguments.put("txId", txId.replaceAll("(.{6})(.*)(.{8})", "$1\\*\\*\\*\\*\\*\\*\\*\\*$3"));
+                arguments.put("FromAddress", from.replaceAll("(.{6})(.*)(.{8})", "$1\\\\*\\\\*\\\\*\\\\*$3"));
+                arguments.put("txId", txId.replaceAll("(.{6})(.*)(.{8})", "$1\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*\\\\*$3"));
                 arguments.put("txTime", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
                 StrSubstitutor substitutor = new StrSubstitutor(arguments, "{", "}");
                 String message = substitutor.replace(sysUsdtTranferNotice);

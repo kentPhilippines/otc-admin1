@@ -35,7 +35,7 @@ public class MonitorAddressInfoVO
     @Excel(name = "监听地址")
     private String monitorAddress;
 
-    @Excel(name = "TRX余额")
+    @Excel(name = "账户余额")
     private BigDecimal trxBalance;
 
 
