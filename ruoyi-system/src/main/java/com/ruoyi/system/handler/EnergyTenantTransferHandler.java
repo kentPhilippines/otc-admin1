@@ -85,24 +85,17 @@ public class EnergyTenantTransferHandler {
                     return;
                 }
 
-           /*
-                TrxExchangeInfo trxExchangeInfo = buildTrxExchangeInfo(tenantInfo, eneryBusiTypeByDay);
-
-                List<TrxExchangeMonitorAccountInfo> trxExchangeMonitorAccountInfoList = trxExchangeInfoMapper.selectTrxExchangeMonitorAccountInfo(trxExchangeInfo);
-                       for (TrxExchangeMonitorAccountInfo trxExchangeMonitorAccountInfo : trxExchangeMonitorAccountInfoList) {
-                    undelegateEnergyHandler.unDelegateResource(trxExchangeMonitorAccountInfo);
-                }*/
-
                 if (CollectionUtil.isNotEmpty(trxExchangeMonitorAccountInfoList)) {
                     tenantInfo.setTotalCountUsed(0L);
                     tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
                     tenantInfo.setLcu("system");
+                    tenantInfo.setLcd(new Date());
                     tenantInfoMapper.updateTenantInfo(tenantInfo);
                 } else {
                     //赠送每天的能量
                     tenantInfoService.doDelegateEnergy(tenantInfo, "system");
                 }
-            } else {
+            } /*else {
                 String delegateStatus = DictUtils.getDictValue("sys_delegate_status", "已回收");
                 //查看有没有没回收的能量,有的话先回收
                 TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder()
@@ -117,11 +110,12 @@ public class EnergyTenantTransferHandler {
                     //一笔都没有使用,每天自动扣除一笔
                     tenantInfo.setTotalCountUsed(tenantInfo.getTotalCountUsed() + 1);
                     tenantInfo.setLcu("system");
-                    tenantInfoMapper.updateTenantInfo(tenantInfo);
+                    tenantInfo.setLcd(new Date());
+//                    tenantInfoMapper.updateTenantInfo(tenantInfo);
                 }
 
                 tenantInfoMapper.updateTenantInfo(tenantInfo);
-            }
+            }*/
 
         } catch (Exception e) {
             String exceptionString = LogUtils.doRecursiveReversePrintStackCause(e, 5, ForwardCounter.builder().count(0).build(), 5);

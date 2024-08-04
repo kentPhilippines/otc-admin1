@@ -1,14 +1,12 @@
 package com.ruoyi.system.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.google.common.base.Preconditions;
 import com.ruoyi.common.core.domain.entity.PointRechargeOrder;
-import com.ruoyi.common.core.domain.entity.UserPoint;
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.common.utils.SnowFlakeUtil;
+import com.ruoyi.system.handler.Usdt2SmsPointTransferHandler;
 import com.ruoyi.system.mapper.PointRechargeOrderMapper;
-import com.ruoyi.system.mapper.UserPointMapper;
 import com.ruoyi.system.service.IPointRechargeOrderService;
 import com.ruoyi.system.service.ISysConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +31,7 @@ public class PointRechargeOrderServiceImpl implements IPointRechargeOrderService
     private PointRechargeOrderMapper pointRechargeOrderMapper;
 
     @Autowired
-    private UserPointMapper userPointMapper;
+    private Usdt2SmsPointTransferHandler usdt2SmsPointTransferHandler;
     @Autowired
     private ISysConfigService configService;
     @Autowired
@@ -83,7 +81,7 @@ public class PointRechargeOrderServiceImpl implements IPointRechargeOrderService
 
         String status = pointRechargeOrder.getStatus();
         if (!"N".equals(status)) {
-            createOrUpdateUserPoints(pointRechargeOrder);
+            usdt2SmsPointTransferHandler.createOrUpdateUserPoints(pointRechargeOrder);
         }
 
 
@@ -108,21 +106,7 @@ public class PointRechargeOrderServiceImpl implements IPointRechargeOrderService
         pointRechargeOrder.setExchangeRate(exchangeRate);
     }
 
-    private void createOrUpdateUserPoints(PointRechargeOrder pointRechargeOrder) {
-        UserPoint userPoint = new UserPoint();
-        userPoint.setUserId(pointRechargeOrder.getUserId());
-        List<UserPoint> userPoints = userPointMapper.selectUserPointList(userPoint);
-        if (CollectionUtil.isNotEmpty(userPoints)) {
-            UserPoint userPointResult = userPoints.get(0);
-            BigDecimal pointBalance = userPointResult.getPointBalance();
-            BigDecimal add = pointBalance.add(pointRechargeOrder.getPoints());
-            userPointResult.setPointBalance(add);
-            userPointMapper.updateUserPoint(userPointResult);
-        } else {
-            userPoint.setPointBalance(pointRechargeOrder.getPoints());
-            userPointMapper.insertUserPoint(userPoint);
-        }
-    }
+
 
     /**
      * 修改群发充值管理
@@ -139,7 +123,7 @@ public class PointRechargeOrderServiceImpl implements IPointRechargeOrderService
             PointRechargeOrder pointRechargeOrderDetail = pointRechargeOrderMapper.selectPointRechargeOrderByIdPointRechargeOrder(pointRechargeOrder.getIdPointRechargeOrder());
             if (!pointRechargeOrderDetail.getStatus().equals(pointRechargeOrder.getStatus())) {
                 //状态发生变化了再更新
-                createOrUpdateUserPoints(pointRechargeOrderDetail);
+                usdt2SmsPointTransferHandler.createOrUpdateUserPoints(pointRechargeOrderDetail);
             }
         }
         return pointRechargeOrderMapper.updatePointRechargeOrder(pointRechargeOrder);
@@ -205,6 +189,7 @@ public class PointRechargeOrderServiceImpl implements IPointRechargeOrderService
         pointRechargeOrder.setUpdateBy(loginName);
         pointRechargeOrder.setStatus("N");
         pointRechargeOrderMapper.insertPointRechargeOrder(pointRechargeOrder);
+        redisTemplate.opsForValue().set("sms_recharge_amount_" + finalAmout,pointRechargeOrder);
         return pointRechargeOrder.getIdPointRechargeOrder();
     }
 
@@ -212,7 +197,7 @@ public class PointRechargeOrderServiceImpl implements IPointRechargeOrderService
         BigDecimal amount = pointRechargeOrder.getAmount();
         Random random = new Random();
         int randomInt = random.nextInt(100);
-        BigDecimal finalAmout = BigDecimal.valueOf(randomInt).divide(BigDecimal.valueOf(100)).add(amount);
+        BigDecimal finalAmout = BigDecimal.valueOf(randomInt).divide(BigDecimal.valueOf(100)).add(amount).setScale(4,BigDecimal.ROUND_UP);
         return finalAmout;
     }
 }

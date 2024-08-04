@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,32 +83,15 @@ public class GetSmsDetailTaskHandler {
                     smsTaskTblResult.setActSummary(actSummary);
                     BigDecimal preSummary = smsTaskTblResult.getPreSummary();
 
-                    BigDecimal subtract = preSummary.subtract(actSummary);
+                    BigDecimal subtract = preSummary.subtract(actSummary).setScale(2, RoundingMode.HALF_UP);
 
                     UserPoint userPointParam = new UserPoint();
                     userPointParam.setUserId(Long.valueOf(smsTaskTblResult.getUserId()));
                     UserPoint userPoint = userPointMapper.selectUserPointList(userPointParam).get(0);
-
                     BigDecimal pointBalance = userPoint.getPointBalance();
                     BigDecimal pointBalanceNew = pointBalance.add(subtract);
                     userPoint.setPointBalance(pointBalanceNew);
                     userPointMapper.updateUserPoint(userPoint);
-
-//                    smsTaskTbl.setCompleteTime(DateUtil.parse(taskDetailResponse.getCompleteTime()));
-//                    String successRate = taskDetailResponse.getSuccessRate();
-//                    if (successRate != null) {
-//                        smsTaskTbl.setSuccessRate(successRate);
-//                        String[] split = successRate.split("/");
-//                        smsTaskTbl.setSuccessCount(Long.parseLong(split[0]));
-////                        smsTaskTbl.setTotalCount(Long.parseLong(split[1]));
-//                    }
-//               /*     BigDecimal preSummary = taskDetailResponse.getPreSummary();
-//                    if (preSummary != null) {
-//                        smsTaskTbl.setPreSummary(preSummary);
-//                    }*/
-////                    smsTaskTbl.setIssueCount(Long.valueOf(taskDetailResponse.getIssueCount()));
-//                    smsTaskTbl.setTaskStatus(taskDetailResponse.getTaskStatus());
-//                    smsTaskTbl.setUpdateBy("system");
                     smsTaskTbl.setSettleStatus("1");
                     smsTaskTblMapper.updateSmsTaskTblByTaskId(smsTaskTbl);
                 });

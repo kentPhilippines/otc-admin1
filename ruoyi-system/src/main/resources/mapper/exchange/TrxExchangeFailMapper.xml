@@ -37,6 +37,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="delegateStatus != null  and delegateStatus != ''"> and delegate_status = #{delegateStatus}</if>
             <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectTrxExchangeFailByIdTrxExchangeFail" parameterType="Long" resultMap="TrxExchangeFailResult">

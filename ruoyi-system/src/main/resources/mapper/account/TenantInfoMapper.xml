@@ -53,8 +53,10 @@
             <if test="lcd != null "> and lcd = #{lcd}</if>
             <if test="lcu != null  and lcu != ''"> and lcu = #{lcu}</if>
         </where>
+
         <!-- 数据范围过滤 -->
         ${params.dataScope}
+
     </select>
 
     <select id="selectTenantInfoByIdTenantInfo" parameterType="Long" resultMap="TenantInfoResult">

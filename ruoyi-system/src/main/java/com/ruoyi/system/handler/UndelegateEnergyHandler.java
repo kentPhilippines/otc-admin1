@@ -205,7 +205,7 @@ public class UndelegateEnergyHandler {
 
                 tenantInfo = tenantInfoList.get(0);
                 Long totalCountUsed = tenantInfo.getTotalCountUsed();
-                long newTotalCountUsed  = totalCountUsed + countUsed;
+                Long newTotalCountUsed  = totalCountUsed + countUsed;
                 tenantInfo.setTotalCountUsed(newTotalCountUsed);
                 Long transferCount = tenantInfo.getTransferCount();
                 if (newTotalCountUsed < transferCount) {
@@ -223,7 +223,9 @@ public class UndelegateEnergyHandler {
                             null,
                             null,
                             "system",
-                            Common.ResourceCode.ENERGY.name(), tenantInfo.getCalcRule(), null);
+                            Common.ResourceCode.ENERGY.name(),
+                            tenantInfo.getCalcRule(),
+                            null);
 
                 } else {
                     Long period = tenantInfo.getPeriod();

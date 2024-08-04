@@ -10,10 +10,7 @@
                 <form id="formId">
                     <div class="select-list">
                         <ul>
-                          <!--  <li>
-                                <label>用户：</label>
-                                <input type="text" name="userId"/>
-                            </li>-->
+
                             <li>
                                 <label>充值订单：</label>
                                 <input type="text" name="orderNumber"/>
@@ -21,6 +18,14 @@
                             <li>
                                 <label>充值金额：</label>
                                 <input type="text" name="amount"/>
+                            </li>
+                            <li>
+                                <label>转出账户：</label>
+                                <input type="text" name="fromAddress"/>
+                            </li>
+                            <li>
+                                <label>订单hash：</label>
+                                <input type="text" name="txId"/>
                             </li>
 
                             <li>
@@ -132,6 +137,27 @@
                        return $.table.selectDictLabel(statusDatas, value);
                     }
                 },
+                    {
+                        field: 'fromAddress',
+                        title: '充值地址',
+                        formatter: function (value, row, index) {
+                            if (value == null) {
+                                return value;
+                            }
+                            const maskedValue = value.replace(/^(.{6}).*(.{8})$/, '$1***$2');
+                            return "<a href='https://www.oklink.com/zh-hans/trx/address/" + value + "' target='_blank'>" + maskedValue + "</a>";
+                        }
+                    },
+                    {
+                        field: 'toAddress',
+                        title: '转入账户',
+                        visible: false
+                    },
+                    {
+                        field: 'txId',
+                        title: '订单hash',
+                        visible: false
+                    },
                 {
                     title: '操作',
                     align: 'center',

@@ -44,12 +44,48 @@ public class PointRechargeOrder extends BaseEntity
     @Excel(name = "支付状态")
     private String status;
 
+    /** 转出账户 */
+    @Excel(name = "转出账户")
+    private String fromAddress;
+
+    /** 转入账户 */
+    @Excel(name = "转入账户")
+    private String toAddress;
+
+    /** 订单hash */
+    @Excel(name = "订单hash")
+    private String txId;
+
     public void setIdPointRechargeOrder(Long idPointRechargeOrder) 
     {
         this.idPointRechargeOrder = idPointRechargeOrder;
     }
 
-    public Long getIdPointRechargeOrder() 
+    public String getFromAddress() {
+        return fromAddress;
+    }
+
+    public void setFromAddress(String fromAddress) {
+        this.fromAddress = fromAddress;
+    }
+
+    public String getToAddress() {
+        return toAddress;
+    }
+
+    public void setToAddress(String toAddress) {
+        this.toAddress = toAddress;
+    }
+
+    public String getTxId() {
+        return txId;
+    }
+
+    public void setTxId(String txId) {
+        this.txId = txId;
+    }
+
+    public Long getIdPointRechargeOrder()
     {
         return idPointRechargeOrder;
     }
