@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DefaultConfiguration {
-    @Value("${snowflake.workerId}")
+    @Value("${snowflake.workerId:1}")
     private long workerId;
-    @Value("${snowflake.dataCenterId}")
+    @Value("${snowflake.dataCenterId:1}")
     private long dataCenterId;
     @Bean
     public SnowFlakeUtil getSnowFlakeUtil(){

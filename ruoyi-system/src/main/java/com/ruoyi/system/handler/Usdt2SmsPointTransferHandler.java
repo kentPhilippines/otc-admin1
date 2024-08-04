@@ -11,6 +11,7 @@ import com.ruoyi.common.core.domain.entity.UserPoint;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.ForwardCounter;
 import com.ruoyi.common.utils.LogUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.api.IOkxApi;
 import com.ruoyi.system.api.ITronApi;
 import com.ruoyi.system.api.enums.ContractType;
@@ -148,13 +149,15 @@ public class Usdt2SmsPointTransferHandler {
             pointRechargeOrder.setFromAddress(from);
             pointRechargeOrder.setToAddress(dataTo);
             pointRechargeOrder.setTxId(transactionId);
+            pointRechargeOrder.setUpdateTime(new Date());
+            pointRechargeOrder.setUpdateBy("system");
             pointRechargeOrderMapper.updatePointRechargeOrder(pointRechargeOrder);
 
-            createOrUpdateUserPoints(pointRechargeOrder);
+            createOrUpdateUserPoints(pointRechargeOrder,null);
 
             redisTemplate.delete("sms_recharge_amount_" + transferValue);
 
-            redisTemplate.opsForValue().set("transfer_USDT_" + transactionId, transactionId, 1, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set("transfer_USDT_SMS_" + transactionId, transactionId, 1, TimeUnit.DAYS);
         } finally {
             if (lock.isLocked()) {
                 if (lock.isHeldByCurrentThread()) {
@@ -200,7 +203,7 @@ public class Usdt2SmsPointTransferHandler {
         }
     }
 
-    public void createOrUpdateUserPoints(PointRechargeOrder pointRechargeOrder) {
+    public void createOrUpdateUserPoints(PointRechargeOrder pointRechargeOrder,String loginName) {
         Long userId = pointRechargeOrder.getUserId();
         RLock lock = redissonClient.getLock("lock_" + userId);
         try {
@@ -211,9 +214,9 @@ public class Usdt2SmsPointTransferHandler {
             }
 
             UserPoint userPoint = new UserPoint();
-
             userPoint.setUserId(userId);
             List<UserPoint> userPoints = userPointMapper.selectUserPointList(userPoint);
+            String name = StringUtils.isNotBlank(loginName) ? loginName : "system";
             if (CollectionUtil.isNotEmpty(userPoints)) {
                 UserPoint userPointResult = userPoints.get(0);
                 BigDecimal pointBalance = userPointResult.getPointBalance();
@@ -222,8 +225,14 @@ public class Usdt2SmsPointTransferHandler {
                 }
                 BigDecimal add = pointBalance.add(pointRechargeOrder.getPoints());
                 userPointResult.setPointBalance(add);
+                userPointResult.setUpdateTime(new Date());
+
+                userPointResult.setUpdateBy(name);
                 userPointMapper.updateUserPoint(userPointResult);
             } else {
+                userPoint.setCreateTime(new Date());
+                userPoint.setCreateBy(name);
+                userPoint.setUpdateBy(name);
                 userPoint.setPointBalance(pointRechargeOrder.getPoints() == null ? BigDecimal.ZERO : pointRechargeOrder.getPoints());
                 userPointMapper.insertUserPoint(userPoint);
             }

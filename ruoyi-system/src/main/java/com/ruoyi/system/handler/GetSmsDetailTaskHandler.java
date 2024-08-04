@@ -14,13 +14,18 @@ import com.ruoyi.system.mapper.SmsTaskTblMapper;
 import com.ruoyi.system.mapper.UserPointMapper;
 import com.ruoyi.system.util.RsaUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
@@ -37,6 +42,11 @@ public class GetSmsDetailTaskHandler {
 
     @Autowired
     private UserPointMapper userPointMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private RedissonClient redissonClient;
 
     public void doGetSmsDetailTask(List<SmsTaskTbl> smsTaskTblList) {
         List<Long> taskIds = smsTaskTblList.stream().filter(smsTaskTbl -> {
@@ -85,15 +95,39 @@ public class GetSmsDetailTaskHandler {
 
                     BigDecimal subtract = preSummary.subtract(actSummary).setScale(2, RoundingMode.HALF_UP);
 
-                    UserPoint userPointParam = new UserPoint();
-                    userPointParam.setUserId(Long.valueOf(smsTaskTblResult.getUserId()));
-                    UserPoint userPoint = userPointMapper.selectUserPointList(userPointParam).get(0);
-                    BigDecimal pointBalance = userPoint.getPointBalance();
-                    BigDecimal pointBalanceNew = pointBalance.add(subtract);
-                    userPoint.setPointBalance(pointBalanceNew);
-                    userPointMapper.updateUserPoint(userPoint);
-                    smsTaskTbl.setSettleStatus("1");
-                    smsTaskTblMapper.updateSmsTaskTblByTaskId(smsTaskTbl);
+                    String userId = smsTaskTblResult.getUserId();
+                    RLock lock = redissonClient.getLock("lock_" + userId);
+                    try {
+                        boolean res = lock.tryLock(1, 2, TimeUnit.SECONDS);
+                        if (!res) {
+                            //有其他程序正在处理则不需要再处理
+                            return;
+                        }
+                        UserPoint userPointParam = new UserPoint();
+
+                        userPointParam.setUserId(Long.valueOf(userId));
+                        UserPoint userPoint = userPointMapper.selectUserPointList(userPointParam).get(0);
+                        BigDecimal pointBalance = userPoint.getPointBalance();
+                        BigDecimal pointBalanceNew = pointBalance.add(subtract);
+                        userPoint.setPointBalance(pointBalanceNew);
+                        userPoint.setUpdateTime(new Date());
+                        userPoint.setUpdateBy("system");
+
+                        userPointMapper.updateUserPoint(userPoint);
+                        smsTaskTbl.setSettleStatus("1");
+                        smsTaskTbl.setUpdateTime(new Date());
+                        smsTaskTbl.setUpdateBy("system");
+                        smsTaskTbl.setTaskBeginTime(DateUtil.parse(taskDetailResponse.getTaskBeginTime()));
+                        smsTaskTblMapper.updateSmsTaskTblByTaskId(smsTaskTbl);
+                    } catch (InterruptedException e) {
+                        log.error("获取短信详情失败:{}", smsTaskTbl.getTaskId(), e);
+                    } finally {
+                        if (lock.isLocked()) {
+                            if (lock.isHeldByCurrentThread()) {
+                                lock.unlock();
+                            }
+                        }
+                    }
                 });
 
     }

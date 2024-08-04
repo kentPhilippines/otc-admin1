@@ -54,6 +54,7 @@ public class MonitorUsdt2SmsPointTransferTask {
             if(between > 1){
                 //设置为已过期
                 pointRechargeOrder.setStatus("E");
+                pointRechargeOrder.setUpdateTime(new Date());
                 pointRechargeOrderMapper.updatePointRechargeOrder(pointRechargeOrder);
                 redisTemplate.delete("sms_recharge_amount_" + pointRechargeOrder.getAmount());
             }

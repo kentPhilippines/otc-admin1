@@ -52,7 +52,7 @@ public class SnowFlakeUtil {
 
 
     // workId
-    @Value("${snowflake.workerId}")
+    @Value("${snowflake.workerId:1}")
     private long workerId;
 
     // 最后12位，代表每毫秒内可产生最大序列号，即 2^12 - 1 = 4095

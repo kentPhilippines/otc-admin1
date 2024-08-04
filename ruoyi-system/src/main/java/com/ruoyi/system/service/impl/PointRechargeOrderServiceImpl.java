@@ -81,7 +81,7 @@ public class PointRechargeOrderServiceImpl implements IPointRechargeOrderService
 
         String status = pointRechargeOrder.getStatus();
         if (!"N".equals(status)) {
-            usdt2SmsPointTransferHandler.createOrUpdateUserPoints(pointRechargeOrder);
+            usdt2SmsPointTransferHandler.createOrUpdateUserPoints(pointRechargeOrder,loginName);
         }
 
 
@@ -123,7 +123,7 @@ public class PointRechargeOrderServiceImpl implements IPointRechargeOrderService
             PointRechargeOrder pointRechargeOrderDetail = pointRechargeOrderMapper.selectPointRechargeOrderByIdPointRechargeOrder(pointRechargeOrder.getIdPointRechargeOrder());
             if (!pointRechargeOrderDetail.getStatus().equals(pointRechargeOrder.getStatus())) {
                 //状态发生变化了再更新
-                usdt2SmsPointTransferHandler.createOrUpdateUserPoints(pointRechargeOrderDetail);
+                usdt2SmsPointTransferHandler.createOrUpdateUserPoints(pointRechargeOrderDetail,loginName);
             }
         }
         return pointRechargeOrderMapper.updatePointRechargeOrder(pointRechargeOrder);

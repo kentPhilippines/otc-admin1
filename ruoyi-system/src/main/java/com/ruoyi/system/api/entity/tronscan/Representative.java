@@ -9,7 +9,7 @@ public class Representative implements Serializable {
 
 
     private static final long serialVersionUID = 1L;
-    private int lastWithDrawTime;
+    private long lastWithDrawTime;
     private int allowance;
     private boolean enabled;
     private String url;

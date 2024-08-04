@@ -11,10 +11,10 @@
                     <div class="select-list">
                         <ul>
 
-                            <li>
+                          <!--  <li>
                                 <label>充值订单：</label>
                                 <input type="text" name="orderNumber"/>
-                            </li>
+                            </li>-->
                             <li>
                                 <label>充值金额：</label>
                                 <input type="text" name="amount"/>
@@ -24,7 +24,7 @@
                                 <input type="text" name="fromAddress"/>
                             </li>
                             <li>
-                                <label>订单hash：</label>
+                                <label>txid：</label>
                                 <input type="text" name="txId"/>
                             </li>
 
@@ -33,6 +33,7 @@
                                 <select name="status" th:with="type=${@dict.getType('sys_is_paid')}">
                                     <option value="">所有</option>
                                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+
                                 </select>
                             </li>
 
@@ -83,6 +84,8 @@
                 removeUrl: prefix + "/remove",
                 exportUrl: prefix + "/export",
                 modalName: "群发充值管理",
+                sortName:"updateTime",
+                sortOrder:"desc",
                 columns: [{
                     checkbox: true
                 },
@@ -156,6 +159,24 @@
                     {
                         field: 'txId',
                         title: '订单hash',
+                        visible: false
+                    }, {
+                        field: 'createBy',
+                        title: '创建者',
+                        visible: false
+                    },
+                    {
+                        field: 'createTime',
+                        title: '创建时间'
+                    },
+                    {
+                        field: 'updateBy',
+                        title: '更新者',
+                        visible: false
+                    },
+                    {
+                        field: 'updateTime',
+                        title: '更新时间',
                         visible: false
                     },
                 {
