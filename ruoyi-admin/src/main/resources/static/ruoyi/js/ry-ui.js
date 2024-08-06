@@ -616,7 +616,8 @@ var table = {
                     showRefresh: true,
                     showColumns: true,
                     expandAll: true,
-                    expandFirst: true
+                    expandFirst: true,
+                    rememberExpanded: false
                 };
                 var options = $.extend(defaults, options);
                 table.options = options;
@@ -644,8 +645,9 @@ var table = {
                     showColumns: options.showColumns,                   // 是否显示隐藏某列下拉框
                     expandAll: options.expandAll,                       // 是否全部展开
                     expandFirst: options.expandFirst,                   // 是否默认第一级展开--expandAll为false时生效
+                    rememberExpanded: options.rememberExpanded,         // 是否记住已展开的行信息
                     columns: options.columns,                           // 显示列信息（*）
-                    onClickRow: options.onClickRow,                     // 单击某行事件
+                    onClickRow: $.treeTable.onClickRow,                 // 单击某行事件
                     responseHandler: $.treeTable.responseHandler,       // 在加载服务器发送来的数据之前处理函数
                     onLoadSuccess: $.treeTable.onLoadSuccess            // 当所有数据被加载时触发处理函数
                 });
@@ -668,6 +670,17 @@ var table = {
                 });
                 return distinct ? $.common.uniqueFn(rows) : rows;
             },
+            // 单击某行事件
+            onClickRow: function(item) {
+                if (table.options.rememberExpanded){
+                    sessionStorage.setItem('ryExpandedRows', $('span[class*="glyphicon-chevron-down"]').map(function() {
+                        return $(this).closest('tr').attr('data-id');
+                    }).get().toString());
+                }
+                if (typeof table.options.onClickRow == "function") {
+                    table.options.onClickRow(item);
+                }
+            },
             // 请求获取数据后处理回调函数，校验异常状态提醒
             responseHandler: function(res) {
                 if (typeof table.options.responseHandler == "function") {
@@ -682,6 +695,14 @@ var table = {
             },
             // 当所有数据被加载时触发
             onLoadSuccess: function(data) {
+                if (table.options.rememberExpanded){
+                    let storedValue = sessionStorage.getItem('ryExpandedRows');
+                    if ($.common.isNotEmpty(storedValue)){
+                        for (let id of storedValue.split(",")) {
+                            $("tr[data-id='" + id +"']").find('span[class*="glyphicon-chevron-right"]').click();
+                        }
+                    }
+                }
                 if (typeof table.options.onLoadSuccess == "function") {
                     table.options.onLoadSuccess(data);
                 }
