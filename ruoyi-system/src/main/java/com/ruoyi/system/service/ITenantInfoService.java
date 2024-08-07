@@ -66,4 +66,8 @@ public interface ITenantInfoService
 //    void doDelegateEnergy(TenantInfo tenantInfo) throws Exception;
 
     void doDelegateEnergy(TenantInfo tenantInfo, String userName) throws Exception;
+
+    void doDelegateEnergy(TenantInfo tenantInfo, String userName, String accountAddress, String monitorAddress) throws Exception;
+
+    List<TenantInfo> selectTenantInfoListNotExistsInExchange(TenantInfo tenantInfoExample);
 }

@@ -227,11 +227,22 @@ public class TenantInfoServiceImpl implements ITenantInfoService {
         }
 
 
+        doDelegateEnergy(tenantInfo, userName, accountAddress, monitorAddress);
+
+        tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
+        tenantInfo.setTotalCountUsed(0L);
+        tenantInfo.setLcd(new Date());
+        tenantInfo.setLcu("system");
+        tenantInfoMapper.updateTenantInfo(tenantInfo);
+    }
+
+    @Override
+    public void doDelegateEnergy(TenantInfo tenantInfo, String userName, String accountAddress, String monitorAddress) throws Exception {
         TrxExchange trxExchange = new TrxExchange();
         trxExchange.setFromAddress(tenantInfo.getReceiverAddress());
 
         trxExchange.setAccountAddress(accountAddress);
-//        trxExchange.setTransferNumber(tenantInfo.getTransferCount());
+
         trxExchange.setTransferNumber(2L);
 
         trxExchange.setPrice(tenantInfo.getPrice());
@@ -245,15 +256,14 @@ public class TenantInfoServiceImpl implements ITenantInfoService {
         trxExchange.setResourceCode(Common.ResourceCode.ENERGY.name());
         trxExchange.setCalcRule(tenantInfo.getCalcRule());
 
-
         userName = userName == null ? ShiroUtils.getLoginName() : userName;
 
         trxExchangeInfoService.delegate(trxExchange, true, userName);
+    }
 
-        tenantInfo.setDelegatedDays(tenantInfo.getDelegatedDays() + 1);
-        tenantInfo.setTotalCountUsed(0L);
-        tenantInfo.setLcd(new Date());
-        tenantInfoMapper.updateTenantInfo(tenantInfo);
+    @Override
+    public List<TenantInfo> selectTenantInfoListNotExistsInExchange(TenantInfo tenantInfoExample) {
+        return tenantInfoMapper.selectTenantInfoListNotExistsInExchange(tenantInfoExample);
     }
 
 }

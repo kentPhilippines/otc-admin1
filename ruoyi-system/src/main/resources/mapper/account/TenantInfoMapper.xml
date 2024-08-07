@@ -151,4 +151,17 @@
         </foreach>
     </delete>
 
+    <select id="selectTenantInfoListNotExistsInExchange" parameterType="TenantInfo" resultMap="TenantInfoResult">
+        <include refid="selectTenantInfoVo"/>
+        <where>
+            <if test="status != null and status != ''">
+                and t.status = #{status}
+            </if>
+            and not exists(select 1
+                           from trx_exchange_info te
+                           where t.receiver_address = te.from_address
+                             and t.energy_busi_type = te.energy_busi_type
+                             and te.delegate_status = '0')
+        </where>
+    </select>
 </mapper>

@@ -83,7 +83,7 @@ public class TRX2EneryTransferHandler {
     public void doMonitorTrxTransferByMonitorAddressInfo(MonitorAddressAccount monitorAddressAccount) {
 
         String monitorAddress = monitorAddressAccount.getMonitorAddress();
-/*        String apiKey = monitorAddressAccount.getApiKey();*/
+        /*        String apiKey = monitorAddressAccount.getApiKey();*/
         String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
 
         ResponseEntity responseEntity = null;
@@ -294,7 +294,7 @@ public class TRX2EneryTransferHandler {
         String accountAddress = monitorAddressAccount.getAccountAddress();
         String encryptPrivateKey = monitorAddressAccount.getEncryptPrivateKey();
         String encryptKey = monitorAddressAccount.getEncryptKey();
-     /*   String apiKey = monitorAddressAccount.getApiKey();*/
+        /*   String apiKey = monitorAddressAccount.getApiKey();*/
         String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
 
         String decryptPrivateKey = Dt.decrypt(encryptPrivateKey, encryptKey);
@@ -321,7 +321,7 @@ public class TRX2EneryTransferHandler {
         }
 
 
-        calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, sysEnergyBusiType, amount,"TRX","system",Common.ResourceCode.ENERGY.name(),"energy_used",monitorAddressAccount);
+        calcBalanceAndDelegate(txID, apiWrapper, accountAddress, transferCount, ownerAddress, lockPeriod, toAddress, price, sysEnergyBusiType, amount, "TRX", "system", Common.ResourceCode.ENERGY.name(), "energy_used", monitorAddressAccount);
         //持久化之后放redis
         redisTemplate.opsForValue().set("transfer_trx_" + txID, txID, 1, TimeUnit.DAYS);
         if (tenantInfo != null) {
@@ -364,6 +364,7 @@ public class TRX2EneryTransferHandler {
         String systronApiSwitch = configService.selectConfigByKey("sys.tron.api");
         Long balance = null;
         String delegateResourceTxid = null;
+        String fromAddress = AddressUtil.hexToBase58(ownerAddress);
         if (UserConstants.YES.equals(systronApiSwitch)) {
             Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(accountAddress);
 
@@ -375,10 +376,10 @@ public class TRX2EneryTransferHandler {
             try {
                 delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, ownerAddress, resourceCode);
             } catch (Exception e) {
-                Object cacheidTrxExchangeFail = redisTemplate.opsForValue().get("transfer_trx_fail_" + txID);
-                if (cacheidTrxExchangeFail == null){
+                Object cacheidTrxExchangeFail = redisTemplate.opsForValue().get("transfer_trx_fail_" + fromAddress + "_" + txID);
+                if (cacheidTrxExchangeFail == null) {
                     TrxExchangeFail trxExchangeFail = new TrxExchangeFail();
-                    trxExchangeFail.setFromAddress(AddressUtil.hexToBase58(ownerAddress));
+                    trxExchangeFail.setFromAddress(fromAddress);
                     trxExchangeFail.setToAddress(AddressUtil.hexToBase58(toAddress));
                     trxExchangeFail.setAccountAddress(accountAddress);
                     trxExchangeFail.setPrice(price);
@@ -391,14 +392,14 @@ public class TRX2EneryTransferHandler {
                     trxExchangeFail.setLockPeriod(lockPeriod);
                     trxExchangeFail.setDelegateStatus("2");
                     trxExchangeFail.setCalcRule(calcRule);
-                   trxExchangeFailMapper.insertTrxExchangeFail(trxExchangeFail);
-                    redisTemplate.opsForValue().set("transfer_trx_fail_" + txID, trxExchangeFail.getIdTrxExchangeFail(), 7, TimeUnit.DAYS);
+                    trxExchangeFailMapper.insertTrxExchangeFail(trxExchangeFail);
+                    redisTemplate.opsForValue().set("transfer_trx_fail_" + fromAddress + "_" + txID, trxExchangeFail.getIdTrxExchangeFail(), 7, TimeUnit.DAYS);
                 }
                 throw new RuntimeException(e);
             }
 
         }
-        String fromAddress = AddressUtil.hexToBase58(ownerAddress);
+//        String fromAddress = fromAddress1;
         TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder()
                 .fromAddress(fromAddress)
                 .toAddress(AddressUtil.hexToBase58(toAddress))
@@ -422,15 +423,15 @@ public class TRX2EneryTransferHandler {
                 .build();
         trxExchangeInfoMapper.insertTrxExchangeInfo(trxExchangeInfo);
 
-        Object cacheidTrxExchangeFail = redisTemplate.opsForValue().get("transfer_trx_fail_" + txID);
-        if (cacheidTrxExchangeFail != null){
+        Object cacheidTrxExchangeFail = redisTemplate.opsForValue().get("transfer_trx_fail_" + trxExchangeInfo.getFromAddress() + "_" + txID);
+        if (cacheidTrxExchangeFail != null) {
 
             TrxExchangeFail trxExchangeFail = new TrxExchangeFail();
             trxExchangeFail.setIdTrxExchangeFail(Long.valueOf(cacheidTrxExchangeFail.toString()));
             trxExchangeFail.setDelegateStatus("0");
             trxExchangeFail.setUpdateTime(new Date());
             trxExchangeFailMapper.updateTrxExchangeFail(trxExchangeFail);
-            redisTemplate.delete("transfer_trx_fail_" + txID);
+            redisTemplate.delete("transfer_trx_fail_" + trxExchangeInfo.getFromAddress() + "_" + txID);
         }
 
 
@@ -439,13 +440,13 @@ public class TRX2EneryTransferHandler {
             CompletableFuture.runAsync(() -> {
                 String sysenTrxTransferNotice = configService.selectConfigByKey("sys.energy.transaction.notice");
                 String sysTgGroupChatId = configService.selectConfigByKey("sys.tg.group.chat.id");
-                if (monitorAddressAccount != null){
+                if (monitorAddressAccount != null) {
                     String messageInfo = monitorAddressAccount.getMessageInfo();
-                    if (StringUtils.isNotEmpty(messageInfo)){
+                    if (StringUtils.isNotEmpty(messageInfo)) {
                         sysenTrxTransferNotice = messageInfo;
                     }
                     String groupChatId = monitorAddressAccount.getGroupChatId();
-                    if (StringUtils.isNotEmpty(groupChatId)){
+                    if (StringUtils.isNotEmpty(groupChatId)) {
                         sysTgGroupChatId = groupChatId;
                     }
                 }
@@ -471,7 +472,7 @@ public class TRX2EneryTransferHandler {
                 try {
                     longPollingBot.execute(sendMessage);
                 } catch (TelegramApiException e) {
-                    log.error("longPollingBot execute exception",e);
+                    log.error("longPollingBot execute exception", e);
                 }
             });
 
@@ -481,8 +482,6 @@ public class TRX2EneryTransferHandler {
         }
 
     }
-
-
 
 
     private long getBalance(Response.AccountResourceMessage accountResource, long transferCount, String resourceCode) {
@@ -497,7 +496,7 @@ public class TRX2EneryTransferHandler {
             //计算代理的数量
 //        long balance = energyNum * 32000 / 12;
             balance = BigDecimal.valueOf(transferCount * 32000).divide(trxToFreezeEnergyTimes, 0, BigDecimal.ROUND_UP).longValue();
-        }else {
+        } else {
 
             balance = transferCount * 350;
         }
@@ -516,7 +515,7 @@ public class TRX2EneryTransferHandler {
     }
 
     public void topicGroupMessage(TgMessageInfoTask tgMessageInfoTask) throws TelegramApiException {
-        if (longPollingBot == null){
+        if (longPollingBot == null) {
             return;
         }
 

@@ -60,4 +60,6 @@ public interface TenantInfoMapper
      * @return 结果
      */
     public int deleteTenantInfoByIdTenantInfos(String[] idTenantInfos);
+
+    List<TenantInfo> selectTenantInfoListNotExistsInExchange(TenantInfo tenantInfoExample);
 }
