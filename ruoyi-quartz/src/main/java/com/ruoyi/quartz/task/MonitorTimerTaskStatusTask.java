@@ -5,15 +5,13 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.google.common.base.Preconditions;
-import com.ruoyi.common.core.domain.entity.AccountAddressInfo;
-import com.ruoyi.common.core.domain.entity.ErrorLog;
-import com.ruoyi.common.core.domain.entity.TenantInfo;
-import com.ruoyi.common.core.domain.entity.TrxExchangeFail;
+import com.ruoyi.common.core.domain.entity.*;
 import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.quartz.domain.SysJob;
 import com.ruoyi.quartz.domain.SysJobLog;
 import com.ruoyi.quartz.service.ISysJobLogService;
 import com.ruoyi.quartz.service.ISysJobService;
+import com.ruoyi.system.domain.vo.TrxExchangeInfoVO;
 import com.ruoyi.system.handler.EnergyTenantTransferHandler;
 import com.ruoyi.system.mapper.AccountAddressInfoMapper;
 import com.ruoyi.system.mapper.TenantInfoMapper;
@@ -21,6 +19,7 @@ import com.ruoyi.system.mapper.TrxExchangeFailMapper;
 import com.ruoyi.system.service.IErrorLogService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ITenantInfoService;
+import com.ruoyi.system.service.ITrxExchangeInfoService;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -56,6 +55,8 @@ public class MonitorTimerTaskStatusTask {
     private RedisTemplate redisTemplate;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private ITrxExchangeInfoService trxExchangeInfoService;
 
 
     public void doMonitorTimerTaskStatus() {
@@ -79,6 +80,23 @@ public class MonitorTimerTaskStatusTask {
 
         for (TenantInfo tenantInfo : tenantInfoList) {
             try {
+                if ("N".equals(tenantInfo.getIsPaid())) {
+                    continue;
+                }
+                String dictValue = DictUtils.getDictValue("sys_delegate_status", "已委托");
+                TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder().fromAddress(tenantInfo.getReceiverAddress())
+                        .delegateStatus(dictValue)
+                        .energyBusiType(tenantInfo.getEnergyBusiType())
+                        .build();
+
+                List<TrxExchangeInfoVO> trxExchangeInfos = trxExchangeInfoService.selectTrxExchangeInfoList(trxExchangeInfo);
+
+                if ( CollectionUtil.isNotEmpty(trxExchangeInfos)){
+                    continue;
+                }
+
+
+                Preconditions.checkState(CollectionUtil.isEmpty(trxExchangeInfos), "该接收能量地址已在任务中,请勿重复发起");
                 tenantInfoService.doDelegateEnergy(tenantInfo, "system", accountAddress, null);
                 tenantInfo.setTotalCountUsed(tenantInfo.getTotalCountUsed() + 1);
                 tenantInfo.setLcd(new Date());
