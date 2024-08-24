@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
+import com.google.common.base.Preconditions;
 import com.ruoyi.common.constant.UserConstants;
 import com.ruoyi.common.core.domain.entity.ErrorLog;
 import com.ruoyi.common.core.domain.entity.TenantInfo;
@@ -367,13 +368,13 @@ public class TRX2EneryTransferHandler {
         String fromAddress = AddressUtil.hexToBase58(ownerAddress);
         if (UserConstants.YES.equals(systronApiSwitch)) {
             Response.AccountResourceMessage accountResource = apiWrapper.getAccountResource(accountAddress);
+            try {
 
             //总用于质押换取能量的trx上限
             balance = getBalance(accountResource, transferCount, resourceCode);
 
             /*  lock_period: 锁定周期，以区块时间（3s）为单位，表示锁定多少个区块的时间，当lock为true时，该字段有效。如果代理锁定期为1天，则lock_period为：28800*/
 
-            try {
                 delegateResourceTxid = getDelegateResourceTxid(apiWrapper, accountAddress, balance, ownerAddress, resourceCode);
             } catch (Exception e) {
                 Object cacheidTrxExchangeFail = redisTemplate.opsForValue().get("transfer_trx_fail_" + fromAddress + "_" + txID);
@@ -399,7 +400,6 @@ public class TRX2EneryTransferHandler {
             }
 
         }
-//        String fromAddress = fromAddress1;
         TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder()
                 .fromAddress(fromAddress)
                 .toAddress(AddressUtil.hexToBase58(toAddress))
@@ -487,6 +487,24 @@ public class TRX2EneryTransferHandler {
     private long getBalance(Response.AccountResourceMessage accountResource, long transferCount, String resourceCode) {
         Long balance = null;
         if (resourceCode.equals(Common.ResourceCode.ENERGY.name())) {
+
+            //能量消耗
+            long energyUsed = accountResource.getEnergyUsed();
+            //能量上限
+            long energyLimit = accountResource.getEnergyLimit();
+
+            long totalEnergyBalance = energyLimit - energyUsed;
+
+            String maxCount = configService.selectConfigByKey("ssys.trx2Energy.maxCount");
+
+
+            Optional.ofNullable(maxCount).ifPresent(max->{
+                Preconditions.checkState(Integer.valueOf(maxCount) >= transferCount,"超过最大笔数限制,无法兑换");
+            });
+
+            Preconditions.checkState(totalEnergyBalance >= transferCount * 32000,"能量不足兑换笔数,无法赠送,当前兑换笔数:"+transferCount);
+
+
             long totalEnergyLimit = accountResource.getTotalEnergyLimit();
             //已经用于质押换取能量的trx
             long totalEnergyWeight = accountResource.getTotalEnergyWeight();

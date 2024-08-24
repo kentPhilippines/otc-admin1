@@ -1,8 +1,6 @@
 package com.ruoyi.system.handler;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import com.ruoyi.common.core.domain.entity.ErrorLog;
 import com.ruoyi.common.core.domain.entity.TenantInfo;
@@ -15,8 +13,10 @@ import com.ruoyi.system.domain.TrxExchangeMonitorAccountInfo;
 import com.ruoyi.system.mapper.TenantInfoMapper;
 import com.ruoyi.system.mapper.TrxExchangeInfoMapper;
 import com.ruoyi.system.service.IErrorLogService;
+import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ITenantInfoService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.trident.core.ApiWrapper;
@@ -41,6 +41,8 @@ public class EnergyTenantTransferHandler {
 
     @Autowired
     private IErrorLogService errorLogService;
+    @Autowired
+    private ISysConfigService configService;
 
     /**
      * 按照定制客户一个一个处理
@@ -73,15 +75,12 @@ public class EnergyTenantTransferHandler {
                         ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, apiKey);
                         undelegateEnergyHandler.doUndelegateEnergy(trxExchangeMonitorAccountInfo,apiWrapper);
                     }
-
                     //满期不继续处理
 //                    tenantInfo.setDelegatedDays(delegatedDays);
                     String delegateStatus = DictUtils.getDictValue("sys_delegate_status", "已满期");
                     tenantInfo.setStatus(delegateStatus);
                     tenantInfo.setLcu("system");
                     tenantInfoMapper.updateTenantInfo(tenantInfo);
-
-
                     return;
                 }
 
@@ -95,27 +94,50 @@ public class EnergyTenantTransferHandler {
                     //赠送每天的能量
                     tenantInfoService.doDelegateEnergy(tenantInfo, "system");
                 }
-            } /*else {
-                String delegateStatus = DictUtils.getDictValue("sys_delegate_status", "已回收");
+            } else {
+                String delegateStatus = DictUtils.getDictValue("sys_delegate_status", "已委托");
                 //查看有没有没回收的能量,有的话先回收
                 TrxExchangeInfo trxExchangeInfo = TrxExchangeInfo.builder()
                         .fromAddress(tenantInfo.getReceiverAddress())
                         .delegateStatus(delegateStatus)
-                        .energyBusiType(eneryBusiTypeByDay)
-                        .fcd(DateUtil.offsetDay(new Date(), -2))
+                        .energyBusiType(tenantInfo.getEnergyBusiType())
                         .build();
 
                 List<TrxExchangeMonitorAccountInfo> trxExchangeMonitorAccountInfoList = trxExchangeInfoMapper.selectTrxExchangeMonitorAccountInfo(trxExchangeInfo);
-                if (CollectionUtil.isEmpty(trxExchangeMonitorAccountInfoList)) {
+                String maxDay = configService.selectConfigByKey("sys.trx2Energy.maxDay");
+
+                if (StringUtils.isEmpty(maxDay)){
+                    return;
+                }
+
+                String apiKey = DictUtils.getRandomDictValue("sys_tron_api_key");
+
+
+                if (CollectionUtil.isNotEmpty(trxExchangeMonitorAccountInfoList)) {
+
+                    TrxExchangeMonitorAccountInfo trxExchangeMonitorAccountInfo = trxExchangeMonitorAccountInfoList.get(0);
+
+                    Date fcd = trxExchangeMonitorAccountInfo.getFcd();
+                    long betweenDay = DateUtil.betweenDay(fcd, new Date(), true);
+
+                    if (Long.valueOf(maxDay) > betweenDay){
+                        return;
+                    }
                     //一笔都没有使用,每天自动扣除一笔
                     tenantInfo.setTotalCountUsed(tenantInfo.getTotalCountUsed() + 1);
                     tenantInfo.setLcu("system");
                     tenantInfo.setLcd(new Date());
-//                    tenantInfoMapper.updateTenantInfo(tenantInfo);
+                    tenantInfoMapper.updateTenantInfo(tenantInfo);
+
+                    String encryptPrivateKey = trxExchangeMonitorAccountInfo.getEncryptPrivateKey();
+                    String encryptKey = trxExchangeMonitorAccountInfo.getEncryptKey();
+                    String decryptPrivateKey = Dt.decrypt(encryptPrivateKey, encryptKey);
+                    ApiWrapper apiWrapper = ApiWrapper.ofMainnet(decryptPrivateKey, apiKey);
+                    undelegateEnergyHandler.doUndelegateEnergy(trxExchangeMonitorAccountInfo,apiWrapper);
                 }
 
-                tenantInfoMapper.updateTenantInfo(tenantInfo);
-            }*/
+
+            }
 
         } catch (Exception e) {
             String exceptionString = LogUtils.doRecursiveReversePrintStackCause(e, 5, ForwardCounter.builder().count(0).build(), 5);
@@ -132,12 +154,6 @@ public class EnergyTenantTransferHandler {
 
     }
 
-
-    public static void main(String[] args) {
-        DateTime parse = DateUtil.parse("2024-06-20 01:59:31", "yyyy-MM-dd HH:mm:ss");
-        long between = DateUtil.between(parse, new Date(), DateUnit.DAY);
-        System.out.println(between);
-    }
 
 
 
