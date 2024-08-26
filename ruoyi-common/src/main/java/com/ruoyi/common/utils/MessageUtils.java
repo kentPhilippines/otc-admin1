@@ -6,7 +6,7 @@ import com.ruoyi.common.utils.spring.SpringUtils;
 
 /**
  * 获取i18n资源文件
- * 
+ *
  * @author ruoyi
  */
 public class MessageUtils
@@ -22,5 +22,18 @@ public class MessageUtils
     {
         MessageSource messageSource = SpringUtils.getBean(MessageSource.class);
         return messageSource.getMessage(code, args, LocaleContextHolder.getLocale());
+    }
+
+    /**
+     * 根据消息键和参数 获取消息 委托给spring messageSource
+     *
+     * @param code           消息键
+     * @param args           参数
+     * @param defaultMessage 默认值
+     * @return 获取国际化翻译值
+     */
+    public static String message(String code, String defaultMessage, Object... args) {
+        MessageSource messageSource = SpringUtils.getBean(MessageSource.class);
+        return messageSource.getMessage(code, args, defaultMessage, LocaleContextHolder.getLocale());
     }
 }
