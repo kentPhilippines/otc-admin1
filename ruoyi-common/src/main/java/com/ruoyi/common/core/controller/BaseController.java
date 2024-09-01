@@ -3,6 +3,7 @@ package com.ruoyi.common.core.controller;
 import java.beans.PropertyEditorSupport;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,7 +28,7 @@ import com.ruoyi.common.utils.sql.SqlUtil;
 
 /**
  * web层通用数据处理
- * 
+ *
  * @author ruoyi
  */
 public class BaseController
@@ -118,8 +119,20 @@ public class BaseController
     }
 
     /**
+     *
+     * 响应请求分页数据
+     * @param supplier 待分页函数
+     * @return 分页结果
+     */
+    protected TableDataInfo getDataTableByFunction(Supplier<List<?>> supplier)
+    {
+        startPage();
+        return getDataTable(supplier.get());
+    }
+
+    /**
      * 响应返回结果
-     * 
+     *
      * @param rows 影响行数
      * @return 操作结果
      */
@@ -130,7 +143,7 @@ public class BaseController
 
     /**
      * 响应返回结果
-     * 
+     *
      * @param result 结果
      * @return 操作结果
      */
