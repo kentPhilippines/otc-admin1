@@ -153,6 +153,7 @@ var table = {
                     exportTypes: options.exportTypes,                   // 导出文件类型 （json、xml、png、csv、txt、sql、doc、excel、xlsx、powerpoint、pdf）
                     printPageBuilder: options.printPageBuilder,         // 自定义打印页面模板
                     detailFormatter: options.detailFormatter,           // 在行下面展示其他数据列表
+                    selectItemName: options.selectItemName,             // 自定义radio/checkbox的name值
                 });
             },
             // 获取实例ID，如存在多个返回#id1,#id2 delimeter分隔符
