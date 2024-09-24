@@ -753,7 +753,7 @@ public class ExcelUtil<T>
                         {
                             if (subField.isAnnotationPresent(Excel.class))
                             {
-                                subField.setAccessible(true);
+                                // subField.setAccessible(true);
                                 ReflectUtils.makeAccessible(field);
                                 Excel attr = subField.getAnnotation(Excel.class);
                                 this.addCell(attr, row, (T) obj, subField, column + subIndex);
