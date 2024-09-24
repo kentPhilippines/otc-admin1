@@ -754,6 +754,7 @@ public class ExcelUtil<T>
                             if (subField.isAnnotationPresent(Excel.class))
                             {
                                 subField.setAccessible(true);
+                                ReflectUtils.makeAccessible(field);
                                 Excel attr = subField.getAnnotation(Excel.class);
                                 this.addCell(attr, row, (T) obj, subField, column + subIndex);
                             }
@@ -1463,7 +1464,8 @@ public class ExcelUtil<T>
         {
             Class<?> clazz = o.getClass();
             Field field = clazz.getDeclaredField(name);
-            field.setAccessible(true);
+            // field.setAccessible(true);
+            ReflectUtils.makeAccessible(field);
             o = field.get(o);
         }
         return o;
@@ -1498,8 +1500,10 @@ public class ExcelUtil<T>
                     Excel attr = field.getAnnotation(Excel.class);
                     if (attr != null && (attr.type() == Type.ALL || attr.type() == type))
                     {
-                        field.setAccessible(true);
+                        // field.setAccessible(true);
+                        ReflectUtils.makeAccessible(field);
                         fields.add(new Object[] { field, attr });
+
                     }
                     if (Collection.class.isAssignableFrom(field.getType()))
                     {
@@ -1520,7 +1524,8 @@ public class ExcelUtil<T>
                         if (!ArrayUtils.contains(this.excludeFields, field.getName() + "." + attr.targetAttr())
                                 && (attr != null && (attr.type() == Type.ALL || attr.type() == type)))
                         {
-                            field.setAccessible(true);
+                            // field.setAccessible(true);
+                            ReflectUtils.makeAccessible(field);
                             fields.add(new Object[] { field, attr });
                         }
                     }
