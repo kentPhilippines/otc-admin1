@@ -1290,7 +1290,7 @@ public class ExcelUtil<T>
             }
             else
             {
-                if (itemArray[1].equals(propertyValue))
+                if (itemArray[0].equals(propertyValue))
                 {
                     return itemArray[0];
                 }
