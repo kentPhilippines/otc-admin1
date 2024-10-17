@@ -1,1 +1,9 @@
-ForDemo1.java
+public class NewStudent {
+    private String name;
+    private int age;
+    public  void eat(){
+        System.out.println("吃饭");
+    }
+}
+
+
