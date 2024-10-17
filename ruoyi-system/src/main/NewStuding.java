@@ -1,13 +1,31 @@
 public class NewStudent {
+    /**
+     * 学生
+     */
     private String name;
-    private int age;//定义
+    /**
+     * 名字
+     */
+    private String  age;//定义
+
+    /**
+     * 年龄
+     * @param inputName
+     * @param inputAge
+     */
     public NewStudent(String inputName,String inputAge){
         this.name = inputName;
         this.age = inputAge;
     }
     public  void eat(){
         System.out.println("吃饭");
-    }//定义吃饭
+    }
+
+    /**
+     * 吃饭
+     * @param food
+     */
+
     public void eat(String food){
         System.out.println("学生吃的"+food);
     }
@@ -16,4 +34,5 @@ public class NewStudent {
         return"吃饱了";//定义吃饭的方法
     }
 }
+
 
