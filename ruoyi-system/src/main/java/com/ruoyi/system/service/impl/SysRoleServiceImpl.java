@@ -135,7 +135,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean deleteRoleById(Long roleId)
     {
         // 删除角色与菜单关联
@@ -152,7 +152,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @throws Exception
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int deleteRoleByIds(String ids)
     {
         Long[] roleIds = Convert.toLongArray(ids);
@@ -180,7 +180,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int insertRole(SysRole role)
     {
         // 新增角色信息
@@ -195,7 +195,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateRole(SysRole role)
     {
         // 修改角色信息
@@ -212,7 +212,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int authDataScope(SysRole role)
     {
         // 修改角色信息

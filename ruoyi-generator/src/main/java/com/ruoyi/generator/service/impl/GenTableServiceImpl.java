@@ -122,7 +122,7 @@ public class GenTableServiceImpl implements IGenTableService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void updateGenTable(GenTable genTable)
     {
         String options = JSON.toJSONString(genTable.getParams());
@@ -144,7 +144,7 @@ public class GenTableServiceImpl implements IGenTableService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteGenTableByIds(String ids)
     {
         genTableMapper.deleteGenTableByIds(Convert.toLongArray(ids));
@@ -170,7 +170,7 @@ public class GenTableServiceImpl implements IGenTableService
      * @param operName 操作人员
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void importGenTable(List<GenTable> tableList, String operName)
     {
         try
@@ -295,7 +295,7 @@ public class GenTableServiceImpl implements IGenTableService
      * @param tableName 表名称
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void synchDb(String tableName)
     {
         GenTable table = genTableMapper.selectGenTableByName(tableName);
