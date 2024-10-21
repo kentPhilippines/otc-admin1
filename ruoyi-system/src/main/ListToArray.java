@@ -8,6 +8,6 @@ public class ListToArray {
         list.add("C");
         // 列表转为数组
         String[] array = list.toArray(new String[0]);
-        System.out.println("数组内容: " + Arrays.toString(array));
+        System.out.println("数组内容: " + list.toString());
     }
 }
