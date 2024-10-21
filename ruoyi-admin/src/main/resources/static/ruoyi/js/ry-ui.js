@@ -629,7 +629,7 @@ var table = {
                     url: options.url,                                   // 请求后台的URL（*）
                     data: options.data,                                 // 无url时用于渲染的数据
                     ajaxParams: options.ajaxParams,                     // 请求数据的ajax的data属性
-                    rootIdValue: options.rootIdValue,                   // 设置指定根节点id值
+                    rootIdValue: options.rootIdValue,                   // 设置指定根节点父id值
                     height: options.height,                             // 表格树的高度
                     pagination: options.pagination,                     // 是否显示分页
                     dataUrl: options.dataUrl,                           // 加载子节点异步请求数据url
