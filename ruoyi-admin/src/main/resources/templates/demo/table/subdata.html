@@ -95,6 +95,7 @@
             	price: "12.5",
             	date: "2021-02-01",
             	type: "1",
+                cascadeType: "3"
 	    	},
 	    	{
 	    		id: "101",
@@ -103,6 +104,7 @@
             	price: "10.8",
             	date: "2021-02-01",
             	type: "0",
+                cascadeType: "2"
 	    	}];
 		    var options = {
 		    	data: data,
@@ -170,6 +172,22 @@
 		                return $("#goodsTypeTpl").tmpl(data).html();
                     }
 		        },
+                {
+                    field: 'cascadeType',
+                    align: 'center',
+                    title: '级联类型',
+                    formatter: function(value, row, index) {
+                        //模拟后台同步获取数据(根据type的当前类型获取cascadeType类型，用于数据回显,此为示例，实际业务需要灵活处理)
+                        var cascadeTypesData = [];
+                        if (row.type === "0"){
+                            cascadeTypesData = [{id:"1",name:"AA"},{id:"2",name:"BB"}];
+                        }else if(row.type === "1"){
+                            cascadeTypesData = [{id:"3",name:"CC"},{id:"4",name:"DD"}];
+                        }
+                        var data = {index: index, cascadeType: value,cascadeTypes:cascadeTypesData};
+                        return $("#cascadeTypeTpl").tmpl(data).html();
+                    }
+                },
 		        {
                     title: '操作',
                     align: 'center',
@@ -214,6 +232,7 @@
             	price: "",
             	date: "",
             	type: "",
+                cascadeType: ""
             }
         	sub.addRow(row);
         }
@@ -226,6 +245,23 @@
 	            pickerPosition:'top-right'
 	        });
     	});
+        function changeHandler(el) {
+            //模拟后台获取新数据
+            let name = $(el).attr('name').split(".")[0]+".cascadeType";
+            let newOptions = [];
+            if($(el).val() == "0"){
+                newOptions = [{id:"1",name:"AA"},{id:"2",name:"BB"}];
+            }else{
+                newOptions = [{id:"3",name:"CC"},{id:"4",name:"DD"}];
+            }
+            let select = $("[name='"+name+"']");
+            select.empty();
+            var index;
+            for (index = 0; index < newOptions.length; ++index) {
+                var child = newOptions[index];
+                select.append("<option value='" + child.id + "'>" + child.name +"</option>");
+            }
+        }
     </script>
 </body>
 </html>
@@ -233,10 +269,22 @@
 <!-- 商品类型 -->
 <script id="goodsTypeTpl" type="text/x-jquery-tmpl">
 <div>
-<select class='form-control' name='goods[${index}].type'>
+<select class='form-control' onchange="changeHandler(this)" name='goods[${index}].type'>
     <option value="">所有</option>
     <option value="0" {{if type==="0"}}selected{{/if}}>寒性</option>
     <option value="1" {{if type==="1"}}selected{{/if}}>热性</option>
+</select>
+</div>
+</script>
+
+<!-- 级联类型 -->
+<script id="cascadeTypeTpl" type="text/x-jquery-tmpl">
+<div>
+<select class='form-control' name='goods[${index}].cascadeType'>
+    <option value="">所有</option>
+    {{each(i,type) cascadeTypes}}
+        <option value=${type.id} {{if cascadeType=== type.id}}selected{{/if}}>${type.name}</option>
+    {{/each}}
 </select>
 </div>
 </script>
