@@ -462,6 +462,15 @@ public class DemoTableController extends BaseController
     }
 
     /**
+     * 多表格单选
+     */
+    @GetMapping("/multiRadio")
+    public String manyTables()
+    {
+        return prefix + "/multiRadio";
+    }
+
+    /**
      * 动态获取列
      */
     @PostMapping("/ajaxColumns")
