@@ -1,12 +1,15 @@
 package com.ruoyi.common.config.thread;
 
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
+
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import com.ruoyi.common.config.thread.threadpool.CustomScheduledThreadPoolExecutor;
+import com.ruoyi.common.config.thread.threadpool.CustomThreadPoolTaskExecutor;
 import com.ruoyi.common.utils.Threads;
 
 /**
@@ -32,7 +35,7 @@ public class ThreadPoolConfig
     @Bean(name = "threadPoolTaskExecutor")
     public ThreadPoolTaskExecutor threadPoolTaskExecutor()
     {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        ThreadPoolTaskExecutor executor = new CustomThreadPoolTaskExecutor();
         executor.setMaxPoolSize(maxPoolSize);
         executor.setCorePoolSize(corePoolSize);
         executor.setQueueCapacity(queueCapacity);
@@ -48,7 +51,7 @@ public class ThreadPoolConfig
     @Bean(name = "scheduledExecutorService")
     protected ScheduledExecutorService scheduledExecutorService()
     {
-        return new ScheduledThreadPoolExecutor(corePoolSize,
+        return new CustomScheduledThreadPoolExecutor(corePoolSize,
                 new BasicThreadFactory.Builder().namingPattern("schedule-pool-%d").daemon(true).build(),
                 new ThreadPoolExecutor.CallerRunsPolicy())
         {
