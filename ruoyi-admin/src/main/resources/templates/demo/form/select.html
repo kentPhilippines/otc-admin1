@@ -4,6 +4,25 @@
 	<th:block th:include="include :: header('下拉框')" />
 	<th:block th:include="include :: select2-css" />
 	<th:block th:include="include :: bootstrap-select-css" />
+	<th:block th:include="include :: ztree-css" />
+	
+	<style>
+		.trg{
+		    width: 0;
+		    height: 0;
+		    border-left: 3px solid transparent;
+		    border-right: 3px solid transparent;
+		    border-top: 6px solid black;;
+		    position: absolute;
+		    left:181px;
+		    top:8px;
+		}
+		.org-select{
+		    cursor: default;
+		    z-index: -1;
+		    width:200px;
+		}
+	</style>
 </head>
 <body class="gray-bg">
      <form>
@@ -138,11 +157,188 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="col-sm-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>树状下拉菜单<small>bootstrap-treeview</small></h5>
+                    </div>  
+                    <div class="ibox-content">
+                        <div class="form-group">
+                            <label class="font-noraml">树状下拉-带标签</label>
+                            <div id="treeview6" class=""></div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label class="font-noraml">相关参数详细信息</label>
+                            <div><a href="https://www.jq22.com/jquery-info10461" target="_blank">https://www.jq22.com/jquery-info10461</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-sm-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>树状下拉框<small>ztree</small></h5>
+                    </div>  
+                    <div class="ibox-content">
+                        <div class="form-group">
+                            <label class="font-noraml">树状下拉框</label>
+                            <div style="position: relative;">
+							    <input id="orgName" class="org-select" onclick="showTree()"  readonly > 
+							    <!-- 模拟select点击框 以及option的text值显示-->
+							    <i class="trg"style="position: absolute;"></i>
+							    <!-- 模拟select右侧倒三角 -->
+							    <input id="orgCode" type="hidden" name="orgCode" />
+							    <!-- 存储 模拟select的value值 -->
+							    <!-- zTree树状图 相对定位在其下方 -->
+							    <div class="ztree"  style="display:none; background: #FFFFFF;position: absolute;border:1px solid #4aa5ff;width:200px;">
+							        <ul id="treeDemo"></ul>
+							    </div>  
+							</div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label class="font-noraml">相关参数详细信息</label>
+                            <div><a href="http://www.treejs.cn/v3/demo.php#_206" target="_blank">http://www.treejs.cn/v3/demo.php#_206</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </div>
    </form>
     <th:block th:include="include :: footer" />
     <th:block th:include="include :: select2-js" />
     <th:block th:include="include :: bootstrap-select-js" />
+    <th:block th:include="include :: bootstrap-treeview-js" />
+    <th:block th:include="include :: ztree-js" />
+    
+    <script type="text/javascript">
+    	//下拉菜单数据
+	    var defaultData = [
+	        {
+	          text: 'Parent 1',
+	          href: '#parent1',
+	          tags: ['4'],
+	          nodes: [
+	            {
+	              text: 'Child 1',
+	              href: '#child1',
+	              tags: ['2'],
+	              nodes: [
+	                {
+	                  text: 'Grandchild 1',
+	                  href: '#grandchild1',
+	                  tags: ['0']
+	                },
+	                {
+	                  text: 'Grandchild 2',
+	                  href: '#grandchild2',
+	                  tags: ['0']
+	                }
+	              ]
+	            },
+	            {
+	              text: 'Child 2',
+	              href: '#child2',
+	              tags: ['0']
+	            }
+	          ]
+	        },
+	        {
+	          text: 'Parent 2',
+	          href: '#parent2',
+	          tags: ['0']
+	        },
+	        {
+	          text: 'Parent 3',
+	          href: '#parent3',
+	           tags: ['0']
+	        },
+	        {
+	          text: 'Parent 4',
+	          href: '#parent4',
+	          tags: ['0']
+	        },
+	        {
+	          text: 'Parent 5',
+	          href: '#parent5'  ,
+	          tags: ['0']
+	        }
+	    ];
+    
+    
+	    $('#treeview6').treeview({
+	        showTags: true,
+	        data: defaultData
+	    });
+	    
+	    //下拉框数据
+	    //树状图展示
+		var orgList =[
+		      { id:1, pId:0, name:"父节点1 - 展开", open:true},
+		      { id:11, pId:1, name:"父节点11 - 折叠"},
+		      { id:111, pId:11, name:"叶子节点111"},
+		      { id:112, pId:11, name:"叶子节点112"},
+		      { id:113, pId:11, name:"叶子节点113"},
+		      { id:114, pId:11, name:"叶子节点114"},
+		      { id:12, pId:1, name:"父节点12 - 折叠"},
+		      { id:121, pId:12, name:"叶子节点121"},
+		      { id:122, pId:12, name:"叶子节点122"},
+		      { id:123, pId:12, name:"叶子节点123"},
+		      { id:124, pId:12, name:"叶子节点124"},     
+		  ];
+		  var setting = {
+		      data: {
+		          simpleData: {
+		              enable: true
+		          }
+		      },
+		      //回调
+		      callback: {
+		          onClick: zTreeOnClick
+		      },
+		      view: {
+		          fontCss: { fontSize: "14px" }
+		      }
+		  };
+		  //节点点击事件
+		  function zTreeOnClick(event, treeId, treeNode) {
+		      $('#orgName').val(treeNode.name);
+		      $('#orgCode').val(treeNode.Id)
+		      hideTree();  
+		  };
+		  $(document).ready(function () {
+		      //初始组织树状图
+		      $.fn.zTree.init($("#treeDemo"), setting, orgList);
+		  });
+		//下拉框显示 隐藏
+		 function showTree(){
+		    if($('.ztree').css('display') == 'none'){
+		         $('.ztree').css('display','block'); 
+		     } else{
+		         $('.ztree').css('display','none'); 
+		     }
+		     $("body").bind("mousedown", onBodyDownByActionType); 
+		 }
+		 function hideTree() {  
+		    $('.ztree').css('display','none');
+		    $("body").unbind("mousedown", onBodyDownByActionType); 
+		    return false;
+		} 
+		
+		//区域外点击事件
+		function onBodyDownByActionType(event) {  
+		    if (event.target.id.indexOf('treeDemo') == -1){  
+		        if(event.target.id != 'selectDevType'){
+		            hideTree(); 
+		        } 
+		    }  
+		}
+    
+    </script>
 </body>
 </html>
