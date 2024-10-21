@@ -90,4 +90,19 @@
     <logger name="sys-user" level="info">
         <appender-ref ref="sys-user"/>
     </logger>
+
+    <!-- plumelog -->
+    <appender name="plumelog" class="com.plumelog.lite.logback.appender.LiteAppender">
+        <appName>plumelog</appName>
+        <!-- 日志存储位置 -->
+        <logPath>/plumelog/lite</logPath>
+        <!-- 日志保留天数 -->
+        <keepDay>30</keepDay>
+    </appender>
+
+    <!-- plumelog-->
+    <root level="INFO">
+        <appender-ref ref="plumelog"/>
+    </root>
+
 </configuration> 

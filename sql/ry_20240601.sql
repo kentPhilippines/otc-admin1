@@ -179,6 +179,7 @@ insert into sys_menu values('116',  '系统接口', '3', '3', '/tool/swagger',  
 -- 三级菜单
 insert into sys_menu values('500',  '操作日志', '108', '1', '/monitor/operlog',    '', 'C', '0', '1', 'monitor:operlog:view',     'fa fa-address-book',    'admin', sysdate(), '', null, '操作日志菜单');
 insert into sys_menu values('501',  '登录日志', '108', '2', '/monitor/logininfor', '', 'C', '0', '1', 'monitor:logininfor:view',  'fa fa-file-image-o',    'admin', sysdate(), '', null, '登录日志菜单');
+insert into sys_menu values('502',  '系统日志', '108', '3', '/plumelog/#/', 'menuBlank', 'C', '0', '1', 'monitor:operlog:view',  'fa fa-file-image-o',    'admin', sysdate(), '', null, '系统日志菜单');
 -- 用户管理按钮
 insert into sys_menu values('1000', '用户查询', '100', '1',  '#', '',  'F', '0', '1', 'system:user:list',        '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1001', '用户新增', '100', '2',  '#', '',  'F', '0', '1', 'system:user:add',         '#', 'admin', sysdate(), '', null, '');
