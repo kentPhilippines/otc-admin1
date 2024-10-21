@@ -12,16 +12,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
@@ -751,20 +742,19 @@ public class ExcelUtil<T>
                         int subIndex = 0;
                         for (Field subField : subFields)
                         {
-                            if (subField.isAnnotationPresent(Excel.class))
+                            if (subField.isAnnotationPresent(Excel.class) && !ArrayUtils.contains(this.excludeFields, field.getName() + "." + subField.getName()))
                             {
                                 subField.setAccessible(true);
                                 Excel attr = subField.getAnnotation(Excel.class);
                                 this.addCell(attr, row, (T) obj, subField, column + subIndex);
+                                subIndex++;
                             }
-                            subIndex++;
                         }
                         subFirst = true;
                     }
                     this.subMergedFirstRowNum = this.subMergedFirstRowNum + subList.size();
-                }
-                else
-                {
+                } else if (!Collection.class.isAssignableFrom(field.getType())) {
+                    //子类对象可能被隐藏
                     this.addCell(excel, row, vo, field, column++);
                 }
             }
@@ -1506,7 +1496,16 @@ public class ExcelUtil<T>
                         subMethod = getSubMethod(field.getName(), clazz);
                         ParameterizedType pt = (ParameterizedType) field.getGenericType();
                         Class<?> subClass = (Class<?>) pt.getActualTypeArguments()[0];
-                        this.subFields = FieldUtils.getFieldsListWithAnnotation(subClass, Excel.class);
+                        List<Field> fieldList = FieldUtils.getFieldsListWithAnnotation(subClass, Excel.class);
+                        Iterator<Field> iterator = fieldList.iterator();
+                        while (iterator.hasNext()) {
+                            Field next = iterator.next();
+                            if (ArrayUtils.contains(this.excludeFields, field.getName() + "." + next.getName())) {
+                                iterator.remove();
+                            }
+                        }
+                        this.subFields = fieldList;
+
                     }
                 }
 
