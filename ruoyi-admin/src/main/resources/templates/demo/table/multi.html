@@ -50,6 +50,9 @@
                             <li>
 								用户名称：<input type="text" name="userName"/>
 							</li>
+								新增测试条件：<input type="text" name="userName2"/>
+							</li>
+							<li>							
 							<li>
 								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search('form2', 'bootstrap-table2')"><i class="fa fa-search"></i>&nbsp;搜索</a>
 							    <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset('form2', 'bootstrap-table2')"><i class="fa fa-refresh"></i>&nbsp;重置</a>
@@ -137,11 +140,17 @@
                         actions.push('<a class="btn btn-danger btn-xs" href="###" onclick="$.operate.remove(\'' + row.userId + '\')"><i class="fa fa-remove"></i>删除</a>');
 						return actions.join('');
 		            }
-		        }]
+		        }],
+				onClickRow: function(row,$element){
+            		subList(row.userName);
+				}
             };
             $.table.init(options);
         });
-        
+        function subList(value){
+			$("#form2 input").val(value);
+			$.table.search('form2', 'bootstrap-table2')
+		}
         
         $(function() {
             var options = {
