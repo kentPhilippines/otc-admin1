@@ -922,5 +922,37 @@ function gen_cron() {
         + $("#v_month").val() + " "
         + $("#v_week").val() + " "
         + $("#v_year").val();
-    $("#cron").val(str);
+    var vals = $("input[name^='v_']");
+    var cron = $("#cron");
+    var item = [];
+    vals.each(function() {
+        item.push(this.value);
+    });
+    // 修复表达式错误BUG，如果后一项不为* 那么前一项肯定不为*，要不然就成了每秒执行了
+    // 获取当前选中tab
+    var currentIndex = 0;
+    $(".nav-tabs>li").each(function(i, item) {
+        if ($(item).hasClass("active")) {
+            currentIndex = i;
+            return false;
+        }
+
+    });
+    // 当前选中项之前的如果为*，则都设置成0
+    for (var i = currentIndex; i >= 1; i--) {
+        if (item[i] != "*" && item[i - 1] == "*") {
+            item[i - 1] = "0";
+        }
+    }
+    // 当前选中项之后的如果不为*则都设置成*
+    if (item[currentIndex] == "*") {
+        for (var i = currentIndex + 1; i < item.length; i++) {
+            if (i == 5) {
+                item[i] = "?";
+            } else {
+                item[i] = "*";
+            }
+        }
+    }
+    cron.val(item.join(" ")).change();
 }
