@@ -1,5 +1,6 @@
 package com.ruoyi.quartz.util;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
@@ -10,6 +11,8 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
+import org.springframework.aop.support.AopUtils;
+
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.constant.ScheduleConstants;
 import com.ruoyi.common.exception.job.TaskException;
@@ -123,19 +126,26 @@ public class ScheduleUtils
      * 检查包名是否为白名单配置
      * 
      * @param invokeTarget 目标字符串
+     * @param extendedWhiteList 扩展的名单单
      * @return 结果
      */
-    public static boolean whiteList(String invokeTarget)
-    {
+    public static boolean whiteList(String invokeTarget, String... extendedWhiteList)
+	{
+		String[] whiteList = StringUtils.isEmpty(extendedWhiteList) ? Constants.JOB_WHITELIST_STR
+				: ArrayUtils.addAll(extendedWhiteList, Constants.JOB_WHITELIST_STR);
         String packageName = StringUtils.substringBefore(invokeTarget, "(");
         int count = StringUtils.countMatches(packageName, ".");
         if (count > 1)
         {
-            return StringUtils.containsAnyIgnoreCase(invokeTarget, Constants.JOB_WHITELIST_STR);
+            return StringUtils.containsAnyIgnoreCase(invokeTarget, whiteList);
         }
         Object obj = SpringUtils.getBean(StringUtils.split(invokeTarget, ".")[0]);
+        if (AopUtils.isAopProxy(obj)) {
+        	obj = AopUtils.getTargetClass(obj);
+        }
         String beanPackageName = obj.getClass().getPackage().getName();
-        return StringUtils.containsAnyIgnoreCase(beanPackageName, Constants.JOB_WHITELIST_STR)
+        return StringUtils.containsAnyIgnoreCase(beanPackageName, whiteList)
                 && !StringUtils.containsAnyIgnoreCase(beanPackageName, Constants.JOB_ERROR_STR);
     }
+    
 }
