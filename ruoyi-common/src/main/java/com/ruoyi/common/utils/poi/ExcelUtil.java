@@ -12,16 +12,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
@@ -281,6 +272,632 @@ public class ExcelUtil<T>
             }
             rownum++;
         }
+    }
+
+    /**
+     * 对list数据源将其里面的数据导入到excel表单
+     *
+     * @param response 返回数据
+     * @param list 导出数据集合
+     * @param sheetName 工作表的名称
+     * @param head 合并列表头的名称
+     * @param mergeMap 需要进行合并列的行坐标和列坐标（key：需要进行操作的行，value：key -> 当前行需要进行合并的列起始值 value -> 当前行需要进行合并的列终止值）
+     * @param mergeRowMap 当前行需要向下合并的行坐标和列坐标（key:当前行，value：当前行对应的向下进行合并的参数数组（数组包含四位数，从左到右的含义是：当前行，合并的终止行数，当前行合并的起始列，当前行合并的终止列））
+     * @param headRow 指定创建多少行表头
+     */
+    public void exportExcelMerge(HttpServletResponse response,
+                                 List<T> list,
+                                 String sheetName,
+                                 String[] head,
+                                 Map<Integer, Map<Integer,Integer>> mergeMap,
+                                 Map<Integer, List<List<Integer>>> mergeRowMap,
+                                 int headRow) {
+
+        exportExcelMerge(response, list, sheetName, StringUtils.EMPTY, head, mergeMap, mergeRowMap, headRow);
+    }
+
+    /**
+     * 对list数据源将其里面的数据导入到excel表单
+     *
+     * @param response 返回数据
+     * @param list 导出数据集合
+     * @param sheetName 工作表的名称
+     * @param title 标题
+     * @param head 合并列表头的名称
+     * @param mergeMap 需要进行合并列的行坐标和列坐标（key：需要进行操作的行，value：key -> 当前行需要进行合并的列起始值 value -> 当前行需要进行合并的列终止值）
+     * @param mergeRowMap 当前行需要向下合并的行坐标和列坐标（key:当前行，value：当前行对应的向下进行合并的参数数组（数组包含四位数，从左到右的含义是：当前行，合并的终止行数，当前行合并的起始列，当前行合并的终止列））
+     * @param headRow 指定创建多少行表头
+     */
+    public void exportExcelMerge(HttpServletResponse response,
+                                 List<T> list,
+                                 String sheetName,
+                                 String title,
+                                 String[] head,
+                                 Map<Integer, Map<Integer, Integer>> mergeMap,
+                                 Map<Integer, List<List<Integer>>> mergeRowMap,
+                                 int headRow) {
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+        this.init(list, sheetName, title, Excel.Type.EXPORT);
+        exportExcelMerge(response, head, mergeMap, mergeRowMap, headRow);
+    }
+
+    /**
+     * 对list数据源将其里面的数据导入到excel表单
+     *
+     * @param response 返回数据
+     * @param head 合并列表头的名称
+     * @param mergeMap 需要进行合并列的行坐标和列坐标（key：需要进行操作的行，value：key -> 当前行需要进行合并的列起始值 value -> 当前行需要进行合并的列终止值）
+     * @param mergeRowMap 当前行需要向下合并的行坐标和列坐标（key:当前行，value：当前行对应的向下进行合并的参数数组（数组包含四位数，从左到右的含义是：当前行，合并的终止行数，当前行合并的起始列，当前行合并的终止列））
+     * @param headRow 指定创建多少行表头
+     */
+    public void exportExcelMerge(HttpServletResponse response,
+                                 String[] head,
+                                 Map<Integer, Map<Integer, Integer>> mergeMap,
+                                 Map<Integer, List<List<Integer>>> mergeRowMap,
+                                 int headRow) {
+
+        try {
+            writeSheetMerge(head, mergeMap, mergeRowMap, headRow);
+            wb.write(response.getOutputStream());
+        } catch (Exception e)
+        {
+            log.error("导出Excel异常{}", e.getMessage());
+        } finally
+        {
+            IOUtils.closeQuietly(wb);
+        }
+    }
+
+    /**
+     * 创建写入数据到Sheet
+     *
+     * @param head 合并列表头的名称
+     * @param mergeMap 需要进行合并列的行坐标和列坐标（key：需要进行操作的行，value：key -> 当前行需要进行合并的列起始值 value -> 当前行需要进行合并的列终止值）
+     * @param mergeRowMap 当前行需要向下合并的行坐标和列坐标（key:当前行，value：当前行对应的向下进行合并的参数数组（数组包含四位数，从左到右的含义是：当前行，合并的终止行数，当前行合并的起始列，当前行合并的终止列））
+     * @param headRow 指定创建多少行表头
+     */
+    public void writeSheetMerge(String[] head,
+                                Map<Integer, Map<Integer, Integer>> mergeMap,
+                                Map<Integer, List<List<Integer>>> mergeRowMap,
+                                int headRow) {
+
+        // 取出一共有多少个sheet.
+        int sheetNo = Math.max(1, (int) Math.ceil(list.size() * 1.0 / sheetSize));
+        for (int index = 0; index < sheetNo; index++) {
+            createSheet(sheetNo, index);
+
+            // 产生一行
+            Row row = sheet.createRow(rownum);
+
+            List<String> headerList = new LinkedList<>();
+            Excel excel = null;
+
+            for (Object[] field : fields) {
+                excel = (Excel) field[1];
+                headerList.add(excel.name());
+            }
+
+            this.createHeadCellMerge(excel, headerList, head, mergeMap, mergeRowMap, headRow);
+
+            if (Excel.Type.EXPORT.equals(type)) {
+                fillExcelDataMerge(index, row, headRow);
+                addStatisticsRow();
+            }
+        }
+    }
+
+    /**
+     * 创建单元格
+     *
+     * @param list 导出数据集合
+     * @param head 合并列表头的名称
+     * @param mergeMap 需要进行合并列的行坐标和列坐标（key：需要进行操作的行，value：key -> 当前行需要进行合并的列起始值 value -> 当前行需要进行合并的列终止值）
+     * @param mergeRowMap 当前行需要向下合并的行坐标和列坐标（key:当前行，value：当前行对应的向下进行合并的参数数组（数组包含四位数，从左到右的含义是：当前行，合并的终止行数，当前行合并的起始列，当前行合并的终止列））
+     * @param headRow 指定创建多少行表头
+     */
+    public void createHeadCellMerge(Excel attr,
+                                    List<String> list,
+                                    String[] head,
+                                    Map<Integer, Map<Integer, Integer>> mergeMap,
+                                    Map<Integer, List<List<Integer>>> mergeRowMap,
+                                    int headRow) {
+
+        // 存放当前向下合并行的行的坐标
+        Map<Integer, List<Integer>> coverMap =  new HashMap<>();
+
+        // 记录当前表中需要填充数据的个数
+        int listFillingDataNum = list.size();
+        // 设置标头的行数
+        int headNum = headRow;
+        // 合并过的单元格坐标全部进行记录，key：行，value：列
+        Map<Integer, List<Integer>> mergeColumnMap = new HashMap<>();
+        // 创建用于大表头的计数器
+        int headerCount = 0;
+
+        // 计算当前表头来到了哪一个地方
+        int headPosition = 0;
+
+        // 创建新的集合存储列表头
+        Map<Integer, String> cachHeadMap = new HashMap<>();
+
+        // 用来计数新的表头集合
+        int cachHeadCount = 0;
+
+        // 创建row集合，方便下方使用
+        List<Row> rows = new LinkedList<>();
+        // 创建对应的行数
+        for (int i = 0; i < headNum; i++) {
+
+            rows.add(sheet.createRow(i));
+        }
+
+        List<Integer> sorted = mergeMap.keySet().stream().sorted().collect(Collectors.toList());
+
+        // 创建的缓存变量集合
+        List<Integer> tempColumnList = null;
+
+        // 进行填充
+        // 行集合进行循环
+        // 将mergeMap（指定具体行合并那些列的集合），放入到mergeColumnMap（合并过的单元格坐标全部进行记录）中
+        for (Integer integer : mergeMap.keySet().stream().sorted().collect(Collectors.toList())) {
+
+            tempColumnList = new ArrayList<>();
+            Row row = rows.get(integer);
+
+            Map<Integer, Integer> tempMap = mergeMap.get(integer);
+            // 列起始值进行循环
+            for (Integer keyInteger : tempMap.keySet().stream().sorted().collect(Collectors.toList())) {
+
+                Cell cell = row.createCell(keyInteger);
+                cell.setCellValue(head[headerCount]);
+                setDataValidation(attr, row, headerCount++);
+                // 判断当前是否进行过
+                // 进行列合并
+                sheet.addMergedRegion(new CellRangeAddress(integer, integer, keyInteger, tempMap.get(keyInteger)));
+
+                // 向集合中添加值用于判断当前这个单元格是否进行过合并
+                for (Integer i = keyInteger; i <= tempMap.get(keyInteger); i++) {
+
+                    tempColumnList.add(i);
+
+                }
+
+                if (mergeColumnMap.get(integer) != null) {
+
+                    List<Integer> integers = mergeColumnMap.get(integer);
+                    integers.addAll(tempColumnList);
+                    mergeColumnMap.put(integer, integers);
+                } else {
+
+                    mergeColumnMap.put(integer, tempColumnList);
+                }
+
+                cell.setCellStyle(styles.get(StringUtils.format("header_{}_{}", attr.headerColor(), attr.headerBackgroundColor())));
+            }
+
+            // 去重
+            mergeColumnMap.put(integer, mergeColumnMap.get(integer).stream().distinct().collect(Collectors.toList()));
+        }
+
+        // 开始进行循环行操作
+        for (int k = 0; k < headNum; k++) {
+
+            Row row = rows.get(k);
+            // 向表格中填充表头，并进行当前行的列合并
+            for (int i = 0; i < listFillingDataNum; i++) {
+
+                // 创建一个方法，判断所在行的列是否进行过覆盖，进行过覆盖，跳过这次循环，没有，继续向下执行逻辑
+                if (coverMap.containsKey(k) && coverMap.get(k).contains(i)) {
+
+                    continue;
+                }
+
+                // 判断当前行上的列是否合并过，合并过直接跳过当前列，继续下一列的填充
+                if (mergeColumnMap.containsKey(k) && mergeColumnMap.get(k).contains(i)) {
+
+                    // 合并过，就将当前的列暂存到一个新的集合中，保存当前列的值，和这个表头的值
+                    if (headPosition < listFillingDataNum) {
+
+                        cachHeadMap.put(i, list.get(headPosition++));
+                    }
+                    continue;
+                }
+
+                if (headPosition >= listFillingDataNum && cachHeadMap.isEmpty()) {
+
+                    break;
+                }
+
+                // 填充表头
+                // 当前可以进行标头的填充，就从新的集合中查找对应列的表头，有的话就进行填充，没有从list里面取
+                if (cachHeadMap.get(i) != null) {
+
+                    Cell cell = row.createCell(i);
+
+                    cell.setCellValue(cachHeadMap.get(i));
+                    cachHeadMap.remove(i);
+                    setDataValidation(attr, row, i);
+                    cell.setCellStyle(styles.get(StringUtils.format("header_{}_{}", attr.headerColor(), attr.headerBackgroundColor())));
+                } else {
+
+                    if (headPosition >= listFillingDataNum) {
+                        continue;
+                    }
+
+                    Cell cell = row.createCell(i);
+                    cell.setCellValue(list.get(headPosition++));
+                    setDataValidation(attr, row, i);
+                    cell.setCellStyle(styles.get(StringUtils.format("header_{}_{}", attr.headerColor(), attr.headerBackgroundColor())));
+                }
+
+                // 合并操作单独进行存放
+            }
+
+            List<Integer> tempList = new ArrayList<>();//
+
+            // 开始对当前所在行向下合并
+            if (mergeRowMap.containsKey(k)) {
+
+                // 包含当前的行，开始进行合并
+                for (List<Integer> integers : mergeRowMap.get(k)) {
+
+                    Integer beginColum = integers.get(2);
+
+                    for (int i = 0; i <= integers.get(3) - integers.get(2); i++) {
+
+                        Integer beginRow = integers.get(0);
+                        Integer endRow = integers.get(1);
+                        sheet.addMergedRegion(new CellRangeAddress(beginRow, endRow, beginColum, beginColum));
+                        int tempRow = beginRow;
+                        tempList.add(beginColum);
+                        for (int j = beginRow; j <= endRow; j++) {
+
+                            coverMap.put(j, tempList);
+                        }
+                        beginColum++;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 填充excel数据
+     *
+     * @param index 序号
+     * @param row 单元格行
+     * @param headRow 表头的行数
+     */
+    @SuppressWarnings("unchecked")
+    public void fillExcelDataMerge(int index, Row row, int headRow)
+    {
+        int startNo = index * sheetSize;
+        int endNo = Math.min(startNo + sheetSize, list.size());
+        int rowNo = (1 + rownum) - startNo;
+        for (int i = startNo; i < endNo; i++)
+        {
+            rowNo = isSubList() ? (i > 1 ? rowNo + 1 : rowNo + i) : i + 1 + rownum - startNo;
+            row = sheet.createRow(headRow);
+            // 得到导出对象.
+            T vo = (T) list.get(i);
+            Collection<?> subList = null;
+            if (isSubList())
+            {
+                if (isSubListValue(vo))
+                {
+                    subList = getListCellValue(vo);
+                    subMergedLastRowNum = subMergedLastRowNum + subList.size();
+                }
+                else
+                {
+                    subMergedFirstRowNum++;
+                    subMergedLastRowNum++;
+                }
+            }
+            int column = 0;
+            for (Object[] os : fields)
+            {
+                Field field = (Field) os[0];
+                Excel excel = (Excel) os[1];
+                if (Collection.class.isAssignableFrom(field.getType()) && StringUtils.isNotNull(subList))
+                {
+                    boolean subFirst = false;
+                    for (Object obj : subList)
+                    {
+                        if (subFirst)
+                        {
+                            rowNo++;
+                            row = sheet.createRow(headRow);
+                        }
+                        List<Field> subFields = FieldUtils.getFieldsListWithAnnotation(obj.getClass(), Excel.class);
+                        int subIndex = 0;
+                        for (Field subField : subFields)
+                        {
+                            if (subField.isAnnotationPresent(Excel.class))
+                            {
+                                subField.setAccessible(true);
+                                Excel attr = subField.getAnnotation(Excel.class);
+                                this.addCell(attr, row, (T) obj, subField, column + subIndex);
+                            }
+                            subIndex++;
+                        }
+                        subFirst = true;
+                    }
+                    this.subMergedFirstRowNum = this.subMergedFirstRowNum + subList.size();
+                }
+                else
+                {
+                    this.addCell(excel, row, vo, field, column++);
+                }
+            }
+        }
+    }
+
+    /**
+     * 对excel表单默认第一个索引名转换成list
+     * @param is 输入流
+     * @param headRowNum 表头的行数
+     * @return 转换后集合
+     * @throws Exception
+     */
+    public List<T> importExcelMerge(InputStream is, int headRowNum) throws Exception
+    {
+
+        return importExcelMerge(StringUtils.EMPTY, is, headRowNum);
+    }
+
+
+    /**
+     * 对excel表单指定表格索引名转换成list
+     *
+     * @param sheetName 表格索引名
+     * @param is 输入流
+     * @param headRowNum 表头的行数
+     * @return 转换后集合
+     */
+    public List<T> importExcelMerge(String sheetName, InputStream is, int headRowNum) throws Exception {
+
+        // 设置表格头的行数
+        int headRow = headRowNum;
+
+        // 创建集合用来存储表头的坐标位置
+        // key：表头名称，value：key当前所在行，value当前所在列
+        Map<String, Map<Integer, Integer>> surfaceHeadMap = new HashMap<>();
+        Map<Integer, Integer> tempHead = new HashMap<>();
+        int flagLen = this.getFields().size();
+
+        this.type = Excel.Type.IMPORT;
+        this.wb = WorkbookFactory.create(is);
+        List<T> list = new ArrayList<T>();
+        // 如果指定sheet名,则取指定sheet中的内容 否则默认指向第1个sheet
+        Sheet sheet = StringUtils.isNotEmpty(sheetName) ? wb.getSheet(sheetName) : wb.getSheetAt(0);
+        if (sheet == null)
+        {
+            throw new IOException("文件sheet不存在");
+        }
+        boolean isXSSFWorkbook = !(wb instanceof HSSFWorkbook);
+        Map<String, PictureData> pictures;
+        if (isXSSFWorkbook)
+        {
+            pictures = getSheetPictures07((XSSFSheet) sheet, (XSSFWorkbook) wb);
+        }
+        else
+        {
+            pictures = getSheetPictures03((HSSFSheet) sheet, (HSSFWorkbook) wb);
+        }
+
+        // 获取最后一个非空行的行下标，比如总行数为n，则返回的为n-1
+        int rows = sheet.getLastRowNum();
+
+        // 得到所有的合并单元格
+        int numMergedRegions = sheet.getNumMergedRegions();
+
+        if (rows > 0) {
+            // 创建双重循环，外层是行，内层是列，将表头中对应实体类中的属性封装成一个集合
+            for (int i = 0; i < headRow; i++) {
+
+                // 获取表头对应的行数
+                Row heard = sheet.getRow(i);
+
+                for (int j = 0; j < flagLen; j++) {
+                    Cell cell = heard.getCell(j);
+
+                    // 判断当前行是否为null
+                    if (StringUtils.isNull(heard.getCell(j))) {
+
+                        continue;
+                    }
+
+                    // 判断当前是否进行了列合并（进行了列合并，跳过当前合并的所有列，前往下一个未进行列合并的单元格）
+                    if (isMergedRegion(sheet, i, j)) {
+
+                        continue;
+                    }
+
+                    // 判断当前是否进行了行合并，（进行了行合并，记录到map中，下一次不进行读取）
+                    // 用来获取列的所有名称
+                    if (StringUtils.isNotNull(cell))
+                    {
+                        String value = this.getCellValue(heard, j).toString();
+
+                        tempHead = new HashMap<>();
+
+                        tempHead.put(i, j);
+
+                        surfaceHeadMap.put(value, tempHead);
+                    } else {
+
+                        tempHead = new HashMap<>();
+
+                        tempHead.put(i, j);
+                        surfaceHeadMap.put(null, tempHead);
+                    }
+                }
+            }
+
+            // 这里得到的是类中的所有标注@Excel注解的属性值
+            List<Object[]> fields = this.getFields();
+            Map<Map<Integer, Integer>, Object[]> fieldsMap = new HashMap<>();
+            for (Object[] objects : fields) {
+                Excel attr = (Excel) objects[1];
+                Map<Integer, Integer> map = surfaceHeadMap.get(attr.name());
+                if (map != null)
+                {
+                    fieldsMap.put(map, objects);
+                }
+            }
+
+            // 读取导入表格中的数据
+            for (int i = headRow; i <= rows; i++) {
+                // 从表头终止行开始取数据,默认第一行是表头.
+                Row row = sheet.getRow(i);
+                // 判断当前行是否是空行
+                if (isRowEmpty(row))
+                {
+                    continue;
+                }
+                T entity = null;
+
+                for (Map.Entry<Map<Integer, Integer>, Object[]> mapEntry : fieldsMap.entrySet()) {
+
+                    for (Map.Entry<Integer, Integer> integerIntegerEntry : mapEntry.getKey().entrySet()) {
+
+                        Object val = this.getCellValue(row, integerIntegerEntry.getValue());
+
+                        // 如果不存在实例则新建.
+                        entity = (entity == null ? clazz.newInstance() : entity);
+                        // 从map中得到对应列的field.
+                        Field field = (Field) mapEntry.getValue()[0];
+                        Excel attr = (Excel) mapEntry.getValue()[1];
+                        // 取得类型,并根据对象类型设置值.
+                        Class<?> fieldType = field.getType();
+                        if (String.class == fieldType)
+                        {
+                            String s = Convert.toStr(val);
+                            if (StringUtils.endsWith(s, ".0"))
+                            {
+                                val = StringUtils.substringBefore(s, ".0");
+                            }
+                            else
+                            {
+                                String dateFormat = field.getAnnotation(Excel.class).dateFormat();
+                                if (StringUtils.isNotEmpty(dateFormat))
+                                {
+                                    val = parseDateToStr(dateFormat, val);
+                                }
+                                else
+                                {
+                                    val = Convert.toStr(val);
+                                }
+                            }
+                        }
+                        else if ((Integer.TYPE == fieldType || Integer.class == fieldType) && StringUtils.isNumeric(Convert.toStr(val)))
+                        {
+                            val = Convert.toInt(val);
+                        }
+                        else if ((Long.TYPE == fieldType || Long.class == fieldType) && StringUtils.isNumeric(Convert.toStr(val)))
+                        {
+                            val = Convert.toLong(val);
+                        }
+                        else if (Double.TYPE == fieldType || Double.class == fieldType)
+                        {
+                            val = Convert.toDouble(val);
+                        }
+                        else if (Float.TYPE == fieldType || Float.class == fieldType)
+                        {
+                            val = Convert.toFloat(val);
+                        }
+                        else if (BigDecimal.class == fieldType)
+                        {
+                            val = Convert.toBigDecimal(val);
+                        }
+                        else if (Date.class == fieldType)
+                        {
+                            if (val instanceof String)
+                            {
+                                val = DateUtils.parseDate(val);
+                            }
+                            else if (val instanceof Double)
+                            {
+                                val = DateUtil.getJavaDate((Double) val);
+                            }
+                        }
+                        else if (Boolean.TYPE == fieldType || Boolean.class == fieldType)
+                        {
+                            val = Convert.toBool(val, false);
+                        }
+                        if (StringUtils.isNotNull(fieldType))
+                        {
+                            String propertyName = field.getName();
+                            if (StringUtils.isNotEmpty(attr.targetAttr()))
+                            {
+                                propertyName = field.getName() + "." + attr.targetAttr();
+                            }
+                            else if (StringUtils.isNotEmpty(attr.readConverterExp()))
+                            {
+                                val = reverseByExp(Convert.toStr(val), attr.readConverterExp(), attr.separator());
+                            }
+                            else if (StringUtils.isNotEmpty(attr.dictType()))
+                            {
+                                val = reverseDictByExp(Convert.toStr(val), attr.dictType(), attr.separator());
+                            }
+                            else if (!attr.handler().equals(ExcelHandlerAdapter.class))
+                            {
+                                val = dataFormatHandlerAdapter(val, attr);
+                            }
+                            else if (Excel.ColumnType.IMAGE == attr.cellType() && StringUtils.isNotEmpty(pictures))
+                            {
+                                PictureData image = pictures.get(row.getRowNum() + "_" + integerIntegerEntry.getValue());
+                                if (image == null)
+                                {
+                                    val = "";
+                                }
+                                else
+                                {
+                                    byte[] data = image.getData();
+                                    val = FileUtils.writeImportBytes(data);
+                                }
+                            }
+                            ReflectUtils.invokeSetter(entity, propertyName, val);
+                        }
+                    }
+                }
+
+                list.add(entity);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 判断当前单元格是否进行过合并
+     * @param sheet sheet名称
+     * @param row 当前行下标
+     * @param column 当前列下标
+     * @return
+     */
+    private Boolean isMergedRegion(Sheet sheet,int row ,int column) {
+
+        int sheetMergeCount = sheet.getNumMergedRegions();
+
+        for (int i = 0; i < sheetMergeCount; i++) {
+
+            CellRangeAddress range = sheet.getMergedRegion(i);
+            int firstColumn = range.getFirstColumn();
+            int lastColumn = range.getLastColumn();
+            int firstRow = range.getFirstRow();
+            int lastRow = range.getLastRow();
+            if (row > firstRow && row < lastRow) {
+
+                if(column > firstColumn && column < lastColumn){
+                    return true;
+                }
+            }
+
+        }
+        return false;
     }
 
     /**
