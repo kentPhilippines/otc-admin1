@@ -971,7 +971,7 @@ public class ExcelUtil<T>
             // 对于任何以表达式触发字符 =-+@开头的单元格，直接使用tab字符作为前缀，防止CSV注入。
             if (StringUtils.startsWithAny(cellValue, FORMULA_STR))
             {
-                cellValue = RegExUtils.replaceFirst(cellValue, FORMULA_REGEX_STR, "\t$0");
+                cellValue = "\t" + cellValue;
             }
             if (value instanceof Collection && StringUtils.equals("[]", cellValue))
             {
