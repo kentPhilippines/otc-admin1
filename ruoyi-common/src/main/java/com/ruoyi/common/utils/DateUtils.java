@@ -1,37 +1,39 @@
 package com.ruoyi.common.utils;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import java.lang.management.ManagementFactory;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import org.apache.commons.lang3.time.DateFormatUtils;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 时间工具类
  * 
  * @author ruoyi
  */
-public class DateUtils extends org.apache.commons.lang3.time.DateUtils
+public final class DateUtils extends org.apache.commons.lang3.time.DateUtils
 {
-    public static String YYYY = "yyyy";
 
-    public static String YYYY_MM = "yyyy-MM";
+    public static final String YYYY_MM_DD = "yyyy-MM-dd";
 
-    public static String YYYY_MM_DD = "yyyy-MM-dd";
+    public static final String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
 
-    public static String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
-
-    public static String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+    public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
     private static String[] parsePatterns = {
             "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm", "yyyy-MM", 
             "yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM",
             "yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM"};
+
+    /**
+     * 线程安全的 Map，用于缓存不同格式的 DateTimeFormatter 实例
+     * 建议构建时间日期格式类工具时使用
+     */
+    private static final ConcurrentHashMap<String, DateTimeFormatter> datetimeFormatterMap = new ConcurrentHashMap<>();
 
     /**
      * 获取当前Date型日期
@@ -53,32 +55,64 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
         return dateTimeNow(YYYY_MM_DD);
     }
 
-    public static final String getTime()
+    public static  String getTime()
     {
         return dateTimeNow(YYYY_MM_DD_HH_MM_SS);
     }
 
-    public static final String dateTimeNow()
+    public static  String dateTimeNow()
     {
         return dateTimeNow(YYYYMMDDHHMMSS);
     }
 
-    public static final String dateTimeNow(final String format)
+    public static  String dateTimeNow(final String format)
     {
         return parseDateToStr(format, new Date());
     }
 
-    public static final String dateTime(final Date date)
+    public static  String dateTime(final Date date)
     {
         return parseDateToStr(YYYY_MM_DD, date);
     }
-
-    public static final String parseDateToStr(final String format, final Date date)
-    {
-        return new SimpleDateFormat(format).format(date);
+    /**
+     * 将 java.util.Date 对象格式化为指定格式的字符串。
+     *
+     * @param format 日期时间格式字符串
+     * @param date 要格式化的 java.util.Date 对象
+     * @return 格式化后的日期时间字符串
+     */
+    public static String parseDateToStr(final String format, final Date date){
+        return toLocalDateTime(date).format(getDateTimeFormatter(format));
     }
 
-    public static final Date dateTime(final String format, final String ts)
+    /**
+     * 将 java.util.Date 对象转换为 java.time.LocalDateTime 对象。
+     *
+     * @param date 要转换的 java.util.Date 对象
+     * @return 转换后的 java.time.LocalDateTime 对象
+     */
+    public static LocalDateTime toLocalDateTime(Date date) {
+        // 将 java.util.Date 对象转换为 java.time.Instant 对象
+        return date.toInstant()
+                // 将 Instant 对象转化为带有时区信息的 ZonedDateTime 对象，时区使用系统默认时区
+                .atZone(ZoneId.systemDefault())
+                // 将 ZonedDateTime 对象转换为 LocalDateTime 对象
+                .toLocalDateTime();
+    }
+
+    /**
+     * 获取指定格式的 DateTimeFormatter 实例。
+     * 如果指定格式的 DateTimeFormatter 不存在，则创建并缓存它。
+     *
+     * @param format 日期时间格式字符串
+     * @return 指定格式的 DateTimeFormatter 实例
+     */
+    public static DateTimeFormatter getDateTimeFormatter(String format){
+        return datetimeFormatterMap.computeIfAbsent(format, DateTimeFormatter::ofPattern);
+    }
+
+
+    public static  Date dateTime(final String format, final String ts)
     {
         try
         {
@@ -93,7 +127,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     /**
      * 日期路径 即年/月/日 如2018/08/08
      */
-    public static final String datePath()
+    public static  String datePath()
     {
         Date now = new Date();
         return DateFormatUtils.format(now, "yyyy/MM/dd");
@@ -102,7 +136,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     /**
      * 日期路径 即年/月/日 如20180808
      */
-    public static final String dateTime()
+    public static  String dateTime()
     {
         Date now = new Date();
         return DateFormatUtils.format(now, "yyyyMMdd");
