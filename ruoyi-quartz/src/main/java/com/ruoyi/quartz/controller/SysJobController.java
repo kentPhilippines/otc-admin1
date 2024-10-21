@@ -4,6 +4,7 @@ import java.util.List;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +38,9 @@ import com.ruoyi.quartz.util.ScheduleUtils;
 public class SysJobController extends BaseController
 {
     private String prefix = "monitor/job";
+    
+    @Value("${job.whiteList:}")
+    private List<String> whiteList;
 
     @Autowired
     private ISysJobService jobService;
@@ -153,7 +157,7 @@ public class SysJobController extends BaseController
         {
             return error("新增任务'" + job.getJobName() + "'失败，目标字符串存在违规");
         }
-        else if (!ScheduleUtils.whiteList(job.getInvokeTarget()))
+        else if (!ScheduleUtils.whiteList(job.getInvokeTarget(), whiteList.toArray(new String[whiteList.size()])))
         {
             return error("新增任务'" + job.getJobName() + "'失败，目标字符串不在白名单内");
         }
@@ -201,7 +205,7 @@ public class SysJobController extends BaseController
         {
             return error("修改任务'" + job.getJobName() + "'失败，目标字符串存在违规");
         }
-        else if (!ScheduleUtils.whiteList(job.getInvokeTarget()))
+        else if (!ScheduleUtils.whiteList(job.getInvokeTarget(), whiteList.toArray(new String[whiteList.size()])))
         {
             return error("修改任务'" + job.getJobName() + "'失败，目标字符串不在白名单内");
         }
