@@ -105,7 +105,8 @@ public class DataScopeAspect
             {
                 continue;
             }
-            if (!StringUtils.containsAny(role.getPermissions(), Convert.toStrArray(permission)))
+            if (StringUtils.isNotEmpty(permission) && StringUtils.isNotEmpty(role.getPermissions()) 
+            		&& !StringUtils.containsAny(role.getPermissions(), Convert.toStrArray(permission)))
             {
                 continue;
             }
