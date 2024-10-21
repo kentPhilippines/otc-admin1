@@ -1,13 +1,10 @@
 package com.ruoyi.framework.shiro.web.filter.online;
 
-import java.io.IOException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.AccessControlFilter;
-import org.apache.shiro.web.util.WebUtils;
-import org.springframework.beans.factory.annotation.Value;
 import com.ruoyi.common.constant.ShiroConstants;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.OnlineStatus;
@@ -22,11 +19,6 @@ import com.ruoyi.framework.shiro.session.OnlineSessionDAO;
  */
 public class OnlineSessionFilter extends AccessControlFilter
 {
-    /**
-     * 强制退出后重定向的地址
-     */
-    @Value("${shiro.user.loginUrl}")
-    private String loginUrl;
 
     private OnlineSessionDAO onlineSessionDAO;
 
@@ -83,13 +75,6 @@ public class OnlineSessionFilter extends AccessControlFilter
         }
         saveRequestAndRedirectToLogin(request, response);
         return false;
-    }
-
-    // 跳转到登录页
-    @Override
-    protected void redirectToLogin(ServletRequest request, ServletResponse response) throws IOException
-    {
-        WebUtils.issueRedirect(request, response, loginUrl);
     }
 
     public void setOnlineSessionDAO(OnlineSessionDAO onlineSessionDAO)
