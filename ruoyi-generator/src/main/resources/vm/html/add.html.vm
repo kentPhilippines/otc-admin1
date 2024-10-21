@@ -62,6 +62,13 @@
                     </div>
                 </div>
             </div>
+#elseif($column.htmlType == "number")
+            <div class="form-group">
+                <label class="col-sm-3 control-label#if($column.required) is-required#end">${comment}：</label>
+                <div class="col-sm-8">
+                    <input name="${field}" class="form-control" type="number"#if($column.required) required#end>
+                </div>
+            </div>
 #elseif($column.htmlType == "upload")
             <div class="${colXsNum}">
                 <div class="form-group">
