@@ -25,4 +25,10 @@ public @interface DataSource
      * 切换数据源名称
      */
     public DataSourceType value() default DataSourceType.MASTER;
+
+    /**
+     * 支持通过el表达式从参数获取切换名称
+     * example: elValue="#field" (从参数获取) 或 "#pojo.field" (从对象获取)
+     */
+    String elValue() default "";
 }

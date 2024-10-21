@@ -1,6 +1,10 @@
 package com.ruoyi.framework.aspectj;
 
 import java.util.Objects;
+
+import com.ruoyi.common.enums.DataSourceType;
+import com.ruoyi.common.utils.el.ExpressionEvaluator;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -8,8 +12,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.stereotype.Component;
 import com.ruoyi.common.annotation.DataSource;
 import com.ruoyi.common.config.datasource.DynamicDataSourceContextHolder;
@@ -27,11 +33,25 @@ public class DataSourceAspect
 {
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
+    private ExpressionEvaluator<String> evaluator = new ExpressionEvaluator<>();
+
     @Pointcut("@annotation(com.ruoyi.common.annotation.DataSource)"
             + "|| @within(com.ruoyi.common.annotation.DataSource)")
     public void dsPointCut()
     {
 
+    }
+
+    private String getValueByEl(DataSource dataSource, JoinPoint joinPoint)
+    {
+        if (Objects.equals(dataSource.elValue(), ""))
+        {
+            return null;
+        }
+
+        EvaluationContext evaluationContext = evaluator.createEvaluationContext(joinPoint.getTarget(), joinPoint.getTarget().getClass(), ((MethodSignature) joinPoint.getSignature()).getMethod(), joinPoint.getArgs());
+        AnnotatedElementKey methodKey = new AnnotatedElementKey(((MethodSignature) joinPoint.getSignature()).getMethod(), joinPoint.getTarget().getClass());
+        return evaluator.condition(dataSource.elValue(), methodKey, evaluationContext, String.class);
     }
 
     @Around("dsPointCut()")
@@ -41,7 +61,9 @@ public class DataSourceAspect
 
         if (StringUtils.isNotNull(dataSource))
         {
-            DynamicDataSourceContextHolder.setDataSourceType(dataSource.value().name());
+            String elValue = getValueByEl(dataSource, point);
+            String value = DataSourceType.contains(elValue) ? elValue : dataSource.value().name();
+            DynamicDataSourceContextHolder.setDataSourceType(value);
         }
 
         try
