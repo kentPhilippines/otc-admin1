@@ -203,6 +203,7 @@
         <module>ruoyi-quartz</module>
         <module>ruoyi-generator</module>
         <module>ruoyi-common</module>
+        <module>otc-medical-api</module>
     </modules>
     <packaging>pom</packaging>
 

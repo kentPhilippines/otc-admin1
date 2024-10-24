@@ -19,14 +19,6 @@
                                 <input type="text" name="realName"/>
                             </li>
                             <li>
-                                <label>USDT余额：</label>
-                                <input type="text" name="usdtBalance"/>
-                            </li>
-                            <li>
-                                <label>信用积分：</label>
-                                <input type="text" name="creditScore"/>
-                            </li>
-                            <li>
                                 <label>上级ID：</label>
                                 <input type="text" name="parentId"/>
                             </li>
@@ -185,14 +177,6 @@
                     formatter: function(value, row, index) {
                        return $.table.selectDictLabel(userStatusDatas, value);
                     }
-                },
-                {
-                    field: 'password',
-                    title: '登陆密码'
-                },
-                {
-                    field: 'fundPassword',
-                    title: '资金密码'
                 },
                 {
                     title: '操作',
