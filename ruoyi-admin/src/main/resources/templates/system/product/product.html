@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('产品列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>产品代码：</label>
+                            <input type="text" name="code"/>
+                        </li>
+                        <li>
+                            <label>产品名称：</label>
+                            <input type="text" name="title"/>
+                        </li>
+
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:product:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+         <!--   <a class="btn btn-primary single disabled" onclick="$.operate.edit()"
+               shiro:hasPermission="system:product:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
+               shiro:hasPermission="system:product:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:product:export">
+                <i class="fa fa-download"></i> 导出
+            </a>-->
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('system:product:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('system:product:remove')}]];
+    var controlStatusDatas = [[${@dict.getType('control_status')}]];
+    var product_status = [[${@dict.getType('product_status')}]];
+    var is_open = [[${@dict.getType('is_open')}]];
+
+    var prefix = ctx + "system/product";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "产品",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'id',
+                    title: 'id',
+                },
+                {
+                    field: 'code',
+                    title: '产品代码'
+                },
+                {
+                    field: 'title',
+                    title: '产品名称'
+                },
+                {
+                    field: 'img',
+                    title: '产品图标',
+                    formatter: function (value, row, index) {
+                        if (null != value && "" != value) {
+                            return '  <img class="image"      onclick="operateEvents(\'' + value + '\')"   src= "' + value + '" style="width: 100px; height: 100px;"> '
+                        }
+                    }
+                },
+                {
+                    field: 'type',
+                    title: '产品分类',
+                    formatter: function (value, row, index) {
+                        if ("virtual currency" == value) {
+                            return '虚拟币'
+                        } else {
+                            return '外汇'
+                        }
+                    }
+
+                },
+                {
+                    field: 'isOpen',
+                    title: '是否开启',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(is_open, value);
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '状态',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(product_status, value);
+                    }
+                },
+                {
+                    field: 'updateTime',
+                    title: '更新时间'
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    function operateEvents(row) {
+        var url = row;
+        layer.open({
+            tyep: 1,
+            title: false,
+            closeBtn: 0,
+            area: ['50%', '80%'],
+            skin: 'layui-layer-nobg',
+            shadeClose: true,
+            content: ' <img  style="width: 100%; height: 100%;" class="image" src= "' + url + '"/> '
+        })
+    }
+
+</script>
+</body>
+</html>

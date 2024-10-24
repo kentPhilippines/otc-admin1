@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改用户详情')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-user-edit" th:object="${medUser}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">会员头像：</label>
+                    <div class="col-sm-8">
+                        <input name="avatar" th:field="*{avatar}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">账户：</label>
+                    <div class="col-sm-8">
+                        <input name="account" th:field="*{account}" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">真实姓名：</label>
+                    <div class="col-sm-8">
+                        <input name="realName" th:field="*{realName}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">余额：</label>
+                    <div class="col-sm-8">
+                        <input name="balance" th:field="*{balance}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">USDT余额：</label>
+                    <div class="col-sm-8">
+                        <input name="usdtBalance" th:field="*{usdtBalance}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">信用积分：</label>
+                    <div class="col-sm-8">
+                        <input name="creditScore" th:field="*{creditScore}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">上级ID：</label>
+                    <div class="col-sm-8">
+                        <input name="parentId" th:field="*{parentId}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">是否在线 0: 否, 1: 是：</label>
+                    <div class="col-sm-8">
+                        <input name="isOnline" th:field="*{isOnline}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">备注：</label>
+                    <div class="col-sm-8">
+                        <textarea name="remarks" class="form-control">[[*{remarks}]]</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">注册时间：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group date">
+                            <input name="registrationTime" th:value="${#dates.format(medUser.registrationTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">最后登陆时间：</label>
+                    <div class="col-sm-8">
+                        <div class="input-group date">
+                            <input name="lastLoginTime" th:value="${#dates.format(medUser.lastLoginTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">登录IP：</label>
+                    <div class="col-sm-8">
+                        <input name="loginIp" th:field="*{loginIp}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">银行账户：</label>
+                    <div class="col-sm-8">
+                        <input name="bankAccount" th:field="*{bankAccount}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">银行名：</label>
+                    <div class="col-sm-8">
+                        <input name="bankName" th:field="*{bankName}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">银行地址：</label>
+                    <div class="col-sm-8">
+                        <input name="bankAddress" th:field="*{bankAddress}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">会员风控 0: 正常, 1: 风控中：</label>
+                    <div class="col-sm-8">
+                        <div class="radio-box" th:each="dict : ${@dict.getType('risk_control_status')}">
+                            <input type="radio" th:id="${'riskControlStatus_' + dict.dictCode}" name="riskControlStatus" th:value="${dict.dictValue}" th:field="*{riskControlStatus}">
+                            <label th:for="${'riskControlStatus_' + dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">用户状态 1: 正常, 0: 禁用：</label>
+                    <div class="col-sm-8">
+                        <div class="radio-box" th:each="dict : ${@dict.getType('user_status')}">
+                            <input type="radio" th:id="${'userStatus_' + dict.dictCode}" name="userStatus" th:value="${dict.dictValue}" th:field="*{userStatus}">
+                            <label th:for="${'userStatus_' + dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label is-required">登陆密码：</label>
+                    <div class="col-sm-8">
+                        <input name="password" th:field="*{password}" class="form-control" type="text" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">资金密码：</label>
+                    <div class="col-sm-8">
+                        <input name="fundPassword" th:field="*{fundPassword}" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "system/user";
+        $("#form-user-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-user-edit').serialize());
+            }
+        }
+
+        $("input[name='registrationTime']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+        $("input[name='lastLoginTime']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

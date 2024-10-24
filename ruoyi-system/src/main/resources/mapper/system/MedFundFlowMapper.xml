@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.MedFundFlowMapper">
+    
+    <resultMap type="MedFundFlow" id="MedFundFlowResult">
+        <result property="id"    column="id"    />
+        <result property="nickname"    column="nickname"    />
+        <result property="type"    column="type"    />
+        <result property="changeAmount"    column="change_amount"    />
+        <result property="changeContent"    column="change_content"    />
+        <result property="balanceBefore"    column="balance_before"    />
+        <result property="balanceAfter"    column="balance_after"    />
+        <result property="createdAt"    column="created_at"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+
+    </resultMap>
+
+    <sql id="selectMedFundFlowVo">
+        select id, nickname, type, change_amount, change_content, balance_before, balance_after, created_at,create_time ,update_time from med_fund_flow
+    </sql>
+
+    <select id="selectMedFundFlowList" parameterType="MedFundFlow" resultMap="MedFundFlowResult">
+        <include refid="selectMedFundFlowVo"/>
+        <where>  
+            <if test="nickname != null  and nickname != ''"> and nickname like concat('%', #{nickname}, '%')</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="changeAmount != null "> and change_amount = #{changeAmount}</if>
+            <if test="changeContent != null  and changeContent != ''"> and change_content = #{changeContent}</if>
+            <if test="balanceBefore != null "> and balance_before = #{balanceBefore}</if>
+            <if test="balanceAfter != null "> and balance_after = #{balanceAfter}</if>
+            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+        </where>
+    </select>
+    
+    <select id="selectMedFundFlowById" parameterType="Long" resultMap="MedFundFlowResult">
+        <include refid="selectMedFundFlowVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertMedFundFlow" parameterType="MedFundFlow" useGeneratedKeys="true" keyProperty="id">
+        insert into med_fund_flow
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="nickname != null and nickname != ''">nickname,</if>
+            <if test="type != null and type != ''">type,</if>
+            <if test="changeAmount != null">change_amount,</if>
+            <if test="changeContent != null">change_content,</if>
+            <if test="balanceBefore != null">balance_before,</if>
+            <if test="balanceAfter != null">balance_after,</if>
+            <if test="createdAt != null">created_at,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="nickname != null and nickname != ''">#{nickname},</if>
+            <if test="type != null and type != ''">#{type},</if>
+            <if test="changeAmount != null">#{changeAmount},</if>
+            <if test="changeContent != null">#{changeContent},</if>
+            <if test="balanceBefore != null">#{balanceBefore},</if>
+            <if test="balanceAfter != null">#{balanceAfter},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMedFundFlow" parameterType="MedFundFlow">
+        update med_fund_flow
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="nickname != null and nickname != ''">nickname = #{nickname},</if>
+            <if test="type != null and type != ''">type = #{type},</if>
+            <if test="changeAmount != null">change_amount = #{changeAmount},</if>
+            <if test="changeContent != null">change_content = #{changeContent},</if>
+            <if test="balanceBefore != null">balance_before = #{balanceBefore},</if>
+            <if test="balanceAfter != null">balance_after = #{balanceAfter},</if>
+            <if test="createdAt != null">created_at = #{createdAt},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMedFundFlowById" parameterType="Long">
+        delete from med_fund_flow where id = #{id}
+    </delete>
+
+    <delete id="deleteMedFundFlowByIds" parameterType="String">
+        delete from med_fund_flow where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

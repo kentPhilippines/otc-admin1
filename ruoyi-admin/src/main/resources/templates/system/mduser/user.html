@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('用户详情列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>账户：</label>
+                                <input type="text" name="account"/>
+                            </li>
+                            <li>
+                                <label>真实姓名：</label>
+                                <input type="text" name="realName"/>
+                            </li>
+                            <li>
+                                <label>USDT余额：</label>
+                                <input type="text" name="usdtBalance"/>
+                            </li>
+                            <li>
+                                <label>信用积分：</label>
+                                <input type="text" name="creditScore"/>
+                            </li>
+                            <li>
+                                <label>上级ID：</label>
+                                <input type="text" name="parentId"/>
+                            </li>
+                            <li>
+                                <label>是否在线：</label>
+                                <input type="text" name="isOnline"/>
+                            </li>
+                            <li>
+                                <label>登录IP：</label>
+                                <input type="text" name="loginIp"/>
+                            </li>
+                            <li>
+                                <label>银行地址：</label>
+                                <input type="text" name="bankAddress"/>
+                            </li>
+                            <li>
+                                <label>会员风控</label>
+                                <select name="riskControlStatus" th:with="type=${@dict.getType('risk_control_status')}">
+                                    <option value="">所有</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <label>用户状态:</label>
+                                <select name="userStatus" th:with="type=${@dict.getType('user_status')}">
+                                    <option value="">所有</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="system:user:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="system:user:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+               <!-- <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:user:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>-->
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:user:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('system:user:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('system:user:remove')}]];
+        var isOnlineDatas = [[${@dict.getType('is_online')}]];
+        var riskControlStatusDatas = [[${@dict.getType('risk_control_status')}]];
+        var userStatusDatas = [[${@dict.getType('user_status')}]];
+        var prefix = ctx + "system/mduser";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "用户详情",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: '用户ID',
+                    visible: false
+                },
+                {
+                    field: 'avatar',
+                    title: '会员头像'
+                },
+                {
+                    field: 'account',
+                    title: '账户'
+                },
+                {
+                    field: 'realName',
+                    title: '真实姓名'
+                },
+                {
+                    field: 'balance',
+                    title: '余额'
+                },
+                {
+                    field: 'usdtBalance',
+                    title: 'USDT余额'
+                },
+                {
+                    field: 'creditScore',
+                    title: '信用积分'
+                },
+                {
+                    field: 'parentId',
+                    title: '上级ID'
+                },
+                {
+                    field: 'isOnline',
+                    title: '是否在线',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(isOnlineDatas, value);
+                    }
+                },
+                {
+                    field: 'remarks',
+                    title: '备注'
+                },
+                {
+                    field: 'registrationTime',
+                    title: '注册时间'
+                },
+                {
+                    field: 'lastLoginTime',
+                    title: '最后登陆时间'
+                },
+                {
+                    field: 'loginIp',
+                    title: '登录IP'
+                },
+                {
+                    field: 'bankAccount',
+                    title: '银行账户'
+                },
+                {
+                    field: 'bankName',
+                    title: '银行名'
+                },
+                {
+                    field: 'bankAddress',
+                    title: '银行地址'
+                },
+                {
+                    field: 'riskControlStatus',
+                    title: '会员风控',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(riskControlStatusDatas, value);
+                    }
+                },
+                {
+                    field: 'userStatus',
+                    title: '用户状态',
+                    formatter: function(value, row, index) {
+                       return $.table.selectDictLabel(userStatusDatas, value);
+                    }
+                },
+                {
+                    field: 'password',
+                    title: '登陆密码'
+                },
+                {
+                    field: 'fundPassword',
+                    title: '资金密码'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

@@ -6,9 +6,9 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: jdbc:mysql://localhost:3306/ry?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
-                username: root
-                password: password
+                url: jdbc:mysql://rm-3nsaxs0kq75fk89n5ko.mysql.rds.aliyuncs.com:3306/otc-medical-admin?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                username: seo_spider_data
+                password: rDeHT0MOUigKAMNJtkn3
             # 从库数据源
             slave:
                 # 从数据源开关/默认关闭

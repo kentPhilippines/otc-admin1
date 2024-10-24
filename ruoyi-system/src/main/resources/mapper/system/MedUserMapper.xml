@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.MedUserMapper">
+    
+    <resultMap type="MedUser" id="MedUserResult">
+        <result property="id"    column="id"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="account"    column="account"    />
+        <result property="realName"    column="real_name"    />
+        <result property="balance"    column="balance"    />
+        <result property="usdtBalance"    column="usdt_balance"    />
+        <result property="creditScore"    column="credit_score"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="isOnline"    column="is_online"    />
+        <result property="remarks"    column="remarks"    />
+        <result property="registrationTime"    column="registration_time"    />
+        <result property="lastLoginTime"    column="last_login_time"    />
+        <result property="loginIp"    column="login_ip"    />
+        <result property="bankAccount"    column="bank_account"    />
+        <result property="bankName"    column="bank_name"    />
+        <result property="bankAddress"    column="bank_address"    />
+        <result property="riskControlStatus"    column="risk_control_status"    />
+        <result property="userStatus"    column="user_status"    />
+        <result property="password"    column="password"    />
+        <result property="fundPassword"    column="fund_password"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+
+    </resultMap>
+
+    <sql id="selectMedUserVo">
+        select id, avatar, account, real_name, balance, usdt_balance, credit_score, parent_id, is_online, remarks, registration_time, last_login_time, login_ip, bank_account, bank_name, bank_address, risk_control_status, user_status, password, fund_password ,create_time ,update_time from med_user
+    </sql>
+
+    <select id="selectMedUserList" parameterType="MedUser" resultMap="MedUserResult">
+        <include refid="selectMedUserVo"/>
+        <where>  
+            <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+            <if test="account != null  and account != ''"> and account = #{account}</if>
+            <if test="realName != null  and realName != ''"> and real_name like concat('%', #{realName}, '%')</if>
+            <if test="balance != null "> and balance = #{balance}</if>
+            <if test="usdtBalance != null "> and usdt_balance = #{usdtBalance}</if>
+            <if test="creditScore != null "> and credit_score = #{creditScore}</if>
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+            <if test="isOnline != null "> and is_online = #{isOnline}</if>
+            <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+            <if test="registrationTime != null "> and registration_time = #{registrationTime}</if>
+            <if test="lastLoginTime != null "> and last_login_time = #{lastLoginTime}</if>
+            <if test="loginIp != null  and loginIp != ''"> and login_ip = #{loginIp}</if>
+            <if test="bankAccount != null  and bankAccount != ''"> and bank_account = #{bankAccount}</if>
+            <if test="bankName != null  and bankName != ''"> and bank_name like concat('%', #{bankName}, '%')</if>
+            <if test="bankAddress != null  and bankAddress != ''"> and bank_address = #{bankAddress}</if>
+            <if test="riskControlStatus != null "> and risk_control_status = #{riskControlStatus}</if>
+            <if test="userStatus != null "> and user_status = #{userStatus}</if>
+            <if test="password != null  and password != ''"> and password = #{password}</if>
+            <if test="fundPassword != null  and fundPassword != ''"> and fund_password = #{fundPassword}</if>
+        </where>
+    </select>
+    
+    <select id="selectMedUserById" parameterType="Long" resultMap="MedUserResult">
+        <include refid="selectMedUserVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertMedUser" parameterType="MedUser" useGeneratedKeys="true" keyProperty="id">
+        insert into med_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="avatar != null">avatar,</if>
+            <if test="account != null and account != ''">account,</if>
+            <if test="realName != null">real_name,</if>
+            <if test="balance != null">balance,</if>
+            <if test="usdtBalance != null">usdt_balance,</if>
+            <if test="creditScore != null">credit_score,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="isOnline != null">is_online,</if>
+            <if test="remarks != null">remarks,</if>
+            <if test="registrationTime != null">registration_time,</if>
+            <if test="lastLoginTime != null">last_login_time,</if>
+            <if test="loginIp != null">login_ip,</if>
+            <if test="bankAccount != null">bank_account,</if>
+            <if test="bankName != null">bank_name,</if>
+            <if test="bankAddress != null">bank_address,</if>
+            <if test="riskControlStatus != null">risk_control_status,</if>
+            <if test="userStatus != null">user_status,</if>
+            <if test="password != null and password != ''">password,</if>
+            <if test="fundPassword != null">fund_password,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="avatar != null">#{avatar},</if>
+            <if test="account != null and account != ''">#{account},</if>
+            <if test="realName != null">#{realName},</if>
+            <if test="balance != null">#{balance},</if>
+            <if test="usdtBalance != null">#{usdtBalance},</if>
+            <if test="creditScore != null">#{creditScore},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="isOnline != null">#{isOnline},</if>
+            <if test="remarks != null">#{remarks},</if>
+            <if test="registrationTime != null">#{registrationTime},</if>
+            <if test="lastLoginTime != null">#{lastLoginTime},</if>
+            <if test="loginIp != null">#{loginIp},</if>
+            <if test="bankAccount != null">#{bankAccount},</if>
+            <if test="bankName != null">#{bankName},</if>
+            <if test="bankAddress != null">#{bankAddress},</if>
+            <if test="riskControlStatus != null">#{riskControlStatus},</if>
+            <if test="userStatus != null">#{userStatus},</if>
+            <if test="password != null and password != ''">#{password},</if>
+            <if test="fundPassword != null">#{fundPassword},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMedUser" parameterType="MedUser">
+        update med_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="account != null and account != ''">account = #{account},</if>
+            <if test="realName != null">real_name = #{realName},</if>
+            <if test="balance != null">balance = #{balance},</if>
+            <if test="usdtBalance != null">usdt_balance = #{usdtBalance},</if>
+            <if test="creditScore != null">credit_score = #{creditScore},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="isOnline != null">is_online = #{isOnline},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="registrationTime != null">registration_time = #{registrationTime},</if>
+            <if test="lastLoginTime != null">last_login_time = #{lastLoginTime},</if>
+            <if test="loginIp != null">login_ip = #{loginIp},</if>
+            <if test="bankAccount != null">bank_account = #{bankAccount},</if>
+            <if test="bankName != null">bank_name = #{bankName},</if>
+            <if test="bankAddress != null">bank_address = #{bankAddress},</if>
+            <if test="riskControlStatus != null">risk_control_status = #{riskControlStatus},</if>
+            <if test="userStatus != null">user_status = #{userStatus},</if>
+            <if test="password != null and password != ''">password = #{password},</if>
+            <if test="fundPassword != null">fund_password = #{fundPassword},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMedUserById" parameterType="Long">
+        delete from med_user where id = #{id}
+    </delete>
+
+    <delete id="deleteMedUserByIds" parameterType="String">
+        delete from med_user where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

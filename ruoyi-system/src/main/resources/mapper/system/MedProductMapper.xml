@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.MedProductMapper">
+    
+    <resultMap type="MedProduct" id="MedProductResult">
+        <result property="id"    column="id"    />
+        <result property="code"    column="code"    />
+        <result property="title"    column="title"    />
+        <result property="img"    column="img"    />
+        <result property="type"    column="type"    />
+        <result property="gamesType"    column="games_type"    />
+        <result property="controlStatus"    column="control_status"    />
+        <result property="controlRules"    column="control_rules"    />
+        <result property="remark"    column="remark"    />
+        <result property="dealType"    column="deal_type"    />
+        <result property="isOpen"    column="is_open"    />
+        <result property="status"    column="status"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+
+    </resultMap>
+
+    <sql id="selectMedProductVo">
+        select id, code, title, img, type, games_type, control_status, control_rules, remark, deal_type, is_open, status,create_time ,update_time from med_product
+    </sql>
+
+    <select id="selectMedProductList" parameterType="MedProduct" resultMap="MedProductResult">
+        <include refid="selectMedProductVo"/>
+        <where>  
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="img != null  and img != ''"> and img = #{img}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="gamesType != null  and gamesType != ''"> and games_type = #{gamesType}</if>
+            <if test="controlStatus != null "> and control_status = #{controlStatus}</if>
+            <if test="controlRules != null  and controlRules != ''"> and control_rules = #{controlRules}</if>
+            <if test="dealType != null  and dealType != ''"> and deal_type = #{dealType}</if>
+            <if test="isOpen != null "> and is_open = #{isOpen}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectMedProductById" parameterType="Long" resultMap="MedProductResult">
+        <include refid="selectMedProductVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertMedProduct" parameterType="MedProduct" useGeneratedKeys="true" keyProperty="id">
+        insert into med_product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="code != null and code != ''">code,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="img != null and img != ''">img,</if>
+            <if test="type != null and type != ''">type,</if>
+            <if test="gamesType != null">games_type,</if>
+            <if test="controlStatus != null">control_status,</if>
+            <if test="controlRules != null">control_rules,</if>
+            <if test="remark != null">remark,</if>
+            <if test="dealType != null">deal_type,</if>
+            <if test="isOpen != null">is_open,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="code != null and code != ''">#{code},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="img != null and img != ''">#{img},</if>
+            <if test="type != null and type != ''">#{type},</if>
+            <if test="gamesType != null">#{gamesType},</if>
+            <if test="controlStatus != null">#{controlStatus},</if>
+            <if test="controlRules != null">#{controlRules},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="dealType != null">#{dealType},</if>
+            <if test="isOpen != null">#{isOpen},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMedProduct" parameterType="MedProduct">
+        update med_product
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="code != null and code != ''">code = #{code},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="img != null and img != ''">img = #{img},</if>
+            <if test="type != null and type != ''">type = #{type},</if>
+            <if test="gamesType != null">games_type = #{gamesType},</if>
+            <if test="controlStatus != null">control_status = #{controlStatus},</if>
+            <if test="controlRules != null">control_rules = #{controlRules},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="dealType != null">deal_type = #{dealType},</if>
+            <if test="isOpen != null">is_open = #{isOpen},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMedProductById" parameterType="Long">
+        delete from med_product where id = #{id}
+    </delete>
+
+    <delete id="deleteMedProductByIds" parameterType="String">
+        delete from med_product where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

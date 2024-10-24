@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.MedRealNameVerificationMapper">
+    
+    <resultMap type="MedRealNameVerification" id="MedRealNameVerificationResult">
+        <result property="id"    column="id"    />
+        <result property="memberId"    column="member_id"    />
+        <result property="name"    column="name"    />
+        <result property="idCardNumber"    column="id_card_number"    />
+        <result property="idCardFront"    column="id_card_front"    />
+        <result property="idCardBack"    column="id_card_back"    />
+        <result property="verificationTime"    column="verification_time"    />
+        <result property="status"    column="status"    />
+        <result property="reviewerAccount"    column="reviewer_account"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+
+    </resultMap>
+
+    <sql id="selectMedRealNameVerificationVo">
+        select id, member_id, name, id_card_number, id_card_front, id_card_back, verification_time, status, reviewer_account,create_time ,update_time from med_real_name_verification
+    </sql>
+
+    <select id="selectMedRealNameVerificationList" parameterType="MedRealNameVerification" resultMap="MedRealNameVerificationResult">
+        <include refid="selectMedRealNameVerificationVo"/>
+        <where>  
+            <if test="memberId != null "> and member_id = #{memberId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="idCardNumber != null  and idCardNumber != ''"> and id_card_number = #{idCardNumber}</if>
+            <if test="idCardFront != null  and idCardFront != ''"> and id_card_front = #{idCardFront}</if>
+            <if test="idCardBack != null  and idCardBack != ''"> and id_card_back = #{idCardBack}</if>
+            <if test="verificationTime != null "> and verification_time = #{verificationTime}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="reviewerAccount != null  and reviewerAccount != ''"> and reviewer_account = #{reviewerAccount}</if>
+        </where>
+    </select>
+    
+    <select id="selectMedRealNameVerificationById" parameterType="Long" resultMap="MedRealNameVerificationResult">
+        <include refid="selectMedRealNameVerificationVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertMedRealNameVerification" parameterType="MedRealNameVerification" useGeneratedKeys="true" keyProperty="id">
+        insert into med_real_name_verification
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">member_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="idCardNumber != null and idCardNumber != ''">id_card_number,</if>
+            <if test="idCardFront != null and idCardFront != ''">id_card_front,</if>
+            <if test="idCardBack != null and idCardBack != ''">id_card_back,</if>
+            <if test="verificationTime != null">verification_time,</if>
+            <if test="status != null">status,</if>
+            <if test="reviewerAccount != null">reviewer_account,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="memberId != null">#{memberId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="idCardNumber != null and idCardNumber != ''">#{idCardNumber},</if>
+            <if test="idCardFront != null and idCardFront != ''">#{idCardFront},</if>
+            <if test="idCardBack != null and idCardBack != ''">#{idCardBack},</if>
+            <if test="verificationTime != null">#{verificationTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="reviewerAccount != null">#{reviewerAccount},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMedRealNameVerification" parameterType="MedRealNameVerification">
+        update med_real_name_verification
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="memberId != null">member_id = #{memberId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="idCardNumber != null and idCardNumber != ''">id_card_number = #{idCardNumber},</if>
+            <if test="idCardFront != null and idCardFront != ''">id_card_front = #{idCardFront},</if>
+            <if test="idCardBack != null and idCardBack != ''">id_card_back = #{idCardBack},</if>
+            <if test="verificationTime != null">verification_time = #{verificationTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="reviewerAccount != null">reviewer_account = #{reviewerAccount},</if>
+            update_time = sysdate()
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMedRealNameVerificationById" parameterType="Long">
+        delete from med_real_name_verification where id = #{id}
+    </delete>
+
+    <delete id="deleteMedRealNameVerificationByIds" parameterType="String">
+        delete from med_real_name_verification where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
